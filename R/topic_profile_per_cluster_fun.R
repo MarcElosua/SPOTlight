@@ -10,31 +10,30 @@
 #'
 
 topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr){
-  
+
   # Check variables
-  if(is(lda_mod)!="LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
-  if(is(se_obj)!="Seurat") {stop("ERROR: se_obj must be a Seurat object!")}
+  if(is(lda_mod)[[1]] != "LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
+  if(is(se_obj) != "Seurat") {stop("ERROR: se_obj must be a Seurat object!")}
   if(!is.character(clust_vr)){stop("ERROR: clust_vr must be a character string!")}
-  if(!is.logical(verbose)){stop("ERROR: verbose must be a logical object!")}
-  
+
   cat("Loading packages...", sep="\n")
   suppressMessages(require(tibble))
   suppressMessages(require(dtplyr))
-  
-  se_obj$seurat_clusters <-  droplevels(se_obj@meta.data[,clust_vr])
+
+  se_obj$seurat_clusters <-  droplevels(factor(factor(se_obj@meta.data[,clust_vr])))
   g_mtrx <- lda_mod@gamma # n of cells X n of topics
   colnames(g_mtrx) <- paste('topic_',1:ncol(g_mtrx),sep='')
   se_meta <- se_obj@meta.data
-  
+
   clust_profiles <- cbind(se_meta,g_mtrx) %>%
     dtplyr::lazy_dt() %>%
     group_by(seurat_clusters) %>%
     select(seurat_clusters, paste('topic_',1:nlevels(se_obj$seurat_clusters),sep='')) %>%
     summarise_all(list(median)) %>%
-    as.data.frame() %>% 
+    as.data.frame() %>%
     column_to_rownames('seurat_clusters')
-  
+
   colnames(clust_profiles) <- 1:ncol(clust_profiles)
-  
+
   return(clust_profiles)
 }
