@@ -1,5 +1,7 @@
 ---
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -25,39 +27,379 @@ The goal of SpatialDeconTest is to ...
 
 ## Installation
 
-You can install the released version of SpatialDeconTest from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("SpatialDeconTest")
-```
-
-And the development version from [GitHub](https://github.com/) with:
+You can install the latest version from the GitHub repository [SpatialDeconTest](https://github.com/MarcElosua/SpatialDeconTest) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MarcElosua/SpatialDeconTest")
+devtools::install_github("https://github.com/MarcElosua/SpatialDeconTest")
 ```
+
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to run the workflow using more specific or more general functions:
+
 
 ```{r example}
 library(SpatialDeconTest)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+```{r}
+tech <- '10x'
+dwn_smplng <- 'none'
+tissue <- 'mixology'
 
-```{r cars}
-summary(cars)
+source('misc/paths_vrs.R')
+# source('utils/bin.r')
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
+## Single Cell Mixology
+In this step by step analysis we will assess how the deconvolution performs on the single cell mixology data generate by Matthew E. Ritchie in his paper [Benchmarking single cell RNA-sequencing analysis pipelines using mixture control experiments](https://www.ncbi.nlm.nih.gov/pubmed/31133762). All data can be accessed in this [sc_mixology github repository](https://github.com/LuyiTian/sc_mixology). It uses 5 different cell types for the scRNAseq: human lung adenocarcinoma cell lines HCC827, H1975, H2228, H838, and A549. To do the mixed spots it only uses the first 3 (HCC827, H1975, H2228) to do 9 cell combinations.
 
-You can also embed plots, for example:
+We are going to use this data since it is put out to carry out benchmarking experiments and is a good controled way of knowing wich combination of 9-cells is in each mixture. 
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+### Loading the data
+```{r}
+# load('data/mixture_data/9cellmix_qc.RData') # This file loads single cell experiment objects
+load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/9cellmix_qc.RData'))
+# sce_9cells_qc;sce_POP_sel_qc;sce_SC1_qc;sce_SC2_qc;sce_SC3_qc;sce_SC4_qc 
+
+# load('data/mixture_data/sincell_with_class_5cl.RData') # This file loads single cell experiment objects
+load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/sincell_with_class_5cl.RData'))
+# sc_Celseq2_5cl_p1;sc_Celseq2_5cl_p2;sc_Celseq2_5cl_p3;sce_sc_10x_5cl_qc
+# All this files are single cell
+
+# load('data/mixture_data/mRNAmix_qc.RData') # This file loads single cell experiment objects
+# sce2_qc;sce8_qc
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+To train the model we will use the 10x data from the file sincell_with_class_5cl.RData. We will first run some QC tests to assess the quality. The first step will be to convert it to a Seurat object.
+```{r}
+se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays$data$counts,
+                                               project = '10x_mixology', 
+                                               assay = 'RNA', 
+                                               meta.data = data.frame(colData(sce_sc_10x_5cl_qc)))
+
+```
+
+ 
+### Downsampling+Train model 
+All the above steps are to show how the workflow works and make it available if one wants to recreate step by step the process and save intermediate steps. All the previous steps can be run with the below function!
+```{r}
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[,se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827","H1975","H2228")]
+
+#### Extract the top marker genes from each cluster ####
+Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
+cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
+
+se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all)
+
+lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all, al = 0.01, verbose = 1, iter = 300, burnin = 100)
+```
+
+
+### Spot Deconvolution
+Create all posible combinations between 3-8 cells per spot.
+We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  
+We now run the test spots through the model to get their topic profiles.
+We parallelize this process to speed it up, make sure we are passing the `r topicmodels` and `r Matrix` package to the foreach loop or it can crash.
+```{r}
+# Select the best model
+if (length(lda_mod_ls)==1) {
+  lda_mod <- lda_mod_ls[[1]]
+  rm(lda_mod_ls)
+} else {
+  #### Check max likelyhood ####
+  ds_loglike <- lapply(lda_mod_ls, function(mod){
+    data.frame(log_like = mod@loglikelihood)
+    }) %>% bind_rows()
+
+  top_mod_index <- which(ds_loglike$log_like <= min(ds_loglike$log_like))
+  lda_mod <- lda_mod_ls[[top_mod_index]]
+  rm(lda_mod_ls)
+}
+
+sce_9cells_qc@assays$data$counts
+library(Matrix)
+
+# spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
+#############################################################################################
+##### Make sure Rownames spot matrix are the same as the ones used to train the model! ######
+#############################################################################################
+SpatialDeconTest::spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
+                                     clust_vr = 'cell_line_demuxlet',  spot_counts=spot_counts, 
+                                     verbose = TRUE, ncores=NULL, parallelize=TRUE, 
+                                     top_dist=1000, top_JSD=15)
+
+```
+
+
+## Step-by-step workflow
+Normalizing and Transform the data, dimensionality reduction and clusters assignment.
+```{r eval = FALSE}
+se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, vars.to.regress = "percent.mt", verbose = T,variable.features.n = 5000)
+se_sc_10x_5cl_qc <- FindVariableFeatures(object = se_sc_10x_5cl_qc, nfeatures = 5000)
+
+se_sc_10x_5cl_qc <- RunPCA(se_sc_10x_5cl_qc, verbose = FALSE)
+se_sc_10x_5cl_qc <- RunUMAP(se_sc_10x_5cl_qc, dims = 1:30, verbose = FALSE)
+
+se_sc_10x_5cl_qc <- FindNeighbors(se_sc_10x_5cl_qc, dims = 1:30, verbose = FALSE)
+se_sc_10x_5cl_qc <- FindClusters(se_sc_10x_5cl_qc, verbose = FALSE)
+```
+
+1st standard viz
+```{r eval = FALSE}
+se_sc_10x_5cl_qc$percent.mt <- 1-se_sc_10x_5cl_qc$non_mt_percent
+
+count_thresh <- log10(750)
+gene_thresh <- 250
+mt_thresh <- 0.30
+vrs_names <- c('nCount_RNA', 'nFeature_RNA', 'percent.mt')
+
+# Running plots
+QC_plots1 <- QC_plots_fun(
+  se_obj = se_sc_10x_5cl_qc,
+  count_thresh = count_thresh,
+  gene_thresh = gene_thresh,
+  mt_thresh = mt_thresh,
+  vrs_names = vrs_names)
+
+QC_plots2 <- QC_UMAP_fun(
+  se_obj = se_sc_10x_5cl_qc,
+  vrs_names = vrs_names
+)
+
+top_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[1]], QC_plots1[[2]], QC_plots1[[3]]), ncol = 3, align = 'hv')
+bot_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[4]], QC_plots2), ncol = 2, align = 'hv')
+QC_plts <- ggpubr::ggarrange(plotlist = list(top_row, bot_row),
+                             nrow = 2, align = 'hv')
+QC_plts
+```
+![QC plots](img/QC_plots_comp.pdf)
+
+From the QC plots we can see that library size, number of detected genes and mitochondrial gene proportion follow a normal distribution with not much skewness. Furthermore the mitochondrial proportion does not show a correlatino with the number of detected genes so we wont regress out the effect ot mitochondrial proportion. No obvious low quality cells remain in this dataset so we won't exclude any further ones.
+
+Looking at the clustering we can clearly see that the cells cluster by cell line.
+```{r eval = FALSE}
+DimPlot(se_sc_10x_5cl_qc, reduction = 'pca', group.by = 'cell_line')
+DimPlot(se_sc_10x_5cl_qc, reduction = 'pca', group.by = 'cell_line_demuxlet')
+
+DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line')
+DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line_demuxlet')
+DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'seurat_clusters', label = T)
+```
+![UMAP demuxlet](img/UMAP_demuxlet.pdf)
+
+If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized. Since it is always better to not over-correct the data we won't regress out the cell cycle.
+```{r eval = FALSE}
+FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C','CCND1'))
+# Cdt1 accumulates in G1 and is degraded in S
+# CDC25A/B/C - DNA markers are good markers to study the G1/S phase.
+# CCND1 (Cyclin D1) is required for G1/S cell cycle transition and can also be used as a G2/M checkpoint marker
+```
+![Feature plot Cell cycle](img/Feat_plot_CC.pdf)
+
+## Downsampling dataset
+If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
+We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
+We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
+
+Select only the 3 cell types used in the mixed spots
+```{r eval = FALSE}
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[,se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827","H1975","H2228")]
+```
+
+```{r eval = FALSE}
+Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
+cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
+# saveRDS(object = cluster_markers_all,file = sprintf('%s/%s/cluster_markers_all_%s.RDS', an_01, robj_dir, ver))
+# cluster_markers_all <- readRDS(file = sprintf('%s/%s/cluster_markers_all_%s.RDS', an_01, robj_dir, ver))
+```
+
+Combine marker genes and highest variable genes and subset genes
+```{r eval = FALSE}
+keep_genes <- unique(c(VariableFeatures(se_sc_10x_5cl_qc), cluster_markers_all$gene))
+```
+
+Get cell IDs to subset by cluster
+```{r eval = FALSE}
+keep_ids <- lapply(split(se_sc_10x_5cl_qc@meta.data, se_sc_10x_5cl_qc@meta.data$seurat_clusters), function(subdf){
+  # Determine n_sample, if the size of the group is < 100 use all the group, if not just use 100
+  n_sample <- if_else(nrow(subdf) < 100, nrow(subdf), 100L)
+  # Subset a random selection of that group and get the identifiers
+  tmp_ds <- subdf[sample(1:nrow(subdf), n_sample),] %>% 
+    rownames_to_column('ID') %>%
+    dplyr::pull(ID)
+  return(tmp_ds)
+}) %>%
+  purrr::flatten_chr() # flatten the list into a vector
+```
+
+Subset seurat object
+```{r eval = FALSE}
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[keep_genes,keep_ids]
+```
+
+## Train model
+We will set some parameters the we will use to train the model. K is the numer of topics which we will assume to be the same as the number of clusters found by Seurat. With droplevels we make sure that there are no levels defined with no representation
+```{r eval = FALSE}
+k <- nlevels(droplevels(factor(se_sc_10x_5cl_qc$cell_line_demuxlet)))
+nfeatures <- nrow(se_sc_10x_5cl_qc)
+```
+
+We then will get the dataset ready to pass to the LDA model
+```{r eval = FALSE}
+se_lda_ready <- prep_seobj_topic_fun(se_obj = se_sc_10x_5cl_qc)
+```
+
+Select up to top 100 marker genes for each cluster
+```{r eval = FALSE}
+cluster_markers <- cut_markers2(markers = cluster_markers_all, ntop = 100L)
+```
+
+Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
+```{r eval = FALSE}
+cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust){
+  ls1 <- cluster_markers[cluster_markers$cluster == clust,'gene']
+  ls2 <- cluster_markers[cluster_markers$cluster != clust,'gene']
+  ls1_unique <- ls1[!ls1 %in% ls2]
+  
+  return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique,])
+}) %>% 
+  bind_rows()
+
+```
+
+Set seedwords from top markers. Here we are setting the weights for each topic, the words that are weighted positively are those belonging to the list of top markers for a cluster. In the seedgenes matrix each row represents a topic and each column represents a gene. To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC 
+```{r eval = FALSE}
+# initialize matrix
+seedgenes <- matrix(nrow=k, ncol=ncol(se_lda_ready), data=0)
+colnames(seedgenes) = colnames(se_lda_ready)
+
+for (i in 1:k) { seedgenes[i,cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'gene']] = cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'logFC_z']; print(i) }
+
+# Verify that weights have been added
+table(seedgenes != 0)
+
+```
+
+### LDA model
+```{r eval = FALSE}
+# Set parameters
+control_LDA_Gibbs <- list(alpha = al, estimate.beta = TRUE,
+                          verbose = 1, prefix = tempfile(), save = 0, keep = 1,
+                          seed = as.integer(Sys.time()), nstart = 1, best = T,
+                          delta = 0.1, iter = 5000, burnin = 3000)
+
+# Train model
+s_gibbs_seed <- Sys.time()
+print(sprintf('Starting to train LDA model at %s. No output is returned during training, please wait.',s_gibbs_seed))
+set.seed(123)
+lda_mod <- LDA(se_lda_ready, k=k,
+                   method='Gibbs', seedwords=seedgenes, # Seedwords are only available with Gibbs sampling
+                   control=control_LDA_Gibbs)
+print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
+saveRDS(lda_mod, file = sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
+print(sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
+```
+
+Select the best model
+```{r}
+if (length(lda_mod_ls)==1) {
+  lda_mod <- lda_mod_ls[[1]]
+  rm(lda_mod_ls)
+} else {
+  #### Check max likelyhood ####
+  ds_loglike <- lapply(lda_mod_ls, function(mod){
+    data.frame(log_like = mod@loglikelihood)
+    }) %>% bind_rows()
+
+  top_mod_index <- which(ds_loglike$log_like <= min(ds_loglike$log_like))
+  lda_mod <- lda_mod_ls[[top_mod_index]]
+  rm(lda_mod_ls)
+}
+```
+
+## Compute all synthetic spots combinations
+
+Get common topic profiles for every cluster
+```{r}
+clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet')
+round(clust_profiles,4)
+```
+
+Create all posible combinations between 3-8 cells per spot.
+We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  
+```{r}
+syn_spot_dir <- sprintf('%s/%s',an_02,robj_dir)
+dir.create(path = syn_spot_dir, showWarnings = F, recursive = T)
+syn_spot_path <- sprintf('%s/syn_spots_profiles_%s_%s.RDS',syn_spot_dir,al,id_comp)
+if (file.exists(syn_spot_path)){
+  print('loading synthetic topic profiles')
+  syn_spots_profiles_ls <- readRDS(syn_spot_path)
+} else {
+  print('creating synthetic topic profiles')
+  syn_spots_profiles_ls <- syn_spot_comb_topic(clust_profiles = clust_profiles)
+  saveRDS(object = syn_spots_profiles_ls, file = syn_spot_path)
+}
+```
+
+## Compute Synthetic Test spots
+Now we generate synthetic test spots from which we get their cell compositions and the count matrix if the combination.
+```{r}
+### Generate synthetic spots ####
+tst_spot_dir <- sprintf('%s/%s',an_02,robj_dir,id_comp)
+dir.create(path = tst_spot_dir, showWarnings = F, recursive = T)
+tst_spot_path <- sprintf('%s/test_spots_transcriptomes2_%s.RDS',tst_spot_dir,id_comp)
+
+if (file.exists(tst_spot_path)){
+  print('loading test spots')
+  test_spots_ls <- readRDS(tst_spot_path)
+} else {
+  print('creating test spots')
+  test_spots_ls <- test_spot_fun(se_obj = se_sc_10x_5cl_qc, n = 2000, clust_vr = 'seurat_clusters') # This function can be optimized, when binding the spots
+  saveRDS(object = test_spots_ls, file = tst_spot_path)
+}
+```
+
+## Predict topic profiles
+We now run the test spots through the model to get their topic profiles.
+We parallelize this process to speed it up, make sure we are passing the `r topicmodels` and `r Matrix` package to the foreach loop or it can crash.
+```{r}
+# Detect number of cores and use 60% of them
+ncores <- round(parallel::detectCores() * 0.60)
+# Set up the backend
+cl <- parallel::makeCluster(ncores)
+# Register the backend
+doParallel::registerDoParallel(cl)
+
+pred_start <- Sys.time()
+Sys.time()
+
+print('Running predictions')
+prediction <- foreach(index=seq(1,1000,10), .combine = 'rbind', .packages=c('doParallel','topicmodels','Matrix')) %dopar% {
+  test_spots_pred <- topicmodels::posterior(object = lda_mod_best,
+                                            newdata = t(test_spots_counts[,index:(index+9)]))
+  return(test_spots_pred$topics)
+}
+
+parallel::stopCluster(cl)
+
+print(sprintf('Time to predict: %s', difftime(Sys.time(), pred_start, units = 'mins')))
+dir.create(path = sprintf('%s/%s',an_03,robj_dir), showWarnings = F, recursive = T)
+saveRDS(object = prediction, file = sprintf('%s/%s/prediction_test_spots_%s_%s.RDS',an_03,robj_dir,al,id_comp))
+
+print('Predictions saved')
+
+```
+
+### Deconvolution function
+```{r}
+
+```
+
+
+## Prediction assessment
+```{r}
+
+```
+
