@@ -1,11 +1,15 @@
 Package: SpatialDeconTest
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Cell type deconvolution of Visium data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Marc Elosua-Bayes
+Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eut>
+Description: This package is aimed at deconvoluting the cell types and proportions of 10x Visium spots.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    covr,
+    testthat,
+    spelling
+Language: en-US
