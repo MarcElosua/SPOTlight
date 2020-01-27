@@ -12,9 +12,9 @@
 lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
 
   # Check variables
-  if(is(se_obj)!="Seurat") {stop("ERROR: se_obj must be a Seurat object!")}
+  if(is(lda_mod)[[1]] != "LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
   # if(is(spot_counts)!="LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
-  if(!is.integer(ncores)) {stop("ERROR: ncores must be an integer!")}
+  if(!is.numeric(ncores)) {stop("ERROR: ncores must be an integer!")}
   if(!is.logical(parallelize)) {stop("ERROR: parallelize must be logical!")}
 
   #load required packages
@@ -24,11 +24,6 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   if(parallelize) suppressMessages(require(foreach))
   if(parallelize) suppressMessages(require(doParallel))
 
-  spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
-  # Only use genes detected by the model
-  spot_counts <- spot_counts[lda_mod@terms,]
-
-  lda_mod@terms %in%
   if(parallelize){
     # Detect number of cores and use 60% of them
     ncores <- round(parallel::detectCores() * 0.60)
@@ -44,18 +39,20 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   print('Running predictions')
 
   ## Set progress bar ##
-  iterations <- nrow(spot_counts)
+  iterations <- length(seq(1,ncol(spot_counts),10))
   pb <- txtProgressBar(max = iterations, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
-  prediction <- foreach(index=seq(1,nrow(spot_counts),10),
+  prediction <- foreach(index=seq(1,ncol(spot_counts),10),
                         .combine = 'rbind',
-                        .packages=c('topicmodels','Matrix'),
+                        .packages=c('topicmodels','Matrix', 'dplyr'),
                         .options.snow = opts) %dopar% {
 
+    index_end <- if_else( (index+9) <= ncol(spot_counts), as.double(index+9), as.double(ncol(spot_counts)))
+
     test_spots_pred <- topicmodels::posterior(object = lda_mod,
-                                              newdata = t(spot_counts[,index:(index+9)]))
+                                              newdata = t(spot_counts[,index:index_end]))
     return(test_spots_pred$topics)
 
   }

@@ -14,7 +14,7 @@ Suggests:
     spelling
 Language: en-US
 RoxygenNote: 7.0.2
-Depends: SingleCellExperiment (>= 1.8.0),
+Imports: SingleCellExperiment (>= 1.8.0),
          Seurat (>= 3.1.0),
          Matrix (>= 1.2),
          topicmodels (>= 0.2.9), 

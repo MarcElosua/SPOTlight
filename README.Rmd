@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/MarcElosua/SpatialDeconTest/branch/master/graph/badge.svg)](https://codecov.io/gh/MarcElosua/SpatialDeconTest?branch=master)
 <!-- badges: end -->
 
-The goal of SpatialDeconTest is to ...
+The goal of SpatialDeconTest is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each spot obtained from 10X's visium - spatial trancsiptomics- technology. 
 
 ## Installation
 
@@ -39,11 +39,12 @@ devtools::install_github("https://github.com/MarcElosua/SpatialDeconTest")
 This is a basic example which shows you how to run the workflow using more specific or more general functions:
 
 
-```{r example}
+```{r}
+library(org.Hs.eg.db)
 library(SpatialDeconTest)
 ```
 
-```{r}
+```{r parameters}
 tech <- '10x'
 dwn_smplng <- 'none'
 tissue <- 'mixology'
@@ -81,7 +82,6 @@ se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays
 
 ```
 
- 
 ### Downsampling+Train model 
 All the above steps are to show how the workflow works and make it available if one wants to recreate step by step the process and save intermediate steps. All the previous steps can be run with the below function!
 ```{r}
@@ -92,44 +92,43 @@ Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
 cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
 
 se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all)
+# saveRDS(object = se_sc_10x_5cl_qc,file = 'se_sc_10x_5cl_qc.RDS')
+# se_sc_10x_5cl_qc <- readRDS(file = 'se_sc_10x_5cl_qc.RDS')
 
+#### Train LDA model ####
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all, al = 0.01, verbose = 1, iter = 300, burnin = 100)
-```
 
+# Select the best model
+lda_mod <- lda_mod_ls[[1]]
+# saveRDS(object = lda_mod,file = 'lda_mod.RDS')
+# lda_mod <- readRDS(file = 'lda_mod.RDS')
+```
 
 ### Spot Deconvolution
 Create all posible combinations between 3-8 cells per spot.
-We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  
-We now run the test spots through the model to get their topic profiles.
-We parallelize this process to speed it up, make sure we are passing the `r topicmodels` and `r Matrix` package to the foreach loop or it can crash.
+We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  The prediction process can be parallelized to speed it up.
+
+Mixed spots are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r}
-# Select the best model
-if (length(lda_mod_ls)==1) {
-  lda_mod <- lda_mod_ls[[1]]
-  rm(lda_mod_ls)
-} else {
-  #### Check max likelyhood ####
-  ds_loglike <- lapply(lda_mod_ls, function(mod){
-    data.frame(log_like = mod@loglikelihood)
-    }) %>% bind_rows()
+# Extract count matrix
+spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
+ens_genes <- rownames(spot_counts)
 
-  top_mod_index <- which(ds_loglike$log_like <= min(ds_loglike$log_like))
-  lda_mod <- lda_mod_ls[[top_mod_index]]
-  rm(lda_mod_ls)
-}
+# Convert Ensembl ids to symbols
+# library(org.Hs.eg.db)
+symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = 'SYMBOL', keytype = 'ENSEMBL')
+rownames(spot_counts) <- symb_genes
 
-sce_9cells_qc@assays$data$counts
-library(Matrix)
+# Subset to genes used to train the model
+spot_counts <- spot_counts[rownames(spot_counts) %in% lda_mod@terms, ]
 
-# spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
-#############################################################################################
-##### Make sure Rownames spot matrix are the same as the ones used to train the model! ######
-#############################################################################################
-SpatialDeconTest::spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
-                                     clust_vr = 'cell_line_demuxlet',  spot_counts=spot_counts, 
-                                     verbose = TRUE, ncores=NULL, parallelize=TRUE, 
-                                     top_dist=1000, top_JSD=15)
+decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
+                                     clust_vr = 'cell_line_demuxlet',  spot_counts = spot_counts, 
+                                     verbose = TRUE, ncores = 5, parallelize = TRUE,
+                                     top_dist = 1000, top_JSD = 15)
 
+# lda_mod = lda_mod; se_obj = se_sc_10x_5cl_qc; clust_vr = 'cell_line_demuxlet';  spot_counts = spot_counts; verbose = TRUE;
+# ncores = 5; parallelize = TRUE; top_dist = 1000; top_JSD = 15
 ```
 
 

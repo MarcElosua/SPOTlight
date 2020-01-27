@@ -18,10 +18,10 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE){
   if(!is.logical(verbose)){stop("ERROR: verbose must be a logical object!")}
 
   # Load needed packages
-  suppressMessages(require(Matrix))
-  suppressMessages(require(arrangements))
-  suppressMessages(require(progress))
-  suppressMessages(require(purrr))
+  # suppressMessages(require(Matrix))
+  # suppressMessages(require(arrangements))
+  # suppressMessages(require(progress))
+  # suppressMessages(require(purrr))
 
 
   #### Calculate topic profiles for every cluster ####
