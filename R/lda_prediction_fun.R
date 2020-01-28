@@ -59,7 +59,7 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   }
 
   if(parallelize) parallel::stopCluster(cl)
-  print(sprintf('Time to predict: %s', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
+  print(sprintf('Time to predict: %s minutes', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
 
   return(prediction)
 }

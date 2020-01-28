@@ -12,7 +12,6 @@
 #' @examples
 #'
 
-
 spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts, verbose=TRUE, ncores=NULL, parallelize=TRUE, top_dist=1000, top_JSD=15){
 
   # Check variables

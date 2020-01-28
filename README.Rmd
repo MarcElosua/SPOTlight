@@ -1,5 +1,11 @@
 ---
-output: github_document
+title: "SpatialDecon"
+date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
+output: 
+  rmdformats::readthedown:
+    # toc: true # table of content true
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    highlight: tango # specifies the syntax highlighting style
 editor_options: 
   chunk_output_type: console
 ---
@@ -12,7 +18,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%",
-  cache = TRUE
+  # cache = TRUE,
+  warning = FALSE
 )
 ```
 
@@ -105,7 +112,10 @@ Once we have the data ready to pass to the model we can train it as shown below.
 ```{r}
 #### Train LDA model ####
 set.seed(1)
-lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all, al = 0.01, verbose = 50, iter = 300, burnin = 100, best = TRUE, keep = 1, nstart = 1)
+lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', 
+                        cluster_markers_all = cluster_markers_all, al = 0.01, 
+                        verbose = 100, iter = 300, burnin = 100, 
+                        best = TRUE, keep = 1, nstart = 1)
 
 # Select the best model
 lda_mod <- lda_mod_ls[[1]]
@@ -140,15 +150,39 @@ decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
                                      top_dist = 155, top_JSD = 1)
 
+# saveRDS(object = prediction,file = 'prediction.RDS')
+# prediction <- readRDS(file = 'prediction.RDS')
+# saveRDS(object = syn_spots_ls,file = 'syn_spots_ls.RDS')
+# syn_spots_ls <- readRDS(file = 'syn_spots_ls.RDS')
+
 # lda_mod = lda_mod; se_obj = se_sc_10x_5cl_qc; clust_vr = 'cell_line_demuxlet';  spot_counts = spot_counts; verbose = TRUE;
 # ncores = 5; parallelize = TRUE; top_dist = 1000; top_JSD = 15
 ```
+
+Assess the performance comparing with the ground truth.
+We need to remove the 90 cell spots:
+```{r}
+sce_9cells_metadata <- as.matrix(colData(sce_9cells_qc)[,c('H1975','H2228','HCC827')])
+sce_9cells_metadata[is.na(sce_9cells_metadata)] <- 0
+
+keep_spots <- which(rowSums(sce_9cells_metadata) != 0)
+
+## Keep spots
+sce_9cells_metadata <- sce_9cells_metadata[keep_spots,]
+```
+
+```{r}
+raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = sce_9cells_metadata, 
+                                             spot_composition_mtrx = decon_mtrx)
+raw_statistics_ls
+```
+
 
 ### BONUS - Benchmark with synthetic test spots
 Furthermore, we can test the performance of the model on synthetically generated test spots to get a sense on how well the model will perform on your data.
 
 First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelyhood has plateaud.
-```{r}
+```{r eval = FALSE}
 library(ggplot2)
 data.frame(lda_mod@logLiks) %>% 
   rowid_to_column('rowid') %>% 
@@ -159,30 +193,35 @@ data.frame(lda_mod@logLiks) %>%
 
 
 If the model hasn't plateaud or has plateaud below the best model with the set number of iterations we can run more iterations on the model right where we left off. We can change the nstart parameter which will run the model at 3 different stochastic start points to try to find a better local minima.
-```{r eval = FALSE}
+```{r}
 # Prepare count matrix to pass to the model
 se_lda_ready <- prep_seobj_topic_fun(se_obj = se_sc_10x_5cl_qc)
 
 # Set parameters
-control_LDA_Gibbs <- list(alpha = 0.01, verbose = 1, keep = 1,
-                          seed = round(runif(3,0,1000),0), nstart = 3, best = TRUE,
+control_LDA_Gibbs <- list(alpha = 0.01, verbose = 100, keep = 1,
+                          seed = c(1,543,999), nstart = 3, best = TRUE,
                           iter = 300, burnin = 100)
 
 # Train model
-s_gibbs_seed <- Sys.time()
-print(s_gibbs_seed)
-set.seed(1234)
+s_gibbs_start <- Sys.time()
+print(s_gibbs_start)
 lda_mod <- LDA(se_lda_ready, k=k, model = lda_mod,
                method='Gibbs', # Seedwords are only available with Gibbs sampling
                control=control_LDA_Gibbs)
-print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
+print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_start, units = 'mins'))) # Takes ~10min
 
 ```
 
 If the model had already reached a local minima or we have reached it by re-training the model we can assess its performance with synthetically generated test spots. We can generate test spots with the function *test_spot_fun()* below. 
 ```{r}
 test_spots_ls <- test_spot_fun(se_obj=se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', n=1000, verbose=TRUE)
+
 test_spots_counts <- test_spots_ls[[1]]
+
+# Transpose spot_counts so its SPOTxGENES
+test_spots_counts <- BiocGenerics::t(test_spots_counts)
+
+
 test_spots_metadata <- test_spots_ls[[2]]
 test_spots_metadata <- as.matrix(test_spots_metadata[,which(colnames(test_spots_metadata) != 'name')])
 ```
@@ -192,7 +231,8 @@ We then predict the topic profiles of these synthetic generated spots
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
                                      clust_vr = 'cell_line_demuxlet',  spot_counts = test_spots_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
-                                     top_dist = 100, top_JSD = 15)
+                                     top_dist = 100, top_JSD = 1)
+# lda_mod = lda_mod; spot_counts = test_spots_counts; ncores = ncores; parallelize=TRUE
 ```
 
 Lastly, we can assess its performance with the function *test_synthetic_performance()*
