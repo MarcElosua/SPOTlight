@@ -1,11 +1,9 @@
 ---
 title: "SpatialDecon"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-output: 
-  rmdformats::readthedown:
-    # toc: true # table of content true
-    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
-    highlight: tango # specifies the syntax highlighting style
+output:
+  md_document:
+    variant: markdown_github
 editor_options: 
   chunk_output_type: console
 ---
@@ -18,13 +16,13 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%",
-  # cache = TRUE,
-  warning = FALSE
+  cache = TRUE,
+  warning = FALSE,
+  eval = FALSE
 )
 ```
 
 # SpatialDeconTest
-
 ```{r echo = FALSE, eval=FALSE, message=FALSE}
 # <!-- badges: start -->
 # <!-- [![Travis build status](https://travis-ci.org/MarcElosua/SpatialDeconTest.svg?branch=master)](https://travis-ci.org/MarcElosua/SpatialDeconTest) -->
@@ -55,16 +53,15 @@ library(org.Hs.eg.db)
 library(SpatialDeconTest)
 ```
 
-```{r parameters}
+```{r parameters, echo = FALSE, eval = FALSE}
 tech <- '10x'
 dwn_smplng <- 'none'
 tissue <- 'mixology'
 
 source('misc/paths_vrs.R')
-# source('utils/bin.r')
 ```
 
-## Single Cell Mixology
+### Dataset: Single Cell Mixology
 In this step by step analysis we will assess how the deconvolution performs on the single cell mixology data generate by Matthew E. Ritchie in his paper [Benchmarking single cell RNA-sequencing analysis pipelines using mixture control experiments](https://www.ncbi.nlm.nih.gov/pubmed/31133762). All data can be accessed in this [sc_mixology github repository](https://github.com/LuyiTian/sc_mixology). It uses 5 different cell types for the scRNAseq: human lung adenocarcinoma cell lines HCC827, H1975, H2228, H838, and A549. To do the mixed spots it only uses the first 3 (HCC827, H1975, H2228) to do 9 cell combinations.
 
 We are going to use this data since it is put out to carry out benchmarking experiments and is a good controled way of knowing wich combination of 9-cells is in each mixture. 
@@ -150,13 +147,6 @@ decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
                                      top_dist = 155, top_JSD = 1)
 
-# saveRDS(object = prediction,file = 'prediction.RDS')
-# prediction <- readRDS(file = 'prediction.RDS')
-# saveRDS(object = syn_spots_ls,file = 'syn_spots_ls.RDS')
-# syn_spots_ls <- readRDS(file = 'syn_spots_ls.RDS')
-
-# lda_mod = lda_mod; se_obj = se_sc_10x_5cl_qc; clust_vr = 'cell_line_demuxlet';  spot_counts = spot_counts; verbose = TRUE;
-# ncores = 5; parallelize = TRUE; top_dist = 1000; top_JSD = 15
 ```
 
 Assess the performance comparing with the ground truth.
@@ -286,7 +276,7 @@ QC_plts <- ggpubr::ggarrange(plotlist = list(top_row, bot_row),
                              nrow = 2, align = 'hv')
 QC_plts
 ```
-![QC plots](img/QC_plots_comp.pdf)
+![QC plots](img/QC_plots_comb.pdf)
 
 From the QC plots we can see that library size, number of detected genes and mitochondrial gene proportion follow a normal distribution with not much skewness. Furthermore the mitochondrial proportion does not show a correlatino with the number of detected genes so we wont regress out the effect ot mitochondrial proportion. No obvious low quality cells remain in this dataset so we won't exclude any further ones.
 
@@ -310,7 +300,7 @@ FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C
 ```
 ![Feature plot Cell cycle](img/Feat_plot_CC.pdf)
 
-## Downsampling dataset
+### Downsampling dataset
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
 We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
 We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
@@ -351,7 +341,7 @@ Subset seurat object
 se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[keep_genes,keep_ids]
 ```
 
-## Train model
+### Train model
 We will set some parameters the we will use to train the model. K is the numer of topics which we will assume to be the same as the number of clusters found by Seurat. With droplevels we make sure that there are no levels defined with no representation
 ```{r eval = FALSE}
 k <- nlevels(droplevels(factor(se_sc_10x_5cl_qc$cell_line_demuxlet)))
