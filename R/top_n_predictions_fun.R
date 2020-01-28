@@ -11,6 +11,8 @@ top_n_predictions <- function(dist_mtrx,n){
 
   if( ! is.matrix(dist_mtrx) ) {stop("ERROR: dist_mtrx must be a matrix object!")}
 
+  # check that n isn't bigger than nrow(dist_mtrx), that will throw it off
+  n <- dplyr::if_else(n < ncol(dist_mtrx), n, as.double(ncol(dist_mtrx)))
   min_error <- Rfast::rownth(x = dist_mtrx, elems = rep(n, nrow(dist_mtrx)))
 
   # Get indices over which to calculate JD

@@ -28,40 +28,38 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_JSD
   syn_spots_metadata <- as.matrix(syn_spots_ls[[2]])
   syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
 
-  # Calculate all pairwise euclidean distances between the predicted and simulated topic profiles
+  if (top_dist > nrow(syn_spots_profiles)) {
+    warning(sprintf('top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s', nrow(syn_spots_profiles)), sep = '\n')
+    top_JSD <- top_dist
+  }
+
+  if (top_JSD > top_dist) {
+    warning(sprintf('top_JSD cannot be larger than top_dist. Setting top_JSD to %s', top_dist), sep = '\n')
+    top_JSD <- top_dist
+  }
+
+  ##### Calculate all pairwise euclidean distances between the predicted and simulated topic profiles #####
   dist <- pdist(X=prediction,Y=syn_spots_profiles)
   dist_mtrx <- as.matrix(dist)
 
   JSD_start <- Sys.time()
 
-  # Get list with indices of best euclidean distance for each predictions
+  ##### Get list with indices of best euclidean distance for each predictions #####
   JSD_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
 
-  #### Calculate JSD for the subset of best predictions according to Euclidean distance
+  #### Calculate JSD for the subset of best predictions according to Euclidean distance #####
   mtrx_JSD_full <- suppressMessages(calculate_JSD_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, JSD_indices = JSD_indices))
 
   quants_JSD <- round(quantile(matrixStats::rowMins(mtrx_JSD_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
   cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_JSD[[2]], quants_JSD[[1]], quants_JSD[[3]]))
 
-  # Get the index for each list from JSD_indices with the lowest JSD
-  top_JSD <- if_else(top_JSD <= top_dist, top_JSD, top_dist)
-
+  ##### Get the index for each list from JSD_indices with the lowest JSD #####
   min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_JSD, nrow(mtrx_JSD_full)), na.rm = TRUE)
-  min_indices_JSD <- lapply(1:length(min15_error), function(i){
-    which(mtrx_JSD_full[i,] <= min15_error[i])
-  })
-
-
-  ##### Get index from dist_mtrx from the best prediction #####
-  # best_indices_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = max(lengths(min_indices_JSD)))
-  # for (i in 1:length(min_indices_JSD)) {
-  #   # print(i)
-  #   best_indices_mtrx[i,1:length(min_indices_JSD[[i]])] <- JSD_indices[[i]][min_indices_JSD[[i]]]
-  # }; rm(i)
-
+  min_indices_JSD <- lapply(1:length(min15_error), function(i) which(mtrx_JSD_full[i,] <= min15_error[i]) )
 
   ##### Get Spot composition #####
   spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
+
   for (i in 1:nrow(spot_composition_mtrx)) {
     spot_composition_mtrx[i,] <- round(colMeans(syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],],na.rm = TRUE),0)
   }

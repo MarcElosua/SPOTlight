@@ -4,14 +4,14 @@
 \alias{lda_prediction}
 \title{This function processes the data and trains the LDA model}
 \usage{
-lda_prediction(lda_mod, test_spots_counts, ncores, parallelize = T)
+lda_prediction(lda_mod, spot_counts, ncores, parallelize = T)
 }
 \arguments{
 \item{lda_mod}{Object of class LDA_Gibbs.}
 
-\item{test_spots_counts}{Object of class sparse matrix. The count matrix of the spots we want to predict with the classic GENESxSPOT}
+\item{spot_counts}{Object of class sparse matrix. The count matrix of the spots we want to predict as SPOTxGENES}
 
-\item{ncores}{Object of class integer, number of cores to use when parallelizing, by default it is 60% of the detected cores.}
+\item{ncores}{Object of class integer, number of cores to use when parallelizing, by default it is 60\% of the detected cores.}
 
 \item{parallelize}{Object of class logical on wether to parallelize or not, by default TRUE.}
 }

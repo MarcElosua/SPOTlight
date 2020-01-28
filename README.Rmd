@@ -11,19 +11,24 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  cache = TRUE
 )
 ```
 
 # SpatialDeconTest
 
-<!-- badges: start -->
-[![Travis build status](https://travis-ci.org/MarcElosua/SpatialDeconTest.svg?branch=master)](https://travis-ci.org/MarcElosua/SpatialDeconTest)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/MarcElosua/SpatialDeconTest?branch=master&svg=true)](https://ci.appveyor.com/project/MarcElosua/SpatialDeconTest)
-[![Codecov test coverage](https://codecov.io/gh/MarcElosua/SpatialDeconTest/branch/master/graph/badge.svg)](https://codecov.io/gh/MarcElosua/SpatialDeconTest?branch=master)
-<!-- badges: end -->
+```{r echo = FALSE, eval=FALSE, message=FALSE}
+# <!-- badges: start -->
+# <!-- [![Travis build status](https://travis-ci.org/MarcElosua/SpatialDeconTest.svg?branch=master)](https://travis-ci.org/MarcElosua/SpatialDeconTest) -->
+# <!-- [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/MarcElosua/SpatialDeconTest?branch=master&svg=true)](https://ci.appveyor.com/project/MarcElosua/SpatialDeconTest) -->
+# <!-- [![Codecov test coverage](https://codecov.io/gh/MarcElosua/SpatialDeconTest/branch/master/graph/badge.svg)](https://codecov.io/gh/MarcElosua/SpatialDeconTest?branch=master) -->
+# <!-- badges: end -->
+```
 
 The goal of SpatialDeconTest is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each spot obtained from 10X's visium - spatial trancsiptomics- technology. 
+
+![Graphical abstract](img/graphical_abstract_deconvolution.png)
 
 ## Installation
 
@@ -34,12 +39,11 @@ You can install the latest version from the GitHub repository [SpatialDeconTest]
 devtools::install_github("https://github.com/MarcElosua/SpatialDeconTest")
 ```
 
-## Example
+## Tutorial
 
-This is a basic example which shows you how to run the workflow using more specific or more general functions:
+This is a basic example on a simple dataset to illustrate how to run the workflow:
 
-
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(org.Hs.eg.db)
 library(SpatialDeconTest)
 ```
@@ -68,9 +72,6 @@ load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/9cellmix_qc.RD
 load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/sincell_with_class_5cl.RData'))
 # sc_Celseq2_5cl_p1;sc_Celseq2_5cl_p2;sc_Celseq2_5cl_p3;sce_sc_10x_5cl_qc
 # All this files are single cell
-
-# load('data/mixture_data/mRNAmix_qc.RData') # This file loads single cell experiment objects
-# sce2_qc;sce8_qc
 ```
 
 To train the model we will use the 10x data from the file sincell_with_class_5cl.RData. We will first run some QC tests to assess the quality. The first step will be to convert it to a Seurat object.
@@ -82,8 +83,10 @@ se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays
 
 ```
 
-### Downsampling+Train model 
-All the above steps are to show how the workflow works and make it available if one wants to recreate step by step the process and save intermediate steps. All the previous steps can be run with the below function!
+### Downsampling + Data preprocessing
+If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
+We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
+We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
 ```{r}
 se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[,se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827","H1975","H2228")]
 
@@ -95,20 +98,27 @@ se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cel
 # saveRDS(object = se_sc_10x_5cl_qc,file = 'se_sc_10x_5cl_qc.RDS')
 # se_sc_10x_5cl_qc <- readRDS(file = 'se_sc_10x_5cl_qc.RDS')
 
+```
+
+### Train LDA model
+Once we have the data ready to pass to the model we can train it as shown below. For larger and more complex datasets ~8000 gibbs iterations are recommended. If more iterations are needed you can always resume where you left off and run more iterations on the previosuly trained model.
+```{r}
 #### Train LDA model ####
-lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all, al = 0.01, verbose = 1, iter = 300, burnin = 100)
+set.seed(1)
+lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all, al = 0.01, verbose = 50, iter = 300, burnin = 100, best = TRUE, keep = 1, nstart = 1)
 
 # Select the best model
 lda_mod <- lda_mod_ls[[1]]
 # saveRDS(object = lda_mod,file = 'lda_mod.RDS')
 # lda_mod <- readRDS(file = 'lda_mod.RDS')
+
 ```
 
 ### Spot Deconvolution
 Create all posible combinations between 3-8 cells per spot.
-We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  The prediction process can be parallelized to speed it up.
+We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the spatial spots through the LDA model.  The prediction process can be parallelized to speed it up.
 
-Mixed spots are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
+Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r}
 # Extract count matrix
 spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
@@ -122,17 +132,80 @@ rownames(spot_counts) <- symb_genes
 # Subset to genes used to train the model
 spot_counts <- spot_counts[rownames(spot_counts) %in% lda_mod@terms, ]
 
+# Transpose spot_counts so its SPOTxGENES
+spot_counts <- BiocGenerics::t(spot_counts)
+
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
                                      clust_vr = 'cell_line_demuxlet',  spot_counts = spot_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
-                                     top_dist = 1000, top_JSD = 15)
+                                     top_dist = 155, top_JSD = 1)
 
 # lda_mod = lda_mod; se_obj = se_sc_10x_5cl_qc; clust_vr = 'cell_line_demuxlet';  spot_counts = spot_counts; verbose = TRUE;
 # ncores = 5; parallelize = TRUE; top_dist = 1000; top_JSD = 15
 ```
 
+### BONUS - Benchmark with synthetic test spots
+Furthermore, we can test the performance of the model on synthetically generated test spots to get a sense on how well the model will perform on your data.
+
+First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelyhood has plateaud.
+```{r}
+library(ggplot2)
+data.frame(lda_mod@logLiks) %>% 
+  rowid_to_column('rowid') %>% 
+  ggplot2::ggplot() + 
+    geom_point(aes(x = rowid, y=lda_mod@logLiks), alpha = 0.6, col = 'blue') +
+    theme_classic()
+```
+
+
+If the model hasn't plateaud or has plateaud below the best model with the set number of iterations we can run more iterations on the model right where we left off. We can change the nstart parameter which will run the model at 3 different stochastic start points to try to find a better local minima.
+```{r eval = FALSE}
+# Prepare count matrix to pass to the model
+se_lda_ready <- prep_seobj_topic_fun(se_obj = se_sc_10x_5cl_qc)
+
+# Set parameters
+control_LDA_Gibbs <- list(alpha = 0.01, verbose = 1, keep = 1,
+                          seed = round(runif(3,0,1000),0), nstart = 3, best = TRUE,
+                          iter = 300, burnin = 100)
+
+# Train model
+s_gibbs_seed <- Sys.time()
+print(s_gibbs_seed)
+set.seed(1234)
+lda_mod <- LDA(se_lda_ready, k=k, model = lda_mod,
+               method='Gibbs', # Seedwords are only available with Gibbs sampling
+               control=control_LDA_Gibbs)
+print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
+
+```
+
+If the model had already reached a local minima or we have reached it by re-training the model we can assess its performance with synthetically generated test spots. We can generate test spots with the function *test_spot_fun()* below. 
+```{r}
+test_spots_ls <- test_spot_fun(se_obj=se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', n=1000, verbose=TRUE)
+test_spots_counts <- test_spots_ls[[1]]
+test_spots_metadata <- test_spots_ls[[2]]
+test_spots_metadata <- as.matrix(test_spots_metadata[,which(colnames(test_spots_metadata) != 'name')])
+```
+
+We then predict the topic profiles of these synthetic generated spots
+```{r}
+decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
+                                     clust_vr = 'cell_line_demuxlet',  spot_counts = test_spots_counts, 
+                                     verbose = TRUE, ncores = 5, parallelize = TRUE,
+                                     top_dist = 100, top_JSD = 15)
+```
+
+Lastly, we can assess its performance with the function *test_synthetic_performance()*
+```{r}
+raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = test_spots_metadata, 
+                                             spot_composition_mtrx = decon_mtrx)
+raw_statistics_ls
+```
+
 
 ## Step-by-step workflow
+If you want to understand a bit better what is going on in the previous step here is the workflow executed step-by-step. All the above steps are to show how the workflow works and make it available and understandable.
+
 Normalizing and Transform the data, dimensionality reduction and clusters assignment.
 ```{r eval = FALSE}
 se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, vars.to.regress = "percent.mt", verbose = T,variable.features.n = 5000)
@@ -285,9 +358,9 @@ table(seedgenes != 0)
 ```{r eval = FALSE}
 # Set parameters
 control_LDA_Gibbs <- list(alpha = al, estimate.beta = TRUE,
-                          verbose = 1, prefix = tempfile(), save = 0, keep = 1,
+                          verbose = 1, keep = 1,
                           seed = as.integer(Sys.time()), nstart = 1, best = T,
-                          delta = 0.1, iter = 5000, burnin = 3000)
+                          iter = 300, burnin = 100)
 
 # Train model
 s_gibbs_seed <- Sys.time()
@@ -299,106 +372,160 @@ lda_mod <- LDA(se_lda_ready, k=k,
 print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
 saveRDS(lda_mod, file = sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
 print(sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
+
+lda_mod <- lda_mod_ls[[1]]
 ```
 
-Select the best model
-```{r}
-if (length(lda_mod_ls)==1) {
-  lda_mod <- lda_mod_ls[[1]]
-  rm(lda_mod_ls)
-} else {
-  #### Check max likelyhood ####
-  ds_loglike <- lapply(lda_mod_ls, function(mod){
-    data.frame(log_like = mod@loglikelihood)
-    }) %>% bind_rows()
+### Predict topic profiles
+Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
+```{r  eval  = FALSE}
+# Extract count matrix
+spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
+ens_genes <- rownames(spot_counts)
 
-  top_mod_index <- which(ds_loglike$log_like <= min(ds_loglike$log_like))
-  lda_mod <- lda_mod_ls[[top_mod_index]]
-  rm(lda_mod_ls)
-}
+# Convert Ensembl ids to symbols
+# library(org.Hs.eg.db)
+symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = 'SYMBOL', keytype = 'ENSEMBL')
+rownames(spot_counts) <- symb_genes
+
+# Subset to genes used to train the model
+spot_counts <- spot_counts[rownames(spot_counts) %in% lda_mod@terms, ]
+
+# Transpose spot_counts so its SPOTxGENES
+spot_counts <- BiocGenerics::t(spot_counts)
 ```
 
-## Compute all synthetic spots combinations
-
-Get common topic profiles for every cluster
-```{r}
-clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet')
-round(clust_profiles,4)
-```
-
-Create all posible combinations between 3-8 cells per spot.
-We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the test spots through the LDA model.  
-```{r}
-syn_spot_dir <- sprintf('%s/%s',an_02,robj_dir)
-dir.create(path = syn_spot_dir, showWarnings = F, recursive = T)
-syn_spot_path <- sprintf('%s/syn_spots_profiles_%s_%s.RDS',syn_spot_dir,al,id_comp)
-if (file.exists(syn_spot_path)){
-  print('loading synthetic topic profiles')
-  syn_spots_profiles_ls <- readRDS(syn_spot_path)
-} else {
-  print('creating synthetic topic profiles')
-  syn_spots_profiles_ls <- syn_spot_comb_topic(clust_profiles = clust_profiles)
-  saveRDS(object = syn_spots_profiles_ls, file = syn_spot_path)
-}
-```
-
-## Compute Synthetic Test spots
-Now we generate synthetic test spots from which we get their cell compositions and the count matrix if the combination.
-```{r}
-### Generate synthetic spots ####
-tst_spot_dir <- sprintf('%s/%s',an_02,robj_dir,id_comp)
-dir.create(path = tst_spot_dir, showWarnings = F, recursive = T)
-tst_spot_path <- sprintf('%s/test_spots_transcriptomes2_%s.RDS',tst_spot_dir,id_comp)
-
-if (file.exists(tst_spot_path)){
-  print('loading test spots')
-  test_spots_ls <- readRDS(tst_spot_path)
-} else {
-  print('creating test spots')
-  test_spots_ls <- test_spot_fun(se_obj = se_sc_10x_5cl_qc, n = 2000, clust_vr = 'seurat_clusters') # This function can be optimized, when binding the spots
-  saveRDS(object = test_spots_ls, file = tst_spot_path)
-}
-```
-
-## Predict topic profiles
-We now run the test spots through the model to get their topic profiles.
-We parallelize this process to speed it up, make sure we are passing the `r topicmodels` and `r Matrix` package to the foreach loop or it can crash.
-```{r}
+Now to predict the topic profiles of the mixed spots...
+```{r eval  = FALSE}
+# Set up cluster to parallelize
 # Detect number of cores and use 60% of them
 ncores <- round(parallel::detectCores() * 0.60)
 # Set up the backend
 cl <- parallel::makeCluster(ncores)
 # Register the backend
-doParallel::registerDoParallel(cl)
+doSNOW::registerDoSNOW(cl)
+
 
 pred_start <- Sys.time()
 Sys.time()
 
 print('Running predictions')
-prediction <- foreach(index=seq(1,1000,10), .combine = 'rbind', .packages=c('doParallel','topicmodels','Matrix')) %dopar% {
-  test_spots_pred <- topicmodels::posterior(object = lda_mod_best,
-                                            newdata = t(test_spots_counts[,index:(index+9)]))
+
+## Set progress bar ##
+iterations <- length(seq(1,nrow(spot_counts),10))
+pb <- txtProgressBar(max = iterations, style = 3)
+progress <- function(n) setTxtProgressBar(pb, n)
+opts <- list(progress = progress)
+
+prediction <- foreach(index=seq(1,nrow(spot_counts),10),
+                      .combine = 'rbind',
+                      .packages=c('topicmodels','Matrix', 'dplyr'),
+                      .options.snow = opts) %dopar% {
+
+  index_end <- dplyr::if_else( (index+9) <= nrow(spot_counts), as.double(index+9), as.double(nrow(spot_counts)))
+
+  test_spots_pred <- topicmodels::posterior(object = lda_mod,
+                                            newdata = spot_counts[index:index_end,])
   return(test_spots_pred$topics)
+
 }
 
 parallel::stopCluster(cl)
-
-print(sprintf('Time to predict: %s', difftime(Sys.time(), pred_start, units = 'mins')))
-dir.create(path = sprintf('%s/%s',an_03,robj_dir), showWarnings = F, recursive = T)
-saveRDS(object = prediction, file = sprintf('%s/%s/prediction_test_spots_%s_%s.RDS',an_03,robj_dir,al,id_comp))
-
-print('Predictions saved')
-
-```
-
-### Deconvolution function
-```{r}
-
+print(sprintf('Time to predict: %s', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
 ```
 
 
-## Prediction assessment
-```{r}
+### Generate all posible synthetic spots
+Below we generate all the possible spot combinations containing between 2-8 cells since we aproximate that by their size the spots won't have more than ~10 cells
+```{r eval = FALSE}
+#### Calculate topic profiles for every cluster ####
+clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = clust_vr)
+round(clust_profiles,4)
+
+if(class(clust_profiles) != "matrix") clust_profiles <- as.matrix(clust_profiles)
+
+# If a cluster is 0 change it to 1
+if(sum(grepl(pattern = "0",rownames(clust_profiles))) != 0){
+  rownames(clust_profiles) <- as.character(as.numeric(rownames(clust_profiles))+1)
+}
+
+# Compute all possible combinations up to grabbing round(nrow(comb)*0.66)
+k_sub <- 8
+comb <- combinations(x = c(0:(nrow(clust_profiles))), k = k_sub, replace=TRUE)
+
+# Remove all those combinations that only include 1 or 2 cells
+comb <- comb[rowSums(comb != 0) > 2,]
+
+
+# Create all possible combinations
+## Initialize matrix for increased speed so that it doesn't need to create indexes on the fly
+tmp_mtrx <- matrix(nrow = nrow(comb), ncol = ncol(clust_profiles))
+tmp_metadata <- matrix(nrow = nrow(comb), ncol = nrow(clust_profiles))
+
+print('Creating synthetic spots'); st_syn_spot <- Sys.time()
+pb_for <- txtProgressBar(min = 0, max = nrow(comb), style = 3) # Progress bar
+
+for (i in 1:nrow(comb)) {
+  # Get how many cells of each type we have
+  tt <- table(comb[i,][comb[i,]!=0])
+  tmp_metadata[i,as.numeric(names(tt))] <- tt
+
+  # Add all the profiles together
+  row_i <- lapply(names(tt), function(nm){
+    tmp_vec <- tt[[nm]]*clust_profiles[rownames(clust_profiles)[[as.numeric(nm)]],]
+  }) %>% purrr::reduce(.,`+`)
+
+  tmp_mtrx[i,] <- row_i/sum(tt)
+  # update progress bar
+  setTxtProgressBar(pb_for, i)
+}
+# rm(list(i,tt,row_i)) # For clean and good practice code, that there are no random tmp variables floating
+close(pb_for)
+print(sprintf('Creation of %s synthetic spot profiles took: %s minutes',
+                          nrow(comb),
+                          round(difftime(time1 = Sys.time(),time2 = st_syn_spot,units = 'mins'),2)))
+
+syn_spots_ls <- list(tmp_mtrx,tmp_metadata)
+
+```
+
+### Spot Deconvolution
+Create all posible combinations between 3-8 cells per spot.
+We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the spatial spots through the LDA model.  The prediction process can be parallelized to speed it up.
+
+```{r eval = FALSE}
+syn_spots_profiles <- syn_spots_ls[[1]]
+syn_spots_metadata <- as.matrix(syn_spots_ls[[2]])
+syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
+
+# Calculate all pairwise euclidean distances between the predicted and simulated topic profiles
+dist <- pdist(X=prediction,Y=syn_spots_profiles)
+dist_mtrx <- as.matrix(dist)
+
+JSD_start <- Sys.time()
+
+# Get list with indices of best euclidean distance for each predictions
+JSD_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
+
+#### Calculate JSD for the subset of best predictions according to Euclidean distance
+mtrx_JSD_full <- suppressMessages(calculate_JSD_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, JSD_indices = JSD_indices))
+
+quants_JSD <- round(quantile(matrixStats::rowMins(mtrx_JSD_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
+cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_JSD[[2]], quants_JSD[[1]], quants_JSD[[3]]))
+
+# Get the index for each list from JSD_indices with the lowest JSD
+top_JSD <- if_else(top_JSD <= top_dist, top_JSD, top_dist)
+
+min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_JSD, nrow(mtrx_JSD_full)), na.rm = TRUE)
+min_indices_JSD <- lapply(1:length(min15_error), function(i){
+  which(mtrx_JSD_full[i,] <= min15_error[i])
+})
+
+##### Get Spot composition #####
+spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
+for (i in 1:nrow(spot_composition_mtrx)) {
+  spot_composition_mtrx[i,] <- round(colMeans(syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],],na.rm = TRUE),0)
+}
 
 ```
 

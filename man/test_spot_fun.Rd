@@ -4,7 +4,7 @@
 \alias{test_spot_fun}
 \title{This functions takes in a seurat object and creates different mixtures resembling spots at different proportions}
 \usage{
-test_spot_fun(se_obj, clust_vr, n = 10000, verbose = TRUE)
+test_spot_fun(se_obj, clust_vr, n = 1000, verbose = TRUE)
 }
 \arguments{
 \item{se_obj}{seurat object; The seurat object NEEDS to have the variable features calculated}

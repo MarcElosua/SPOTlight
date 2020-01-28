@@ -1,8 +1,8 @@
 #' This function processes the data and trains the LDA model
 #'
 #' @param lda_mod Object of class LDA_Gibbs.
-#' @param spot_counts Object of class sparse matrix. The count matrix of the spots we want to predict with the classic GENESxSPOT
-#' @param ncores Object of class integer, number of cores to use when parallelizing, by default it is 60% of the detected cores.
+#' @param spot_counts Object of class sparse matrix. The count matrix of the spots we want to predict as SPOTxGENES
+#' @param ncores Object of class integer, number of cores to use when parallelizing, by default it is 60\% of the detected cores.
 #' @param parallelize Object of class logical on wether to parallelize or not, by default TRUE.
 #' @return matrix with the topic probability distribution for each spot.
 #' @export
@@ -24,6 +24,7 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   if(parallelize) suppressMessages(require(foreach))
   if(parallelize) suppressMessages(require(doParallel))
 
+  # Set up cluster to parallelize
   if(parallelize){
     # Detect number of cores and use 60% of them
     ncores <- round(parallel::detectCores() * 0.60)
@@ -39,26 +40,26 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   print('Running predictions')
 
   ## Set progress bar ##
-  iterations <- length(seq(1,ncol(spot_counts),10))
+  iterations <- length(seq(1,nrow(spot_counts),10))
   pb <- txtProgressBar(max = iterations, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
-  prediction <- foreach(index=seq(1,ncol(spot_counts),10),
+  prediction <- foreach(index=seq(1,nrow(spot_counts),10),
                         .combine = 'rbind',
                         .packages=c('topicmodels','Matrix', 'dplyr'),
                         .options.snow = opts) %dopar% {
 
-    index_end <- if_else( (index+9) <= ncol(spot_counts), as.double(index+9), as.double(ncol(spot_counts)))
+    index_end <- dplyr::if_else( (index+9) <= nrow(spot_counts), as.double(index+9), as.double(nrow(spot_counts)))
 
     test_spots_pred <- topicmodels::posterior(object = lda_mod,
-                                              newdata = t(spot_counts[,index:index_end]))
+                                              newdata = spot_counts[index:index_end,])
     return(test_spots_pred$topics)
 
   }
 
   if(parallelize) parallel::stopCluster(cl)
-  print(sprintf('Time to predict: %s', difftime(Sys.time(), pred_start, units = 'mins')))
+  print(sprintf('Time to predict: %s', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
 
   return(prediction)
 }

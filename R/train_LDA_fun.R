@@ -90,17 +90,16 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   # Set parameters
   control_LDA_Gibbs <- list(alpha = al, estimate.beta = estimate.beta,
                             verbose = verbose, prefix = tempfile(), save = save, keep = keep,
-                            seed = as.integer(Sys.time()), nstart = nstart, best = best,
+                            seed = sample(x=1:1000,size=nstart), nstart = nstart, best = best,
                             delta = delta, iter = iter, burnin = burnin, thin = thin)
 
   # Train model
   s_gibbs_seed <- Sys.time()
   print(s_gibbs_seed)
-  set.seed(123)
   lda_mod <- LDA(se_lda_ready, k=k,
                  method='Gibbs', seedwords=seedgenes, # Seedwords are only available with Gibbs sampling
                  control=control_LDA_Gibbs)
-  print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
+  print(sprintf('LDA seeded took: %s minutes', round(difftime(Sys.time(), s_gibbs_seed, units = 'mins'),2))) # Takes ~10min
 
   if(is(lda_mod)[[1]] == "Gibbs_list") return(lda_mod@fitted) else return(list(lda_mod))
 }

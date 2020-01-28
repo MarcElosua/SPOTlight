@@ -36,12 +36,15 @@ spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts, verbose=T
 
 
   # Create all synthetic spot combinations
+  if(verbose) print('Generating all synthetic spot combinations')
   syn_spots_ls <- syn_spot_comb_topic(lda_mod = lda_mod, se_obj = se_obj, clust_vr = clust_vr, verbose = verbose)
 
-  # Predict topic profiles or spatial spots
+  # Predict topic profiles of spatial spots
+  if(verbose) print('Predict topic profiles of spatial spots')
   prediction <- lda_prediction(lda_mod = lda_mod, spot_counts = spot_counts, ncores = ncores, parallelize=TRUE)
 
   # Perform deconvolution of the spatial spots
+  if(verbose) print('Perform deconvolution of the spatial spots')
   spot_deconv <- syn_spot_assignment(prediction = prediction, syn_spots_ls = syn_spots_ls, top_dist = top_dist, top_JSD = top_JSD)
 
   return(spot_deconv)

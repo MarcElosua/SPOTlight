@@ -8,9 +8,10 @@ spot_deconvolution(
   lda_mod,
   se_obj,
   clust_vr,
-  verbose,
-  prediction,
-  syn_spots_ls,
+  spot_counts,
+  verbose = TRUE,
+  ncores = NULL,
+  parallelize = TRUE,
   top_dist = 1000,
   top_JSD = 15
 )
@@ -22,11 +23,9 @@ spot_deconvolution(
 
 \item{clust_vr}{Object of class character. Name of the variable containing the cell clustering.}
 
+\item{spot_counts}{Object of class sparse matrix. Count matrix of the spots to deconvolute.}
+
 \item{verbose}{Object of class Logical determining if progress should be reported or not (TRUE by default).}
-
-\item{prediction}{Object of class matrix with the predicted topic probability distributions for each spot. Output from the lda_prediction function.}
-
-\item{syn_spots_ls}{list obtained from the function syn_spot_comb_topic_fun.R. The 1st element is a matrix with topic profiles of all the synthetic spots generated, the 2nd element is the composition of each synthetic spot.}
 
 \item{top_dist}{Object of class integer, on how many top euclidean distance are we going to calculate the JSD.}
 

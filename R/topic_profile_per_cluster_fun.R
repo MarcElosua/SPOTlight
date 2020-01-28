@@ -18,8 +18,10 @@ topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr){
 
   # cat("Loading packages...", sep="\n")
   suppressMessages(require(tibble))
-  suppressMessages(require(dtplyr))
   suppressMessages(require(dplyr))
+  suppressMessages(require(data.table))
+  suppressMessages(require(dtplyr))
+  suppressMessages(require(BiocGenerics))
 
   # cluster assignment
   se_obj$seurat_clusters <-  droplevels(factor(factor(se_obj@meta.data[,clust_vr])))
@@ -37,7 +39,7 @@ topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr){
     dplyr::group_by(seurat_clusters) %>%
     dplyr::select(seurat_clusters, paste('topic_',1:nlevels(se_obj$seurat_clusters),sep='')) %>%
     dplyr::summarise_all(list(median)) %>%
-    as.data.frame(clust_profiles) %>%
+    BiocGenerics::as.data.frame(clust_profiles) %>%
     tibble::column_to_rownames('seurat_clusters')
 
   colnames(clust_profiles) <- 1:ncol(clust_profiles)
