@@ -6,29 +6,29 @@
 #' @return A Latent Dirichlet Allocation list of model/s depending on if return best is T or F.
 #' @export
 #' @examples
-#' 
+#'
 
 topic_viz <- function(lda_mod, k, n_terms){
-  
-  if(is(lda_mod)!="LDA_Gibbs") {stop("ERROR: lda_mod must be an LDA_Gibbs object!")}
-  if(!is.integer(k)){stop("ERROR: k must be an integer!")}
-  if(!is.integer(n_terms)){stop("ERROR: n_terms must be an integer!")}
-  
+
+  if(is(lda_mod)[[1]] != "LDA_Gibbs") {stop("ERROR: lda_mod must be an LDA_Gibbs object!")}
+  if(!is.numeric(k)){stop("ERROR: k must be an integer!")}
+  if(!is.numeric(n_terms)){stop("ERROR: n_terms must be an integer!")}
+
   suppressMessages(require(wordcloud2))
-  
+
   tmpResult <- posterior(lda_mod)
-  
+
   # visualize topics as word cloud
   topicToViz <- k # change for your own topic of interest
-  
+
   # select to 40 most probable terms from the topic by sorting the term-topic-probability vector in decreasing order
   top40terms <- sort(tmpResult$terms[topicToViz,], decreasing=TRUE)[1:n_terms]
   words <- names(top40terms)
-  
+
   # extract the probabilites of each of the 40 terms
   probabilities <- sort(tmpResult$terms[topicToViz,], decreasing=TRUE)[1:n_terms]
-  
+
   # visualize the terms as wordcloud
-  wc_plt <- wordcloud2(data.frame(words, probabilities), shuffle = FALSE, size = 0.8)  
+  wc_plt <- wordcloud2(data.frame(words, probabilities), shuffle = FALSE, size = 0.8)
   return(wc_plt)
 }

@@ -1,15 +1,15 @@
 ---
 title: "SpatialDecon"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-output:
-  md_document:
-    variant: markdown_github
-editor_options:
-  chunk_output_type: console
 # output:
-#   rmdformats::readthedown:
-#     toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
-#     highlight: tango  # specifies the syntax highlighting style
+#   md_document:
+#     variant: markdown_github
+# editor_options:
+#   chunk_output_type: console
+output:
+  rmdformats::readthedown:
+    toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+    highlight: tango  # specifies the syntax highlighting style
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -419,14 +419,20 @@ lda_mod <- LDA(se_lda_ready, k=k,
                    control=control_LDA_Gibbs)
 print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
 saveRDS(lda_mod, file = sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
-print(sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
+print(sprintf('%s/seeded_lda_%s_%s_%s.RDS', rotbj_dir, al, ver, id_comp))
 
 lda_mod <- lda_mod_ls[[1]]
 ```
 
+### Visualize topics
+We can visualize the genes defining each topic we can plot it as follows.
+```{r eval = FALSE}
+topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
+```
+
 ### Predict topic profiles
 Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
-```{r  eval  = FALSE}
+```{r  eval = FALSE}
 # Extract count matrix
 spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
 ens_genes <- rownames(spot_counts)
@@ -444,7 +450,7 @@ spot_counts <- BiocGenerics::t(spot_counts)
 ```
 
 Now to predict the topic profiles of the mixed spots...
-```{r eval  = FALSE}
+```{r eval = FALSE}
 # Set up cluster to parallelize
 # Detect number of cores and use 60% of them
 ncores <- round(parallel::detectCores() * 0.60)
@@ -576,4 +582,3 @@ for (i in 1:nrow(spot_composition_mtrx)) {
 }
 
 ```
-

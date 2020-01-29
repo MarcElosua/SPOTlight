@@ -1592,6 +1592,7 @@ $(document).ready(function () {
       <li><a href="#downsampling-dataset">Downsampling dataset</a></li>
       <li><a href="#train-model">Train model</a></li>
       <li><a href="#lda-model">LDA model</a></li>
+      <li><a href="#visualize-topics">Visualize topics</a></li>
       <li><a href="#predict-topic-profiles">Predict topic profiles</a></li>
       <li><a href="#generate-all-posible-synthetic-spots">Generate all posible synthetic spots</a></li>
       <li><a href="#spot-deconvolution-1">Spot Deconvolution</a></li>
@@ -1601,7 +1602,7 @@ $(document).ready(function () {
     </div>
     
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
-              <p class="date"><span class="glyphicon glyphicon-calendar"></span> Last Updated: 29, enero, 2020 at 14:12</p>
+              <p class="date"><span class="glyphicon glyphicon-calendar"></span> Last Updated: 29, enero, 2020 at 15:15</p>
         </div>
 </div>
 
@@ -2016,151 +2017,156 @@ We can extract the top marker genes from each cluster and select the unique ones
 <a class="sourceLine" id="cb29-13" data-line-number="13">                   <span class="dt">control=</span>control_LDA_Gibbs)</a>
 <a class="sourceLine" id="cb29-14" data-line-number="14"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'LDA seeded took: %s'</span>, <span class="kw">difftime</span>(<span class="kw">Sys.time</span>(), s_gibbs_seed, <span class="dt">units =</span> <span class="st">'mins'</span>))) <span class="co"># Takes ~10min</span></a>
 <a class="sourceLine" id="cb29-15" data-line-number="15"><span class="kw">saveRDS</span>(lda_mod, <span class="dt">file =</span> <span class="kw">sprintf</span>(<span class="st">'%s/seeded_lda_%s_%s_%s.RDS'</span>, robj_dir, al, ver, id_comp))</a>
-<a class="sourceLine" id="cb29-16" data-line-number="16"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'%s/seeded_lda_%s_%s_%s.RDS'</span>, robj_dir, al, ver, id_comp))</a>
+<a class="sourceLine" id="cb29-16" data-line-number="16"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'%s/seeded_lda_%s_%s_%s.RDS'</span>, rotbj_dir, al, ver, id_comp))</a>
 <a class="sourceLine" id="cb29-17" data-line-number="17"></a>
 <a class="sourceLine" id="cb29-18" data-line-number="18">lda_mod &lt;-<span class="st"> </span>lda_mod_ls[[<span class="dv">1</span>]]</a></code></pre></div>
+</div>
+<div id="visualize-topics" class="section level3">
+<h3>Visualize topics</h3>
+<p>We can visualize the genes defining each topic we can plot it as follows.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">topic_viz</span>(<span class="dt">lda_mod =</span> lda_mod , <span class="dt">k =</span> <span class="dv">1</span>, <span class="dt">n_terms =</span> <span class="dv">40</span>)</a></code></pre></div>
 </div>
 <div id="predict-topic-profiles" class="section level3">
 <h3>Predict topic profiles</h3>
 <p>Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co"># Extract count matrix</span></a>
-<a class="sourceLine" id="cb30-2" data-line-number="2">spot_counts &lt;-<span class="st"> </span><span class="kw">Matrix</span>(sce_9cells_qc<span class="op">@</span>assays<span class="op">$</span>data<span class="op">$</span>counts,<span class="dt">sparse =</span> T)</a>
-<a class="sourceLine" id="cb30-3" data-line-number="3">ens_genes &lt;-<span class="st"> </span><span class="kw">rownames</span>(spot_counts)</a>
-<a class="sourceLine" id="cb30-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="co"># Convert Ensembl ids to symbols</span></a>
-<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="co"># library(org.Hs.eg.db)</span></a>
-<a class="sourceLine" id="cb30-7" data-line-number="7">symb_genes &lt;-<span class="st"> </span><span class="kw">mapIds</span>(<span class="dt">x =</span> org.Hs.eg.db, <span class="dt">keys =</span> ens_genes, <span class="dt">column =</span> <span class="st">'SYMBOL'</span>, <span class="dt">keytype =</span> <span class="st">'ENSEMBL'</span>)</a>
-<a class="sourceLine" id="cb30-8" data-line-number="8"><span class="kw">rownames</span>(spot_counts) &lt;-<span class="st"> </span>symb_genes</a>
-<a class="sourceLine" id="cb30-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb30-10" data-line-number="10"><span class="co"># Subset to genes used to train the model</span></a>
-<a class="sourceLine" id="cb30-11" data-line-number="11">spot_counts &lt;-<span class="st"> </span>spot_counts[<span class="kw">rownames</span>(spot_counts) <span class="op">%in%</span><span class="st"> </span>lda_mod<span class="op">@</span>terms, ]</a>
-<a class="sourceLine" id="cb30-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb30-13" data-line-number="13"><span class="co"># Transpose spot_counts so its SPOTxGENES</span></a>
-<a class="sourceLine" id="cb30-14" data-line-number="14">spot_counts &lt;-<span class="st"> </span>BiocGenerics<span class="op">::</span><span class="kw">t</span>(spot_counts)</a></code></pre></div>
-<p>Now to predict the topic profiles of the mixed spots…</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># Set up cluster to parallelize</span></a>
-<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="co"># Detect number of cores and use 60% of them</span></a>
-<a class="sourceLine" id="cb31-3" data-line-number="3">ncores &lt;-<span class="st"> </span><span class="kw">round</span>(parallel<span class="op">::</span><span class="kw">detectCores</span>() <span class="op">*</span><span class="st"> </span><span class="fl">0.60</span>)</a>
-<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co"># Set up the backend</span></a>
-<a class="sourceLine" id="cb31-5" data-line-number="5">cl &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw">makeCluster</span>(ncores)</a>
-<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co"># Register the backend</span></a>
-<a class="sourceLine" id="cb31-7" data-line-number="7">doSNOW<span class="op">::</span><span class="kw">registerDoSNOW</span>(cl)</a>
-<a class="sourceLine" id="cb31-8" data-line-number="8"></a>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># Extract count matrix</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">spot_counts &lt;-<span class="st"> </span><span class="kw">Matrix</span>(sce_9cells_qc<span class="op">@</span>assays<span class="op">$</span>data<span class="op">$</span>counts,<span class="dt">sparse =</span> T)</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3">ens_genes &lt;-<span class="st"> </span><span class="kw">rownames</span>(spot_counts)</a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="co"># Convert Ensembl ids to symbols</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co"># library(org.Hs.eg.db)</span></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7">symb_genes &lt;-<span class="st"> </span><span class="kw">mapIds</span>(<span class="dt">x =</span> org.Hs.eg.db, <span class="dt">keys =</span> ens_genes, <span class="dt">column =</span> <span class="st">'SYMBOL'</span>, <span class="dt">keytype =</span> <span class="st">'ENSEMBL'</span>)</a>
+<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="kw">rownames</span>(spot_counts) &lt;-<span class="st"> </span>symb_genes</a>
 <a class="sourceLine" id="cb31-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb31-10" data-line-number="10">pred_start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb31-11" data-line-number="11"><span class="kw">Sys.time</span>()</a>
+<a class="sourceLine" id="cb31-10" data-line-number="10"><span class="co"># Subset to genes used to train the model</span></a>
+<a class="sourceLine" id="cb31-11" data-line-number="11">spot_counts &lt;-<span class="st"> </span>spot_counts[<span class="kw">rownames</span>(spot_counts) <span class="op">%in%</span><span class="st"> </span>lda_mod<span class="op">@</span>terms, ]</a>
 <a class="sourceLine" id="cb31-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb31-13" data-line-number="13"><span class="kw">print</span>(<span class="st">'Running predictions'</span>)</a>
-<a class="sourceLine" id="cb31-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb31-15" data-line-number="15"><span class="co">## Set progress bar ##</span></a>
-<a class="sourceLine" id="cb31-16" data-line-number="16">iterations &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">seq</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(spot_counts),<span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb31-17" data-line-number="17">pb &lt;-<span class="st"> </span><span class="kw">txtProgressBar</span>(<span class="dt">max =</span> iterations, <span class="dt">style =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb31-18" data-line-number="18">progress &lt;-<span class="st"> </span><span class="cf">function</span>(n) <span class="kw">setTxtProgressBar</span>(pb, n)</a>
-<a class="sourceLine" id="cb31-19" data-line-number="19">opts &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">progress =</span> progress)</a>
-<a class="sourceLine" id="cb31-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb31-21" data-line-number="21">prediction &lt;-<span class="st"> </span><span class="kw">foreach</span>(<span class="dt">index=</span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(spot_counts),<span class="dv">10</span>),</a>
-<a class="sourceLine" id="cb31-22" data-line-number="22">                      <span class="dt">.combine =</span> <span class="st">'rbind'</span>,</a>
-<a class="sourceLine" id="cb31-23" data-line-number="23">                      <span class="dt">.packages=</span><span class="kw">c</span>(<span class="st">'topicmodels'</span>,<span class="st">'Matrix'</span>, <span class="st">'dplyr'</span>),</a>
-<a class="sourceLine" id="cb31-24" data-line-number="24">                      <span class="dt">.options.snow =</span> opts) <span class="op">%dopar%</span><span class="st"> </span>{</a>
-<a class="sourceLine" id="cb31-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb31-26" data-line-number="26">  index_end &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">if_else</span>( (index<span class="op">+</span><span class="dv">9</span>) <span class="op">&lt;=</span><span class="st"> </span><span class="kw">nrow</span>(spot_counts), <span class="kw">as.double</span>(index<span class="op">+</span><span class="dv">9</span>), <span class="kw">as.double</span>(<span class="kw">nrow</span>(spot_counts)))</a>
-<a class="sourceLine" id="cb31-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb31-28" data-line-number="28">  test_spots_pred &lt;-<span class="st"> </span>topicmodels<span class="op">::</span><span class="kw">posterior</span>(<span class="dt">object =</span> lda_mod,</a>
-<a class="sourceLine" id="cb31-29" data-line-number="29">                                            <span class="dt">newdata =</span> spot_counts[index<span class="op">:</span>index_end,])</a>
-<a class="sourceLine" id="cb31-30" data-line-number="30">  <span class="kw">return</span>(test_spots_pred<span class="op">$</span>topics)</a>
-<a class="sourceLine" id="cb31-31" data-line-number="31"></a>
-<a class="sourceLine" id="cb31-32" data-line-number="32">}</a>
-<a class="sourceLine" id="cb31-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb31-34" data-line-number="34">parallel<span class="op">::</span><span class="kw">stopCluster</span>(cl)</a>
-<a class="sourceLine" id="cb31-35" data-line-number="35"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'Time to predict: %s'</span>, <span class="kw">round</span>(<span class="kw">difftime</span>(<span class="kw">Sys.time</span>(), pred_start, <span class="dt">units =</span> <span class="st">'mins'</span>)),<span class="dv">2</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb31-13" data-line-number="13"><span class="co"># Transpose spot_counts so its SPOTxGENES</span></a>
+<a class="sourceLine" id="cb31-14" data-line-number="14">spot_counts &lt;-<span class="st"> </span>BiocGenerics<span class="op">::</span><span class="kw">t</span>(spot_counts)</a></code></pre></div>
+<p>Now to predict the topic profiles of the mixed spots…</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="co"># Set up cluster to parallelize</span></a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="co"># Detect number of cores and use 60% of them</span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3">ncores &lt;-<span class="st"> </span><span class="kw">round</span>(parallel<span class="op">::</span><span class="kw">detectCores</span>() <span class="op">*</span><span class="st"> </span><span class="fl">0.60</span>)</a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="co"># Set up the backend</span></a>
+<a class="sourceLine" id="cb32-5" data-line-number="5">cl &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw">makeCluster</span>(ncores)</a>
+<a class="sourceLine" id="cb32-6" data-line-number="6"><span class="co"># Register the backend</span></a>
+<a class="sourceLine" id="cb32-7" data-line-number="7">doSNOW<span class="op">::</span><span class="kw">registerDoSNOW</span>(cl)</a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb32-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb32-10" data-line-number="10">pred_start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
+<a class="sourceLine" id="cb32-11" data-line-number="11"><span class="kw">Sys.time</span>()</a>
+<a class="sourceLine" id="cb32-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb32-13" data-line-number="13"><span class="kw">print</span>(<span class="st">'Running predictions'</span>)</a>
+<a class="sourceLine" id="cb32-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb32-15" data-line-number="15"><span class="co">## Set progress bar ##</span></a>
+<a class="sourceLine" id="cb32-16" data-line-number="16">iterations &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">seq</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(spot_counts),<span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb32-17" data-line-number="17">pb &lt;-<span class="st"> </span><span class="kw">txtProgressBar</span>(<span class="dt">max =</span> iterations, <span class="dt">style =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb32-18" data-line-number="18">progress &lt;-<span class="st"> </span><span class="cf">function</span>(n) <span class="kw">setTxtProgressBar</span>(pb, n)</a>
+<a class="sourceLine" id="cb32-19" data-line-number="19">opts &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">progress =</span> progress)</a>
+<a class="sourceLine" id="cb32-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb32-21" data-line-number="21">prediction &lt;-<span class="st"> </span><span class="kw">foreach</span>(<span class="dt">index=</span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(spot_counts),<span class="dv">10</span>),</a>
+<a class="sourceLine" id="cb32-22" data-line-number="22">                      <span class="dt">.combine =</span> <span class="st">'rbind'</span>,</a>
+<a class="sourceLine" id="cb32-23" data-line-number="23">                      <span class="dt">.packages=</span><span class="kw">c</span>(<span class="st">'topicmodels'</span>,<span class="st">'Matrix'</span>, <span class="st">'dplyr'</span>),</a>
+<a class="sourceLine" id="cb32-24" data-line-number="24">                      <span class="dt">.options.snow =</span> opts) <span class="op">%dopar%</span><span class="st"> </span>{</a>
+<a class="sourceLine" id="cb32-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb32-26" data-line-number="26">  index_end &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">if_else</span>( (index<span class="op">+</span><span class="dv">9</span>) <span class="op">&lt;=</span><span class="st"> </span><span class="kw">nrow</span>(spot_counts), <span class="kw">as.double</span>(index<span class="op">+</span><span class="dv">9</span>), <span class="kw">as.double</span>(<span class="kw">nrow</span>(spot_counts)))</a>
+<a class="sourceLine" id="cb32-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb32-28" data-line-number="28">  test_spots_pred &lt;-<span class="st"> </span>topicmodels<span class="op">::</span><span class="kw">posterior</span>(<span class="dt">object =</span> lda_mod,</a>
+<a class="sourceLine" id="cb32-29" data-line-number="29">                                            <span class="dt">newdata =</span> spot_counts[index<span class="op">:</span>index_end,])</a>
+<a class="sourceLine" id="cb32-30" data-line-number="30">  <span class="kw">return</span>(test_spots_pred<span class="op">$</span>topics)</a>
+<a class="sourceLine" id="cb32-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb32-32" data-line-number="32">}</a>
+<a class="sourceLine" id="cb32-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb32-34" data-line-number="34">parallel<span class="op">::</span><span class="kw">stopCluster</span>(cl)</a>
+<a class="sourceLine" id="cb32-35" data-line-number="35"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'Time to predict: %s'</span>, <span class="kw">round</span>(<span class="kw">difftime</span>(<span class="kw">Sys.time</span>(), pred_start, <span class="dt">units =</span> <span class="st">'mins'</span>)),<span class="dv">2</span>))</a></code></pre></div>
 </div>
 <div id="generate-all-posible-synthetic-spots" class="section level3">
 <h3>Generate all posible synthetic spots</h3>
 <p>Below we generate all the possible spot combinations containing between 2-8 cells since we aproximate that by their size the spots won’t have more than ~10 cells</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="co">#### Calculate topic profiles for every cluster ####</span></a>
-<a class="sourceLine" id="cb32-2" data-line-number="2">clust_profiles &lt;-<span class="st"> </span><span class="kw">topic_profile_per_cluster</span>(<span class="dt">lda_mod =</span> lda_mod, <span class="dt">se_obj =</span> se_sc_10x_5cl_qc, <span class="dt">clust_vr =</span> clust_vr)</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="kw">round</span>(clust_profiles,<span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb32-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="cf">if</span>(<span class="kw">class</span>(clust_profiles) <span class="op">!=</span><span class="st"> &quot;matrix&quot;</span>) clust_profiles &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(clust_profiles)</a>
-<a class="sourceLine" id="cb32-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="co"># If a cluster is 0 change it to 1</span></a>
-<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="cf">if</span>(<span class="kw">sum</span>(<span class="kw">grepl</span>(<span class="dt">pattern =</span> <span class="st">&quot;0&quot;</span>,<span class="kw">rownames</span>(clust_profiles))) <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>){</a>
-<a class="sourceLine" id="cb32-9" data-line-number="9">  <span class="kw">rownames</span>(clust_profiles) &lt;-<span class="st"> </span><span class="kw">as.character</span>(<span class="kw">as.numeric</span>(<span class="kw">rownames</span>(clust_profiles))<span class="op">+</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb32-10" data-line-number="10">}</a>
-<a class="sourceLine" id="cb32-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb32-12" data-line-number="12"><span class="co"># Compute all possible combinations up to grabbing round(nrow(comb)*0.66)</span></a>
-<a class="sourceLine" id="cb32-13" data-line-number="13">k_sub &lt;-<span class="st"> </span><span class="dv">8</span></a>
-<a class="sourceLine" id="cb32-14" data-line-number="14">comb &lt;-<span class="st"> </span><span class="kw">combinations</span>(<span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span><span class="op">:</span>(<span class="kw">nrow</span>(clust_profiles))), <span class="dt">k =</span> k_sub, <span class="dt">replace=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb32-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb32-16" data-line-number="16"><span class="co"># Remove all those combinations that only include 1 or 2 cells</span></a>
-<a class="sourceLine" id="cb32-17" data-line-number="17">comb &lt;-<span class="st"> </span>comb[<span class="kw">rowSums</span>(comb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>,]</a>
-<a class="sourceLine" id="cb32-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb32-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb32-20" data-line-number="20"><span class="co"># Create all possible combinations</span></a>
-<a class="sourceLine" id="cb32-21" data-line-number="21"><span class="co">## Initialize matrix for increased speed so that it doesn't need to create indexes on the fly</span></a>
-<a class="sourceLine" id="cb32-22" data-line-number="22">tmp_mtrx &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(comb), <span class="dt">ncol =</span> <span class="kw">ncol</span>(clust_profiles))</a>
-<a class="sourceLine" id="cb32-23" data-line-number="23">tmp_metadata &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(comb), <span class="dt">ncol =</span> <span class="kw">nrow</span>(clust_profiles))</a>
-<a class="sourceLine" id="cb32-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb32-25" data-line-number="25"><span class="kw">print</span>(<span class="st">'Creating synthetic spots'</span>); st_syn_spot &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb32-26" data-line-number="26">pb_for &lt;-<span class="st"> </span><span class="kw">txtProgressBar</span>(<span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">max =</span> <span class="kw">nrow</span>(comb), <span class="dt">style =</span> <span class="dv">3</span>) <span class="co"># Progress bar</span></a>
-<a class="sourceLine" id="cb32-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb32-28" data-line-number="28"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(comb)) {</a>
-<a class="sourceLine" id="cb32-29" data-line-number="29">  <span class="co"># Get how many cells of each type we have</span></a>
-<a class="sourceLine" id="cb32-30" data-line-number="30">  tt &lt;-<span class="st"> </span><span class="kw">table</span>(comb[i,][comb[i,]<span class="op">!=</span><span class="dv">0</span>])</a>
-<a class="sourceLine" id="cb32-31" data-line-number="31">  tmp_metadata[i,<span class="kw">as.numeric</span>(<span class="kw">names</span>(tt))] &lt;-<span class="st"> </span>tt</a>
-<a class="sourceLine" id="cb32-32" data-line-number="32"></a>
-<a class="sourceLine" id="cb32-33" data-line-number="33">  <span class="co"># Add all the profiles together</span></a>
-<a class="sourceLine" id="cb32-34" data-line-number="34">  row_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">names</span>(tt), <span class="cf">function</span>(nm){</a>
-<a class="sourceLine" id="cb32-35" data-line-number="35">    tmp_vec &lt;-<span class="st"> </span>tt[[nm]]<span class="op">*</span>clust_profiles[<span class="kw">rownames</span>(clust_profiles)[[<span class="kw">as.numeric</span>(nm)]],]</a>
-<a class="sourceLine" id="cb32-36" data-line-number="36">  }) <span class="op">%&gt;%</span><span class="st"> </span>purrr<span class="op">::</span><span class="kw">reduce</span>(.,<span class="st">`</span><span class="dt">+</span><span class="st">`</span>)</a>
-<a class="sourceLine" id="cb32-37" data-line-number="37"></a>
-<a class="sourceLine" id="cb32-38" data-line-number="38">  tmp_mtrx[i,] &lt;-<span class="st"> </span>row_i<span class="op">/</span><span class="kw">sum</span>(tt)</a>
-<a class="sourceLine" id="cb32-39" data-line-number="39">  <span class="co"># update progress bar</span></a>
-<a class="sourceLine" id="cb32-40" data-line-number="40">  <span class="kw">setTxtProgressBar</span>(pb_for, i)</a>
-<a class="sourceLine" id="cb32-41" data-line-number="41">}</a>
-<a class="sourceLine" id="cb32-42" data-line-number="42"><span class="co"># rm(list(i,tt,row_i)) # For clean and good practice code, that there are no random tmp variables floating</span></a>
-<a class="sourceLine" id="cb32-43" data-line-number="43"><span class="kw">close</span>(pb_for)</a>
-<a class="sourceLine" id="cb32-44" data-line-number="44"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'Creation of %s synthetic spot profiles took: %s minutes'</span>,</a>
-<a class="sourceLine" id="cb32-45" data-line-number="45">                          <span class="kw">nrow</span>(comb),</a>
-<a class="sourceLine" id="cb32-46" data-line-number="46">                          <span class="kw">round</span>(<span class="kw">difftime</span>(<span class="dt">time1 =</span> <span class="kw">Sys.time</span>(),<span class="dt">time2 =</span> st_syn_spot,<span class="dt">units =</span> <span class="st">'mins'</span>),<span class="dv">2</span>)))</a>
-<a class="sourceLine" id="cb32-47" data-line-number="47"></a>
-<a class="sourceLine" id="cb32-48" data-line-number="48">syn_spots_ls &lt;-<span class="st"> </span><span class="kw">list</span>(tmp_mtrx,tmp_metadata)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co">#### Calculate topic profiles for every cluster ####</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2">clust_profiles &lt;-<span class="st"> </span><span class="kw">topic_profile_per_cluster</span>(<span class="dt">lda_mod =</span> lda_mod, <span class="dt">se_obj =</span> se_sc_10x_5cl_qc, <span class="dt">clust_vr =</span> clust_vr)</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="kw">round</span>(clust_profiles,<span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb33-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="cf">if</span>(<span class="kw">class</span>(clust_profiles) <span class="op">!=</span><span class="st"> &quot;matrix&quot;</span>) clust_profiles &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(clust_profiles)</a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="co"># If a cluster is 0 change it to 1</span></a>
+<a class="sourceLine" id="cb33-8" data-line-number="8"><span class="cf">if</span>(<span class="kw">sum</span>(<span class="kw">grepl</span>(<span class="dt">pattern =</span> <span class="st">&quot;0&quot;</span>,<span class="kw">rownames</span>(clust_profiles))) <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>){</a>
+<a class="sourceLine" id="cb33-9" data-line-number="9">  <span class="kw">rownames</span>(clust_profiles) &lt;-<span class="st"> </span><span class="kw">as.character</span>(<span class="kw">as.numeric</span>(<span class="kw">rownames</span>(clust_profiles))<span class="op">+</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb33-10" data-line-number="10">}</a>
+<a class="sourceLine" id="cb33-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb33-12" data-line-number="12"><span class="co"># Compute all possible combinations up to grabbing round(nrow(comb)*0.66)</span></a>
+<a class="sourceLine" id="cb33-13" data-line-number="13">k_sub &lt;-<span class="st"> </span><span class="dv">8</span></a>
+<a class="sourceLine" id="cb33-14" data-line-number="14">comb &lt;-<span class="st"> </span><span class="kw">combinations</span>(<span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span><span class="op">:</span>(<span class="kw">nrow</span>(clust_profiles))), <span class="dt">k =</span> k_sub, <span class="dt">replace=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb33-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb33-16" data-line-number="16"><span class="co"># Remove all those combinations that only include 1 or 2 cells</span></a>
+<a class="sourceLine" id="cb33-17" data-line-number="17">comb &lt;-<span class="st"> </span>comb[<span class="kw">rowSums</span>(comb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>,]</a>
+<a class="sourceLine" id="cb33-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb33-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb33-20" data-line-number="20"><span class="co"># Create all possible combinations</span></a>
+<a class="sourceLine" id="cb33-21" data-line-number="21"><span class="co">## Initialize matrix for increased speed so that it doesn't need to create indexes on the fly</span></a>
+<a class="sourceLine" id="cb33-22" data-line-number="22">tmp_mtrx &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(comb), <span class="dt">ncol =</span> <span class="kw">ncol</span>(clust_profiles))</a>
+<a class="sourceLine" id="cb33-23" data-line-number="23">tmp_metadata &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(comb), <span class="dt">ncol =</span> <span class="kw">nrow</span>(clust_profiles))</a>
+<a class="sourceLine" id="cb33-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb33-25" data-line-number="25"><span class="kw">print</span>(<span class="st">'Creating synthetic spots'</span>); st_syn_spot &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
+<a class="sourceLine" id="cb33-26" data-line-number="26">pb_for &lt;-<span class="st"> </span><span class="kw">txtProgressBar</span>(<span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">max =</span> <span class="kw">nrow</span>(comb), <span class="dt">style =</span> <span class="dv">3</span>) <span class="co"># Progress bar</span></a>
+<a class="sourceLine" id="cb33-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb33-28" data-line-number="28"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(comb)) {</a>
+<a class="sourceLine" id="cb33-29" data-line-number="29">  <span class="co"># Get how many cells of each type we have</span></a>
+<a class="sourceLine" id="cb33-30" data-line-number="30">  tt &lt;-<span class="st"> </span><span class="kw">table</span>(comb[i,][comb[i,]<span class="op">!=</span><span class="dv">0</span>])</a>
+<a class="sourceLine" id="cb33-31" data-line-number="31">  tmp_metadata[i,<span class="kw">as.numeric</span>(<span class="kw">names</span>(tt))] &lt;-<span class="st"> </span>tt</a>
+<a class="sourceLine" id="cb33-32" data-line-number="32"></a>
+<a class="sourceLine" id="cb33-33" data-line-number="33">  <span class="co"># Add all the profiles together</span></a>
+<a class="sourceLine" id="cb33-34" data-line-number="34">  row_i &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">names</span>(tt), <span class="cf">function</span>(nm){</a>
+<a class="sourceLine" id="cb33-35" data-line-number="35">    tmp_vec &lt;-<span class="st"> </span>tt[[nm]]<span class="op">*</span>clust_profiles[<span class="kw">rownames</span>(clust_profiles)[[<span class="kw">as.numeric</span>(nm)]],]</a>
+<a class="sourceLine" id="cb33-36" data-line-number="36">  }) <span class="op">%&gt;%</span><span class="st"> </span>purrr<span class="op">::</span><span class="kw">reduce</span>(.,<span class="st">`</span><span class="dt">+</span><span class="st">`</span>)</a>
+<a class="sourceLine" id="cb33-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb33-38" data-line-number="38">  tmp_mtrx[i,] &lt;-<span class="st"> </span>row_i<span class="op">/</span><span class="kw">sum</span>(tt)</a>
+<a class="sourceLine" id="cb33-39" data-line-number="39">  <span class="co"># update progress bar</span></a>
+<a class="sourceLine" id="cb33-40" data-line-number="40">  <span class="kw">setTxtProgressBar</span>(pb_for, i)</a>
+<a class="sourceLine" id="cb33-41" data-line-number="41">}</a>
+<a class="sourceLine" id="cb33-42" data-line-number="42"><span class="co"># rm(list(i,tt,row_i)) # For clean and good practice code, that there are no random tmp variables floating</span></a>
+<a class="sourceLine" id="cb33-43" data-line-number="43"><span class="kw">close</span>(pb_for)</a>
+<a class="sourceLine" id="cb33-44" data-line-number="44"><span class="kw">print</span>(<span class="kw">sprintf</span>(<span class="st">'Creation of %s synthetic spot profiles took: %s minutes'</span>,</a>
+<a class="sourceLine" id="cb33-45" data-line-number="45">                          <span class="kw">nrow</span>(comb),</a>
+<a class="sourceLine" id="cb33-46" data-line-number="46">                          <span class="kw">round</span>(<span class="kw">difftime</span>(<span class="dt">time1 =</span> <span class="kw">Sys.time</span>(),<span class="dt">time2 =</span> st_syn_spot,<span class="dt">units =</span> <span class="st">'mins'</span>),<span class="dv">2</span>)))</a>
+<a class="sourceLine" id="cb33-47" data-line-number="47"></a>
+<a class="sourceLine" id="cb33-48" data-line-number="48">syn_spots_ls &lt;-<span class="st"> </span><span class="kw">list</span>(tmp_mtrx,tmp_metadata)</a></code></pre></div>
 </div>
 <div id="spot-deconvolution-1" class="section level3">
 <h3>Spot Deconvolution</h3>
 <p>Create all posible combinations between 3-8 cells per spot. We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the spatial spots through the LDA model. The prediction process can be parallelized to speed it up.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">syn_spots_profiles &lt;-<span class="st"> </span>syn_spots_ls[[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2">syn_spots_metadata &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(syn_spots_ls[[<span class="dv">2</span>]])</a>
-<a class="sourceLine" id="cb33-3" data-line-number="3">syn_spots_metadata[<span class="kw">is.na</span>(syn_spots_metadata)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb33-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="co"># Calculate all pairwise euclidean distances between the predicted and simulated topic profiles</span></a>
-<a class="sourceLine" id="cb33-6" data-line-number="6">dist &lt;-<span class="st"> </span><span class="kw">pdist</span>(<span class="dt">X=</span>prediction,<span class="dt">Y=</span>syn_spots_profiles)</a>
-<a class="sourceLine" id="cb33-7" data-line-number="7">dist_mtrx &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(dist)</a>
-<a class="sourceLine" id="cb33-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb33-9" data-line-number="9">JSD_start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
-<a class="sourceLine" id="cb33-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb33-11" data-line-number="11"><span class="co"># Get list with indices of best euclidean distance for each predictions</span></a>
-<a class="sourceLine" id="cb33-12" data-line-number="12">JSD_indices &lt;-<span class="st"> </span><span class="kw">top_n_predictions</span>(<span class="dt">dist_mtrx =</span> dist_mtrx, <span class="dt">n =</span> top_dist)</a>
-<a class="sourceLine" id="cb33-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb33-14" data-line-number="14"><span class="co">#### Calculate JSD for the subset of best predictions according to Euclidean distance</span></a>
-<a class="sourceLine" id="cb33-15" data-line-number="15">mtrx_JSD_full &lt;-<span class="st"> </span><span class="kw">suppressMessages</span>(<span class="kw">calculate_JSD_subset</span>(<span class="dt">prediction =</span> prediction, <span class="dt">syn_spots_profiles =</span> syn_spots_profiles, <span class="dt">JSD_indices =</span> JSD_indices))</a>
-<a class="sourceLine" id="cb33-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb33-17" data-line-number="17">quants_JSD &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">quantile</span>(matrixStats<span class="op">::</span><span class="kw">rowMins</span>(mtrx_JSD_full,<span class="dt">na.rm =</span> <span class="ot">TRUE</span>),<span class="kw">c</span>(<span class="fl">0.25</span>,<span class="fl">0.5</span>,<span class="fl">0.75</span>)),<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb33-18" data-line-number="18"><span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]&quot;</span>, quants_JSD[[<span class="dv">2</span>]], quants_JSD[[<span class="dv">1</span>]], quants_JSD[[<span class="dv">3</span>]]))</a>
-<a class="sourceLine" id="cb33-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb33-20" data-line-number="20"><span class="co"># Get the index for each list from JSD_indices with the lowest JSD</span></a>
-<a class="sourceLine" id="cb33-21" data-line-number="21">top_JSD &lt;-<span class="st"> </span><span class="kw">if_else</span>(top_JSD <span class="op">&lt;=</span><span class="st"> </span>top_dist, top_JSD, top_dist)</a>
-<a class="sourceLine" id="cb33-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb33-23" data-line-number="23">min15_error &lt;-<span class="st"> </span>Rfast<span class="op">::</span><span class="kw">rownth</span>(<span class="dt">x =</span> mtrx_JSD_full, <span class="dt">elems =</span> <span class="kw">rep</span>(top_JSD, <span class="kw">nrow</span>(mtrx_JSD_full)), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb33-24" data-line-number="24">min_indices_JSD &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(min15_error), <span class="cf">function</span>(i){</a>
-<a class="sourceLine" id="cb33-25" data-line-number="25">  <span class="kw">which</span>(mtrx_JSD_full[i,] <span class="op">&lt;=</span><span class="st"> </span>min15_error[i])</a>
-<a class="sourceLine" id="cb33-26" data-line-number="26">})</a>
-<a class="sourceLine" id="cb33-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb33-28" data-line-number="28"><span class="co">##### Get Spot composition #####</span></a>
-<a class="sourceLine" id="cb33-29" data-line-number="29">spot_composition_mtrx &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">length</span>(min_indices_JSD), <span class="dt">ncol =</span> <span class="kw">ncol</span>(syn_spots_metadata))</a>
-<a class="sourceLine" id="cb33-30" data-line-number="30"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(spot_composition_mtrx)) {</a>
-<a class="sourceLine" id="cb33-31" data-line-number="31">  spot_composition_mtrx[i,] &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">colMeans</span>(syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],],<span class="dt">na.rm =</span> <span class="ot">TRUE</span>),<span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb33-32" data-line-number="32">}</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">syn_spots_profiles &lt;-<span class="st"> </span>syn_spots_ls[[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2">syn_spots_metadata &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(syn_spots_ls[[<span class="dv">2</span>]])</a>
+<a class="sourceLine" id="cb34-3" data-line-number="3">syn_spots_metadata[<span class="kw">is.na</span>(syn_spots_metadata)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="co"># Calculate all pairwise euclidean distances between the predicted and simulated topic profiles</span></a>
+<a class="sourceLine" id="cb34-6" data-line-number="6">dist &lt;-<span class="st"> </span><span class="kw">pdist</span>(<span class="dt">X=</span>prediction,<span class="dt">Y=</span>syn_spots_profiles)</a>
+<a class="sourceLine" id="cb34-7" data-line-number="7">dist_mtrx &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(dist)</a>
+<a class="sourceLine" id="cb34-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb34-9" data-line-number="9">JSD_start &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</a>
+<a class="sourceLine" id="cb34-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb34-11" data-line-number="11"><span class="co"># Get list with indices of best euclidean distance for each predictions</span></a>
+<a class="sourceLine" id="cb34-12" data-line-number="12">JSD_indices &lt;-<span class="st"> </span><span class="kw">top_n_predictions</span>(<span class="dt">dist_mtrx =</span> dist_mtrx, <span class="dt">n =</span> top_dist)</a>
+<a class="sourceLine" id="cb34-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb34-14" data-line-number="14"><span class="co">#### Calculate JSD for the subset of best predictions according to Euclidean distance</span></a>
+<a class="sourceLine" id="cb34-15" data-line-number="15">mtrx_JSD_full &lt;-<span class="st"> </span><span class="kw">suppressMessages</span>(<span class="kw">calculate_JSD_subset</span>(<span class="dt">prediction =</span> prediction, <span class="dt">syn_spots_profiles =</span> syn_spots_profiles, <span class="dt">JSD_indices =</span> JSD_indices))</a>
+<a class="sourceLine" id="cb34-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb34-17" data-line-number="17">quants_JSD &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">quantile</span>(matrixStats<span class="op">::</span><span class="kw">rowMins</span>(mtrx_JSD_full,<span class="dt">na.rm =</span> <span class="ot">TRUE</span>),<span class="kw">c</span>(<span class="fl">0.25</span>,<span class="fl">0.5</span>,<span class="fl">0.75</span>)),<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb34-18" data-line-number="18"><span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]&quot;</span>, quants_JSD[[<span class="dv">2</span>]], quants_JSD[[<span class="dv">1</span>]], quants_JSD[[<span class="dv">3</span>]]))</a>
+<a class="sourceLine" id="cb34-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb34-20" data-line-number="20"><span class="co"># Get the index for each list from JSD_indices with the lowest JSD</span></a>
+<a class="sourceLine" id="cb34-21" data-line-number="21">top_JSD &lt;-<span class="st"> </span><span class="kw">if_else</span>(top_JSD <span class="op">&lt;=</span><span class="st"> </span>top_dist, top_JSD, top_dist)</a>
+<a class="sourceLine" id="cb34-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb34-23" data-line-number="23">min15_error &lt;-<span class="st"> </span>Rfast<span class="op">::</span><span class="kw">rownth</span>(<span class="dt">x =</span> mtrx_JSD_full, <span class="dt">elems =</span> <span class="kw">rep</span>(top_JSD, <span class="kw">nrow</span>(mtrx_JSD_full)), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb34-24" data-line-number="24">min_indices_JSD &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(min15_error), <span class="cf">function</span>(i){</a>
+<a class="sourceLine" id="cb34-25" data-line-number="25">  <span class="kw">which</span>(mtrx_JSD_full[i,] <span class="op">&lt;=</span><span class="st"> </span>min15_error[i])</a>
+<a class="sourceLine" id="cb34-26" data-line-number="26">})</a>
+<a class="sourceLine" id="cb34-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb34-28" data-line-number="28"><span class="co">##### Get Spot composition #####</span></a>
+<a class="sourceLine" id="cb34-29" data-line-number="29">spot_composition_mtrx &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">length</span>(min_indices_JSD), <span class="dt">ncol =</span> <span class="kw">ncol</span>(syn_spots_metadata))</a>
+<a class="sourceLine" id="cb34-30" data-line-number="30"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(spot_composition_mtrx)) {</a>
+<a class="sourceLine" id="cb34-31" data-line-number="31">  spot_composition_mtrx[i,] &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">colMeans</span>(syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],],<span class="dt">na.rm =</span> <span class="ot">TRUE</span>),<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb34-32" data-line-number="32">}</a></code></pre></div>
 </div>
 </div>
 </div>
