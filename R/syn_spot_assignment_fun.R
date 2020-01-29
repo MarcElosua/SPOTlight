@@ -59,6 +59,7 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_JSD
 
   ##### Get Spot composition #####
   spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
+  colnames(spot_composition_mtrx) <- colnames(syn_spots_metadata)
 
   for (i in 1:nrow(spot_composition_mtrx)) {
     # Determine how many predictions we are adding since if there is only 1 we cannot do colmeans and we just need to assign it.

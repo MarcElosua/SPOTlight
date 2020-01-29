@@ -47,8 +47,8 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
 
   prediction <- foreach(index=seq(1,nrow(spot_counts),10),
                         .combine = 'rbind',
-                        .packages=c('topicmodels','Matrix', 'dplyr'),
-                        .options.snow = opts) %dopar% {
+                        .options.snow = opts,
+                        .packages=c('topicmodels','Matrix', 'dplyr')) %dopar% {
 
     index_end <- dplyr::if_else( (index+9) <= nrow(spot_counts), as.double(index+9), as.double(nrow(spot_counts)))
 

@@ -52,6 +52,7 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE){
   ## Initialize matrix for increased speed so that it doesn't need to create indexes on the fly
   tmp_mtrx <- matrix(nrow = nrow(comb), ncol = ncol(clust_profiles))
   tmp_metadata <- matrix(nrow = nrow(comb), ncol = nrow(clust_profiles))
+  colnames(tmp_metadata) <- rownames(clust_profiles)
 
   if(verbose) print('Creating synthetic spots'); st_syn_spot <- Sys.time()
   if(verbose) pb_for <- txtProgressBar(min = 0, max = nrow(comb), style = 3) # Progress bar
@@ -66,11 +67,14 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE){
       tmp_vec <- tt[[nm]]*clust_profiles[rownames(clust_profiles)[[as.numeric(nm)]],]
     }) %>% purrr::reduce(.,`+`)
 
+    # Save mean of the profiles
     tmp_mtrx[i,] <- row_i/sum(tt)
     # update progress bar
     if(verbose) setTxtProgressBar(pb_for, i)
-  }
-  # rm(list(i,tt,row_i)) # For clean and good practice code, that there are no random tmp variables floating
+  }; rm(i,tt,row_i) # For clean and good practice code, that there are no random tmp variables floating
+
+  tmp_metadata[is.na(tmp_metadata)] <- 0
+
   close(pb_for)
   if(verbose) print(sprintf('Creation of %s synthetic spot profiles took: %s minutes',
                             nrow(comb),
