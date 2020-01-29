@@ -4,8 +4,12 @@ date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
 output:
   md_document:
     variant: markdown_github
-editor_options: 
+editor_options:
   chunk_output_type: console
+# output:
+#   rmdformats::readthedown:
+#     toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+#     highlight: tango  # specifies the syntax highlighting style
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -18,7 +22,7 @@ knitr::opts_chunk$set(
   out.width = "100%",
   cache = TRUE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE
 )
 ```
 
@@ -31,7 +35,7 @@ knitr::opts_chunk$set(
 # <!-- badges: end -->
 ```
 
-The goal of SpatialDeconTest is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each spot obtained from 10X's visium - spatial trancsiptomics- technology. 
+The goal of SpatialDeconTest is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each spot obtained from 10X's visium - spatial trancsiptomics- technology. It is based on finding topic profile signatures, by means of a Latent Dirichlet Allocation model, for each cell type and finding which combination fits best the spot we want to deconvolute.
 
 ![Graphical abstract](img/graphical_abstract_deconvolution.png)
 
@@ -108,10 +112,10 @@ se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cel
 Once we have the data ready to pass to the model we can train it as shown below. For larger and more complex datasets ~8000 gibbs iterations are recommended. If more iterations are needed you can always resume where you left off and run more iterations on the previosuly trained model.
 ```{r}
 #### Train LDA model ####
-set.seed(1)
+set.seed(1000)
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
-                        verbose = 100, iter = 300, burnin = 100, 
+                        verbose = 100, iter = 500, burnin = 100, 
                         best = TRUE, keep = 1, nstart = 1)
 
 # Select the best model
@@ -149,6 +153,7 @@ decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
 
 ```
 
+### Deconvolution performance
 Assess the performance comparing with the ground truth.
 We need to remove the 90 cell spots:
 ```{r}
@@ -160,6 +165,12 @@ keep_spots <- which(rowSums(sce_9cells_metadata) != 0)
 ## Keep spots
 sce_9cells_metadata <- sce_9cells_metadata[keep_spots,]
 ```
+
+Note that 2 type of statistcs are returned. JSD refers to Jensen-Shannon Divergence distance metric which indicates how close 2 probability distributions are, therefore answering the question - *How close are the proportions predicted to the ground truth?*. In parallel we also assess how good we are at detecting cell types that are present within that spot, regardless of its proportion. The metrics used are *Accuracy*, *Sensitivity*, *Specificity*, *precision*, *recall*, *F1 score*. In this case:
+- **true positive** the cell type is correctly predicted to be found within the spot.
+- **true negative** the cell type is correctly predicted as not found within the spot.
+- **false positive** the cell type is incorrectly predicted to be found within the spot when it is not present.
+- **false negative** the cell type is incorrectly predicted to not be found within the spot when it is present.
 
 ```{r}
 raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = sce_9cells_metadata, 
@@ -275,8 +286,9 @@ bot_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[4]], QC_plots2), ncol = 
 QC_plts <- ggpubr::ggarrange(plotlist = list(top_row, bot_row),
                              nrow = 2, align = 'hv')
 QC_plts
+QC_plts %>% ggpubr::ggexport(plotlist = ., filename = 'img/QC_plots_comb.pdf', width = 12, height = 8, res = 600)
 ```
-![QC plots](img/QC_plots_comb.pdf)
+![QC plots](img/QC_plots_comb.png)
 
 From the QC plots we can see that library size, number of detected genes and mitochondrial gene proportion follow a normal distribution with not much skewness. Furthermore the mitochondrial proportion does not show a correlatino with the number of detected genes so we wont regress out the effect ot mitochondrial proportion. No obvious low quality cells remain in this dataset so we won't exclude any further ones.
 
@@ -288,17 +300,23 @@ DimPlot(se_sc_10x_5cl_qc, reduction = 'pca', group.by = 'cell_line_demuxlet')
 DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line')
 DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line_demuxlet')
 DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'seurat_clusters', label = T)
+
+DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line_demuxlet') %>% 
+  ggpubr::ggexport(plotlist = ., filename = 'img/UMAP_demuxlet.pdf', width = 12, height = 8, res = 600)
 ```
-![UMAP demuxlet](img/UMAP_demuxlet.pdf)
+![UMAP demuxlet](img/UMAP_demuxlet.png)
 
 If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized. Since it is always better to not over-correct the data we won't regress out the cell cycle.
 ```{r eval = FALSE}
 FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C','CCND1'))
+FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C','CCND1')) %>% 
+  ggpubr::ggexport(plotlist = ., filename = 'img/Feat_plot_CC.pdf', width = 12, height = 8, res = 600)
+
 # Cdt1 accumulates in G1 and is degraded in S
 # CDC25A/B/C - DNA markers are good markers to study the G1/S phase.
 # CCND1 (Cyclin D1) is required for G1/S cell cycle transition and can also be used as a G2/M checkpoint marker
 ```
-![Feature plot Cell cycle](img/Feat_plot_CC.pdf)
+![Feature plot Cell cycle](img/Feat_plot_CC.png)
 
 ### Downsampling dataset
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
