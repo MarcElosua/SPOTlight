@@ -13,33 +13,33 @@
 #' @param delta Object of class "numeric"; initial value for delta, by default equals 0.1.
 #' @param iter Object of class "integer"; number of Gibbs iterations, by default equals 5000.
 #' @param burnin Object of class "integer"; number of omitted Gibbs iterations at beginning, by default equals 0.
+#' @param ... Other arguments passed on to LDA mod
 #' @param thin Object of class "integer"; number of omitted in-between Gibbs iterations, by default equals iter.
 #' @return A Latent Dirichlet Allocation list of model/s depending on if return best is T or F.
 #' @export
 #' @examples
 #'
 
-train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1, estimate.beta=TRUE, save=0, keep=100, nstart=1, best=TRUE, delta=0.1, iter=5000, burnin=0, thin=NULL){
+train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1, estimate.beta=TRUE, save=0, keep=100, nstart=1, best=TRUE, delta=0.1, iter=5000, burnin=0, thin=NULL, ...) {
 
   # Check variables
-  if(is(se_obj)!="Seurat") {stop("ERROR: se_obj must be a Seurat object!")}
-  if(!is.character(clust_vr)){stop("ERROR: clust_vr must be a character string!")}
-  if(!is.data.frame(cluster_markers_all)){stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")}
-  if(!is.numeric(al)){stop("ERROR: al must be of class numeric!")}
-  if(al <= 0){stop("ERROR: al greater than 0!")}
-  if(verbose < 0){stop("ERROR: verbose must be an integer greater or equal than 0!")}
-  if(!is.logical(estimate.beta)){stop("ERROR: estimate.beta must be of class logical!")}
-  if(!is.numeric(save)){stop("ERROR: save must be of class integer!")}
-  if(!is.numeric(keep)){stop("ERROR: keep must be of class integer!")}
-  if(!is.numeric(nstart)){stop("ERROR: nstart must be of class integer!")}
-  if(!is.logical(best)){stop("ERROR: best must be of class logical!")}
-  if(!is.numeric(delta)){stop("ERROR: delta must be of class numeric!")}
-  if(!is.numeric(iter)){stop("ERROR: iter must be of class integer!")}
-  if(!is.numeric(burnin)){stop("ERROR: burnin must be of class integer!")}
-  if(!(is.numeric(thin) | is.null(thin))){stop("ERROR: thin must be of class integer!")}
+  if (is(se_obj)!="Seurat") stop("ERROR: se_obj must be a Seurat object!")
+  if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
+  if (!is.data.frame(cluster_markers_all)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
+  if (!is.numeric(al)) stop("ERROR: al must be of class numeric!")
+  if (al <= 0) stop("ERROR: al greater than 0!")
+  if (verbose < 0) stop("ERROR: verbose must be an integer greater or equal than 0!")
+  if (!is.logical(estimate.beta)) stop("ERROR: estimate.beta must be of class logical!")
+  if (!is.numeric(save)) stop("ERROR: save must be of class integer!")
+  if (!is.numeric(keep)) stop("ERROR: keep must be of class integer!")
+  if (!is.numeric(nstart)) stop("ERROR: nstart must be of class integer!")
+  if (!is.logical(best)) stop("ERROR: best must be of class logical!")
+  if (!is.numeric(delta)) stop("ERROR: delta must be of class numeric!")
+  if (!is.numeric(iter)) stop("ERROR: iter must be of class integer!")
+  if (!is.numeric(burnin)) stop("ERROR: burnin must be of class integer!")
+  if (!(is.numeric(thin) | is.null(thin))) stop("ERROR: thin must be of class integer!")
 
-  #load required packages
-  # cat("Loading packages...", sep="\n")
+  # load required packages
   suppressMessages(require(Seurat))
   suppressMessages(require(topicmodels))
   suppressMessages(require(dplyr))
@@ -47,7 +47,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   suppressMessages(require(tibble))
   suppressMessages(require(Matrix))
 
-  se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[,clust_vr]))
+  se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
   #### Setting common parameters ####
   k <- nlevels(droplevels(factor(se_obj$seurat_clusters)))
@@ -55,19 +55,17 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
 
   #### Get dataset ready ####
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
-  # se_obj <- FindVariableFeatures(object = se_obj, nfeatures = 5000)
-  # se_obj <- SCTransform(se_obj, verbose = T,variable.features.n = 5000)
 
   # Select top 100 genes for each cluster
   cluster_markers <- cut_markers2(markers = cluster_markers_all, ntop = 100)
 
   # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
   cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust){
-    ls1 <- cluster_markers[cluster_markers$cluster == clust,'gene']
-    ls2 <- cluster_markers[cluster_markers$cluster != clust,'gene']
+    ls1 <- cluster_markers[cluster_markers$cluster == clust, 'gene']
+    ls2 <- cluster_markers[cluster_markers$cluster != clust, 'gene']
     ls1_unique <- ls1[!ls1 %in% ls2]
 
-    return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique,])
+    return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique, ])
   }) %>%
     bind_rows()
 
@@ -77,11 +75,17 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   # To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC
 
   # initialize matrix
-  seedgenes <- matrix(nrow=k, ncol=ncol(se_lda_ready), data=0)
+  seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
   colnames(seedgenes) = colnames(se_lda_ready)
 
 
-  for (i in 1:k) { seedgenes[i,cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'gene']] = cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'logFC_z']; print(i) }
+  for (i in seq_len(k)) {
+    seedgenes[i,
+              cluster_markers_uniq[cluster_markers_uniq$cluster ==
+                                     cluster_markers_uniq$cluster[[i]], "gene"]] =
+              cluster_markers_uniq[cluster_markers_uniq$cluster ==
+                                     cluster_markers_uniq$cluster[[i]], "logFC_z"]
+    }
 
   # Verify that weights have been added
   table(seedgenes != 0)
@@ -90,16 +94,17 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   # Set parameters
   control_LDA_Gibbs <- list(alpha = al, estimate.beta = estimate.beta,
                             verbose = verbose, prefix = tempfile(), save = save, keep = keep,
-                            seed = sample(x=1:1000,size=nstart), nstart = nstart, best = best,
+                            seed = sample(x= 1:1000, size=nstart), nstart = nstart, best = best,
                             delta = delta, iter = iter, burnin = burnin, thin = thin)
 
   # Train model
   s_gibbs_seed <- Sys.time()
   print(s_gibbs_seed)
-  lda_mod <- LDA(se_lda_ready, k=k,
-                 method='Gibbs', seedwords=seedgenes, # Seedwords are only available with Gibbs sampling
-                 control=control_LDA_Gibbs)
-  print(sprintf('LDA seeded took: %s minutes', round(difftime(Sys.time(), s_gibbs_seed, units = 'mins'),2))) # Takes ~10min
+  lda_mod <- LDA(se_lda_ready, k = k,
+                 method = "Gibbs", seedwords = seedgenes, # Seedwords are only available with Gibbs sampling
+                 control = control_LDA_Gibbs, ...)
+  print(sprintf("LDA seeded took: %s minutes",
+                round(difftime(Sys.time(), s_gibbs_seed, units = "mins"), 2))) # Takes ~10min
 
   if(is(lda_mod)[[1]] == "Gibbs_list") return(lda_mod@fitted) else return(list(lda_mod))
 }

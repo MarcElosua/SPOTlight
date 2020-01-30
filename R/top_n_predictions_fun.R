@@ -7,17 +7,17 @@
 #' @examples
 #'
 
-top_n_predictions <- function(dist_mtrx,n){
+top_n_predictions <- function(dist_mtrx, n) {
 
-  if( ! is.matrix(dist_mtrx) ) {stop("ERROR: dist_mtrx must be a matrix object!")}
+  if (!is.matrix(dist_mtrx)) stop("ERROR: dist_mtrx must be a matrix object!")
 
   # check that n isn't bigger than nrow(dist_mtrx), that will throw it off
   n <- dplyr::if_else(n < ncol(dist_mtrx), n, as.double(ncol(dist_mtrx)))
   min_error <- Rfast::rownth(x = dist_mtrx, elems = rep(n, nrow(dist_mtrx)))
 
   # Get indices over which to calculate JD
-  JD_indices <- lapply(1:length(min_error), function(i){
-    which(dist_mtrx[i,] <= min_error[i])
+  jd_indices <- lapply(seq_len(length(min_error)), function(i) {
+    which(dist_mtrx[i, ] <= min_error[i])
   })
-  return(JD_indices)
+  return(jd_indices)
 }
