@@ -9,23 +9,22 @@
 #' @examples
 #'
 
-lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
+lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T) {
 
   # Check variables
-  if(is(lda_mod)[[1]] != "LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
-  # if(is(spot_counts)!="LDA_Gibbs") {stop("ERROR: lda_mod must be a LDA_Gibbs object!")}
-  if(!is.numeric(ncores)) {stop("ERROR: ncores must be an integer!")}
-  if(!is.logical(parallelize)) {stop("ERROR: parallelize must be logical!")}
+  if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")
+  if (!is.numeric(ncores)) stop("ERROR: ncores must be an integer!")
+  if (!is.logical(parallelize)) stop("ERROR: parallelize must be logical!")
 
   #load required packages
   suppressMessages(require(topicmodels))
   suppressMessages(require(Matrix))
   suppressMessages(require(doSNOW))
-  if(parallelize) suppressMessages(require(foreach))
-  if(parallelize) suppressMessages(require(doParallel))
+  if (parallelize) suppressMessages(require(foreach))
+  if (parallelize) suppressMessages(require(doParallel))
 
   # Set up cluster to parallelize
-  if(parallelize){
+  if (parallelize) {
     # Detect number of cores and use 60% of them
     ncores <- round(parallel::detectCores() * 0.60)
     # Set up the backend
@@ -37,29 +36,31 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T){
   pred_start <- Sys.time()
   Sys.time()
 
-  print('Running predictions')
+  print("Running predictions")
 
   ## Set progress bar ##
-  iterations <- length(seq(1,nrow(spot_counts),10))
+  iterations <- length(seq(1, nrow(spot_counts), 10))
   pb <- txtProgressBar(max = iterations, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
-  prediction <- foreach(index=seq(1,nrow(spot_counts),10),
-                        .combine = 'rbind',
+  prediction <- foreach(index = seq(1, nrow(spot_counts), 10),
+                        .combine = "rbind",
                         .options.snow = opts,
-                        .packages=c('topicmodels','Matrix', 'dplyr')) %dopar% {
+                        .packages = c("topicmodels", "Matrix", "dplyr")) %dopar% {
 
-    index_end <- dplyr::if_else( (index+9) <= nrow(spot_counts), as.double(index+9), as.double(nrow(spot_counts)))
+    index_end <- dplyr::if_else((index + 9) <= nrow(spot_counts),
+                                as.double(index + 9), as.double(nrow(spot_counts)))
 
     test_spots_pred <- topicmodels::posterior(object = lda_mod,
-                                              newdata = spot_counts[index:index_end,])
+                                              newdata = spot_counts[index:index_end, ])
     return(test_spots_pred$topics)
 
   }
 
-  if(parallelize) parallel::stopCluster(cl)
-  print(sprintf('Time to predict: %s minutes', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
+  if (parallelize) parallel::stopCluster(cl)
+  print(sprintf("Time to predict: %s minutes",
+                round(difftime(Sys.time(), pred_start, units = "mins")), 2))
 
   return(prediction)
 }
