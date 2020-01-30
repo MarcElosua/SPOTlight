@@ -17,18 +17,18 @@ topic_viz <- function(lda_mod, k, n_terms) {
   suppressMessages(require(wordcloud2))
   suppressMessages(require(topicmodels))
 
-  tmpResult <- topicmodels::posterior(lda_mod)
+  tmp_result <- topicmodels::posterior(lda_mod)
 
   # visualize topics as word cloud
-  topicToViz <- k # change for your own topic of interest
+  topic_to_viz <- k # change for your own topic of interest
 
   # select to 40 most probable terms from the topic by sorting the term-topic-probability vector in decreasing order
-  top40terms <- sort(tmpResult$terms[topicToViz, ],
+  top40terms <- sort(tmp_result$terms[topic_to_viz, ],
                      decreasing = TRUE)[1:n_terms]
   words <- names(top40terms)
 
   # extract the probabilites of each of the 40 terms
-  probabilities <- sort(tmpResult$terms[topicToViz, ],
+  probabilities <- sort(tmp_result$terms[topic_to_viz, ],
                         decreasing = TRUE)[1:n_terms]
 
   # visualize the terms as wordcloud
