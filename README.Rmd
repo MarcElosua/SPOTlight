@@ -115,8 +115,8 @@ Once we have the data ready to pass to the model we can train it as shown below.
 set.seed(1000)
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
-                        verbose = 100, iter = 500, burnin = 100, 
-                        best = TRUE, keep = 1, nstart = 1)
+                        verbose = 100, iter = 1000, burnin = 100,
+                        best = TRUE, keep = 1, nstart = 5)
 
 # Select the best model
 lda_mod <- lda_mod_ls[[1]]
@@ -185,6 +185,7 @@ Furthermore, we can test the performance of the model on synthetically generated
 First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelyhood has plateaud.
 ```{r eval = FALSE}
 library(ggplot2)
+
 data.frame(lda_mod@logLiks) %>% 
   rowid_to_column('rowid') %>% 
   ggplot2::ggplot() + 
