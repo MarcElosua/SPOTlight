@@ -115,7 +115,7 @@ Once we have the data ready to pass to the model we can train it as shown below.
 set.seed(1000)
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
-                        verbose = 100, iter = 1000, burnin = 100,
+                        verbose = 100, iter = 500, burnin = 0,
                         best = TRUE, keep = 1, nstart = 5)
 
 # Select the best model
@@ -149,7 +149,7 @@ spot_counts <- BiocGenerics::t(spot_counts)
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
                                      clust_vr = 'cell_line_demuxlet',  spot_counts = spot_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
-                                     top_dist = 155, top_JSD = 1)
+                                     top_dist = 155, top_jsd = 1)
 
 ```
 
@@ -183,14 +183,16 @@ raw_statistics_ls
 Furthermore, we can test the performance of the model on synthetically generated test spots to get a sense on how well the model will perform on your data.
 
 First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelyhood has plateaud.
-```{r eval = FALSE}
-library(ggplot2)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+library(ggplot2); theme_set(theme_classic())
 
+```
+
+```{r}
 data.frame(lda_mod@logLiks) %>% 
   rowid_to_column('rowid') %>% 
   ggplot2::ggplot() + 
-    geom_point(aes(x = rowid, y=lda_mod@logLiks), alpha = 0.6, col = 'blue') +
-    theme_classic()
+    geom_point(aes(x = rowid, y=lda_mod@logLiks), alpha = 0.6, col = 'blue')
 ```
 
 
@@ -233,7 +235,7 @@ We then predict the topic profiles of these synthetic generated spots
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
                                      clust_vr = 'cell_line_demuxlet',  spot_counts = test_spots_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
-                                     top_dist = 100, top_JSD = 1)
+                                     top_dist = 100, top_jsd = 1)
 # lda_mod = lda_mod; spot_counts = test_spots_counts; ncores = ncores; parallelize=TRUE
 ```
 
@@ -557,29 +559,29 @@ syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
 dist <- pdist(X=prediction,Y=syn_spots_profiles)
 dist_mtrx <- as.matrix(dist)
 
-JSD_start <- Sys.time()
+jsd_start <- Sys.time()
 
 # Get list with indices of best euclidean distance for each predictions
-JSD_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
+jsd_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
 
 #### Calculate JSD for the subset of best predictions according to Euclidean distance
-mtrx_JSD_full <- suppressMessages(calculate_JSD_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, JSD_indices = JSD_indices))
+mtrx_jsd_full <- suppressMessages(calculate_jsd_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, jsd_indices = jsd_indices))
 
-quants_JSD <- round(quantile(matrixStats::rowMins(mtrx_JSD_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
-cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_JSD[[2]], quants_JSD[[1]], quants_JSD[[3]]))
+quants_jsd <- round(quantile(matrixStats::rowMins(mtrx_jsd_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
+cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
 
 # Get the index for each list from JSD_indices with the lowest JSD
-top_JSD <- if_else(top_JSD <= top_dist, top_JSD, top_dist)
+top_jsd <- if_else(top_jsd <= top_dist, top_jsd, top_dist)
 
-min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_JSD, nrow(mtrx_JSD_full)), na.rm = TRUE)
-min_indices_JSD <- lapply(1:length(min15_error), function(i){
-  which(mtrx_JSD_full[i,] <= min15_error[i])
+min15_error <- Rfast::rownth(x = mtrx_jsd_full, elems = rep(top_jsd, nrow(mtrx_jsd_full)), na.rm = TRUE)
+min_indices_jsd <- lapply(1:length(min15_error), function(i){
+  which(mtrx_jsd_full[i,] <= min15_error[i])
 })
 
 ##### Get Spot composition #####
-spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
+spot_composition_mtrx <- matrix(nrow = length(min_indices_jsd), ncol = ncol(syn_spots_metadata))
 for (i in 1:nrow(spot_composition_mtrx)) {
-  spot_composition_mtrx[i,] <- round(colMeans(syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],],na.rm = TRUE),0)
+  spot_composition_mtrx[i,] <- round(colMeans(syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]],],na.rm = TRUE),0)
 }
 
 ```

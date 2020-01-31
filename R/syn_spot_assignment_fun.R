@@ -3,14 +3,14 @@
 #' @param prediction Object of class matrix with the predicted topic probability distributions for each spot. Output from the lda_prediction function.
 #' @param syn_spots_ls list obtained from the function syn_spot_comb_topic_fun.R. The 1st element is a matrix with topic profiles of all the synthetic spots generated, the 2nd element is the composition of each synthetic spot.
 #' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD.
-#' @param top_JSD Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
+#' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
 #' @return matrix with the exact predicted composition of each spot.
 #' @export
 #' @examples
 #'
 
 
-syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_JSD=15){
+syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd=15){
 
   # Check variables
   if( !( is.matrix(prediction) | is.data.frame(prediction)) ) {stop("ERROR: prediction must be a matrix object!")}
@@ -30,13 +30,21 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_JSD
 
   if (top_dist > nrow(syn_spots_profiles)) {
     warning(sprintf('top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s', nrow(syn_spots_profiles)), sep = '\n')
-    top_JSD <- top_dist
+    top_dist <- nrow(syn_spots_profiles)
   }
 
-  if (top_JSD > top_dist) {
-    warning(sprintf('top_JSD cannot be larger than top_dist. Setting top_JSD to %s', top_dist), sep = '\n')
-    top_JSD <- top_dist
+  if (top_jsd > top_dist) {
+    warning(sprintf('top_jsd cannot be larger than top_dist. Setting top_jsd to %s', top_dist), sep = '\n')
+    top_jsd <- top_dist
   }
+
+  if (top_jsd > nrow(syn_spots_profiles)) {
+    warning(sprintf('top_jsd cannot be larger than top_dist. Setting top_jsd to %s', top_dist), sep = '\n')
+    top_jsd <- nrow(syn_spots_profiles)
+  }
+
+
+
 
   ##### Calculate all pairwise euclidean distances between the predicted and simulated topic profiles #####
   dist <- pdist(X=prediction,Y=syn_spots_profiles)
@@ -54,16 +62,16 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_JSD
   cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_JSD[[2]], quants_JSD[[1]], quants_JSD[[3]]), sep = '\n')
 
   ##### Get the index for each list from JSD_indices with the lowest JSD #####
-  min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_JSD, nrow(mtrx_JSD_full)), na.rm = TRUE)
+  min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_jsd, nrow(mtrx_JSD_full)), na.rm = TRUE)
   min_indices_JSD <- lapply(1:length(min15_error), function(i) which(mtrx_JSD_full[i,] <= min15_error[i]) )
 
   ##### Get Spot composition #####
   spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
   colnames(spot_composition_mtrx) <- colnames(syn_spots_metadata)
 
-  for (i in 1:nrow(spot_composition_mtrx)) {
+  for (i in seq_len(nrow(spot_composition_mtrx))) {
     # Determine how many predictions we are adding since if there is only 1 we cannot do colmeans and we just need to assign it.
-    best_comp <- syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]],]
+    best_comp <- syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]], ]
 
     if(is.null(nrow(best_comp))) { spot_composition_mtrx[i,] <- best_comp }
     else { spot_composition_mtrx[i,] <- round(colMeans(best_comp,na.rm = TRUE),0) }

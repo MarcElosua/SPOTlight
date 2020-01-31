@@ -44,7 +44,7 @@ spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts, verbose=T
 
   # Perform deconvolution of the spatial spots
   if(verbose) print('Perform deconvolution of the spatial spots')
-  spot_deconv <- syn_spot_assignment(prediction = prediction, syn_spots_ls = syn_spots_ls, top_dist = top_dist, top_JSD = top_JSD)
+  spot_deconv <- syn_spot_assignment(prediction = prediction, syn_spots_ls = syn_spots_ls, top_dist = top_dist, top_jsd = top_jsd)
 
   return(spot_deconv)
 

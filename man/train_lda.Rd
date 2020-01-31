@@ -18,7 +18,8 @@ train_lda(
   delta = 0.1,
   iter = 5000,
   burnin = 0,
-  thin = NULL
+  thin = NULL,
+  ...
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ train_lda(
 \item{burnin}{Object of class "integer"; number of omitted Gibbs iterations at beginning, by default equals 0.}
 
 \item{thin}{Object of class "integer"; number of omitted in-between Gibbs iterations, by default equals iter.}
+
+\item{...}{Other arguments passed on to LDA mod}
 
 \item{alpha}{Object of class "numeric"; initial value for alpha, by default 0.01.}
 }
