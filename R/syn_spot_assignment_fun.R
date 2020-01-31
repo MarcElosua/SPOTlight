@@ -29,26 +29,17 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
   syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
 
   if (top_dist > nrow(syn_spots_profiles)) {
-<<<<<<< HEAD
-    warning(sprintf('top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s', nrow(syn_spots_profiles)), sep = '\n')
-    top_dist <- nrow(syn_spots_profiles)
-  }
-
-  if (top_jsd > top_dist) {
-    warning(sprintf('top_jsd cannot be larger than top_dist. Setting top_jsd to %s', top_dist), sep = '\n')
-=======
     warning(sprintf("top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s", nrow(syn_spots_profiles)), sep = "\n")
     top_jsd <- top_dist
   }
 
   if (top_jsd > top_dist) {
     warning(sprintf("top_jsd cannot be larger than top_dist. Setting top_jsd to %s", top_dist), sep = "\n")
->>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
     top_jsd <- top_dist
   }
 
   if (top_jsd > nrow(syn_spots_profiles)) {
-    warning(sprintf('top_jsd cannot be larger than top_dist. Setting top_jsd to %s', top_dist), sep = '\n')
+    warning(sprintf("top_jsd cannot be larger than top_dist. Setting top_jsd to %s", top_dist), sep = "\n")
     top_jsd <- nrow(syn_spots_profiles)
   }
 
@@ -69,13 +60,8 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
   cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
 
   ##### Get the index for each list from JSD_indices with the lowest JSD #####
-<<<<<<< HEAD
-  min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_jsd, nrow(mtrx_JSD_full)), na.rm = TRUE)
-  min_indices_JSD <- lapply(1:length(min15_error), function(i) which(mtrx_JSD_full[i,] <= min15_error[i]) )
-=======
   min15_error <- Rfast::rownth(x = mtrx_jsd_full, elems = rep(top_jsd, nrow(mtrx_jsd_full)), na.rm = TRUE)
   min_indices_jsd <- lapply(seq_len(length(min15_error)), function(i) which(mtrx_jsd_full[i, ] <= min15_error[i]))
->>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
 
   ##### Get Spot composition #####
   spot_composition_mtrx <- matrix(nrow = length(min_indices_jsd), ncol = ncol(syn_spots_metadata))
@@ -83,11 +69,7 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
 
   for (i in seq_len(nrow(spot_composition_mtrx))) {
     # Determine how many predictions we are adding since if there is only 1 we cannot do colmeans and we just need to assign it.
-<<<<<<< HEAD
-    best_comp <- syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]], ]
-=======
     best_comp <- syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]], ]
->>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
 
     if (is.null(nrow(best_comp))) {
       spot_composition_mtrx[i, ] <- best_comp
