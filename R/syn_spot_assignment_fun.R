@@ -63,8 +63,11 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
     # Determine how many predictions we are adding since if there is only 1 we cannot do colmeans and we just need to assign it.
     best_comp <- syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]], ]
 
-    if (is.null(nrow(best_comp))) { spot_composition_mtrx[i, ] <- best_comp
-    } else spot_composition_mtrx[i, ] <- round(colMeans(best_comp, na.rm = TRUE), 0)
+    if (is.null(nrow(best_comp))) {
+      spot_composition_mtrx[i, ] <- best_comp
+    } else {
+      spot_composition_mtrx[i, ] <- round(colMeans(best_comp, na.rm = TRUE), 0)
+      }
 
   }; rm(i)
 

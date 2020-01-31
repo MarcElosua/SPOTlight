@@ -12,7 +12,10 @@ calculate_jsd_subset <- function(prediction, syn_spots_profiles, jsd_indices) {
   # Check variables
   if (!(is.matrix(prediction) | is.data.frame(prediction))) stop("ERROR: prediction must be a matrix object!")
   if (!(is.matrix(syn_spots_profiles) | is.data.frame(syn_spots_profiles))) stop("ERROR: syn_spots_profiles must be a matrix object!")
-  if (!is.list(JSD_indices)) stop("ERROR: JSD_indices must be a list object!")
+  if (!is.list(jsd_indices)) stop("ERROR: jsd_indices must be a list object!")
+
+  # load required packages
+  suppressMessages(require(philentropy))
 
   #### Initialize JS matrix ####
   mtrx_jsd_full <- matrix(nrow = nrow(prediction),
@@ -24,7 +27,7 @@ calculate_jsd_subset <- function(prediction, syn_spots_profiles, jsd_indices) {
   for (i in seq_len(nrow(prediction))) {
     for (ii in seq_len(length(jsd_indices[[i]]))) {
       x <- rbind(prediction[i, ], syn_spots_profiles[jsd_indices[[i]][ii], ])
-      mtrx_jsd_full[i, ii] <- JSD(x, unit = "log2")
+      mtrx_jsd_full[i, ii] <- suppressMessages(JSD(x, unit = "log2"))
     }
     # update progress bar
     setTxtProgressBar(pb_jsd, i)

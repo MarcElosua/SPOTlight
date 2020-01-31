@@ -23,7 +23,7 @@
 train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1, estimate.beta=TRUE, save=0, keep=100, nstart=1, best=TRUE, delta=0.1, iter=5000, burnin=0, thin=NULL, ...) {
 
   # Check variables
-  if (is(se_obj)!="Seurat") stop("ERROR: se_obj must be a Seurat object!")
+  if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.data.frame(cluster_markers_all)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (!is.numeric(al)) stop("ERROR: al must be of class numeric!")
@@ -51,7 +51,6 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
 
   #### Setting common parameters ####
   k <- nlevels(droplevels(factor(se_obj$seurat_clusters)))
-  nfeatures <- nrow(se_obj)
 
   #### Get dataset ready ####
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
@@ -60,9 +59,9 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   cluster_markers <- cut_markers2(markers = cluster_markers_all, ntop = 100)
 
   # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
-  cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust){
-    ls1 <- cluster_markers[cluster_markers$cluster == clust, 'gene']
-    ls2 <- cluster_markers[cluster_markers$cluster != clust, 'gene']
+  cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust) {
+    ls1 <- cluster_markers[cluster_markers$cluster == clust, "gene"]
+    ls2 <- cluster_markers[cluster_markers$cluster != clust, "gene"]
     ls1_unique <- ls1[!ls1 %in% ls2]
 
     return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique, ])
@@ -80,11 +79,10 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
 
 
   for (i in seq_len(k)) {
+    clust_row <- cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]]
     seedgenes[i,
-              cluster_markers_uniq[cluster_markers_uniq$cluster ==
-                                     cluster_markers_uniq$cluster[[i]], "gene"]] =
-              cluster_markers_uniq[cluster_markers_uniq$cluster ==
-                                     cluster_markers_uniq$cluster[[i]], "logFC_z"]
+      cluster_markers_uniq[clust_row, "gene"]] =
+      cluster_markers_uniq[clust_row, "logFC_z"]
     }
 
   # Verify that weights have been added
@@ -94,7 +92,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   # Set parameters
   control_LDA_Gibbs <- list(alpha = al, estimate.beta = estimate.beta,
                             verbose = verbose, prefix = tempfile(), save = save, keep = keep,
-                            seed = sample(x= 1:1000, size=nstart), nstart = nstart, best = best,
+                            seed = sample(x = 1:1000, size = nstart), nstart = nstart, best = best,
                             delta = delta, iter = iter, burnin = burnin, thin = thin)
 
   # Train model
@@ -106,5 +104,5 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   print(sprintf("LDA seeded took: %s minutes",
                 round(difftime(Sys.time(), s_gibbs_seed, units = "mins"), 2))) # Takes ~10min
 
-  if(is(lda_mod)[[1]] == "Gibbs_list") return(lda_mod@fitted) else return(list(lda_mod))
+  if (is(lda_mod)[[1]] == "Gibbs_list") return(lda_mod@fitted) else return(list(lda_mod))
 }

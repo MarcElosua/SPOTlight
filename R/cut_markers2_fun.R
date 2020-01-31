@@ -17,7 +17,7 @@ cut_markers2 <- function(markers, ntop) {
   if (!"avg_logFC" %in% colnames(markers)) stop("ERROR: avg_logFC needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
   if (!"gene" %in% colnames(markers)) stop("ERROR: gene needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
 
-  #load required packages
+  # load required packages
   suppressMessages(require(dplyr))
 
   tmp_markers <- markers %>%
@@ -28,8 +28,8 @@ cut_markers2 <- function(markers, ntop) {
       avg_logFC_mod = if_else(is.finite(avg_logFC), avg_logFC, NA_real_),
       avg_logFC = if_else(is.finite(avg_logFC), avg_logFC,
                           if_else(avg_logFC > 0,
-                                  (max(avg_logFC_mod, na.rm = TRUE)+1),
-                                  (min(avg_logFC_mod, na.rm = TRUE)-1))),
+                                  max(avg_logFC_mod, na.rm = TRUE) + 1,
+                                  min(avg_logFC_mod, na.rm = TRUE) - 1)),
       logFC_z = abs(scale(avg_logFC))
       ) %>%
     group_by(cluster) %>%
