@@ -10,13 +10,13 @@
 #'
 
 
-syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd=15){
+syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd=15) {
 
   # Check variables
-  if( !( is.matrix(prediction) | is.data.frame(prediction)) ) {stop("ERROR: prediction must be a matrix object!")}
-  if( !is.list(syn_spots_ls) ) {stop("ERROR: syn_spots_ls must be the list obtained from the function syn_spot_comb_topic_fun().")}
-  if( !is.numeric(top_dist) ) {stop("ERROR: top_dist must be an integer!")}
-  if( !is.numeric(top_JSD) ) {stop("ERROR: top_JSD must be an integer!")}
+  if (!(is.matrix(prediction) | is.data.frame(prediction))) stop("ERROR: prediction must be a matrix object!")
+  if (!is.list(syn_spots_ls)) stop("ERROR: syn_spots_ls must be the list obtained from the function syn_spot_comb_topic_fun().")
+  if (!is.numeric(top_dist)) stop("ERROR: top_dist must be an integer!")
+  if (!is.numeric(top_jsd)) stop("ERROR: top_jsd must be an integer!")
 
 
   #load required packages
@@ -29,12 +29,21 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
   syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
 
   if (top_dist > nrow(syn_spots_profiles)) {
+<<<<<<< HEAD
     warning(sprintf('top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s', nrow(syn_spots_profiles)), sep = '\n')
     top_dist <- nrow(syn_spots_profiles)
   }
 
   if (top_jsd > top_dist) {
     warning(sprintf('top_jsd cannot be larger than top_dist. Setting top_jsd to %s', top_dist), sep = '\n')
+=======
+    warning(sprintf("top_dist cannot be larger than the total number of synthetic generated spots. Setting top_dist to %s", nrow(syn_spots_profiles)), sep = "\n")
+    top_jsd <- top_dist
+  }
+
+  if (top_jsd > top_dist) {
+    warning(sprintf("top_jsd cannot be larger than top_dist. Setting top_jsd to %s", top_dist), sep = "\n")
+>>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
     top_jsd <- top_dist
   }
 
@@ -47,34 +56,44 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
 
 
   ##### Calculate all pairwise euclidean distances between the predicted and simulated topic profiles #####
-  dist <- pdist(X=prediction,Y=syn_spots_profiles)
+  dist <- pdist::pdist(X = prediction, Y = syn_spots_profiles)
   dist_mtrx <- as.matrix(dist)
 
-  JSD_start <- Sys.time()
-
   ##### Get list with indices of best euclidean distance for each predictions #####
-  JSD_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
+  jsd_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
 
   #### Calculate JSD for the subset of best predictions according to Euclidean distance #####
-  mtrx_JSD_full <- suppressMessages(calculate_JSD_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, JSD_indices = JSD_indices))
+  mtrx_jsd_full <- suppressMessages(calculate_jsd_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, jsd_indices = jsd_indices))
 
-  quants_JSD <- round(quantile(matrixStats::rowMins(mtrx_JSD_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
-  cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_JSD[[2]], quants_JSD[[1]], quants_JSD[[3]]), sep = '\n')
+  quants_jsd <- round(quantile(matrixStats::rowMins(mtrx_jsd_full, na.rm = TRUE), c(0.25, 0.5, 0.75)), 5)
+  cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
 
   ##### Get the index for each list from JSD_indices with the lowest JSD #####
+<<<<<<< HEAD
   min15_error <- Rfast::rownth(x = mtrx_JSD_full, elems = rep(top_jsd, nrow(mtrx_JSD_full)), na.rm = TRUE)
   min_indices_JSD <- lapply(1:length(min15_error), function(i) which(mtrx_JSD_full[i,] <= min15_error[i]) )
+=======
+  min15_error <- Rfast::rownth(x = mtrx_jsd_full, elems = rep(top_jsd, nrow(mtrx_jsd_full)), na.rm = TRUE)
+  min_indices_jsd <- lapply(seq_len(length(min15_error)), function(i) which(mtrx_jsd_full[i, ] <= min15_error[i]))
+>>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
 
   ##### Get Spot composition #####
-  spot_composition_mtrx <- matrix(nrow = length(min_indices_JSD), ncol = ncol(syn_spots_metadata))
+  spot_composition_mtrx <- matrix(nrow = length(min_indices_jsd), ncol = ncol(syn_spots_metadata))
   colnames(spot_composition_mtrx) <- colnames(syn_spots_metadata)
 
   for (i in seq_len(nrow(spot_composition_mtrx))) {
     # Determine how many predictions we are adding since if there is only 1 we cannot do colmeans and we just need to assign it.
+<<<<<<< HEAD
     best_comp <- syn_spots_metadata[JSD_indices[[i]][min_indices_JSD[[i]]], ]
+=======
+    best_comp <- syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]], ]
+>>>>>>> 495c4bf877fc39969fe4e6a30df53ea186194232
 
-    if(is.null(nrow(best_comp))) { spot_composition_mtrx[i,] <- best_comp }
-    else { spot_composition_mtrx[i,] <- round(colMeans(best_comp,na.rm = TRUE),0) }
+    if (is.null(nrow(best_comp))) {
+      spot_composition_mtrx[i, ] <- best_comp
+    } else {
+      spot_composition_mtrx[i, ] <- round(colMeans(best_comp, na.rm = TRUE), 0)
+      }
 
   }; rm(i)
 
