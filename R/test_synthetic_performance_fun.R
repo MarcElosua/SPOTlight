@@ -24,7 +24,7 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx, spot_compositio
                "pred" = spot_composition_mtrx[i, ])
 
     # Calculate JSD and save it in true_JSD_mtrx
-    true_JSD_mtrx[i, 1] <- suppressMessages(JSD(x = x, unit = "log2",
+    true_jsd_mtrx[i, 1] <- suppressMessages(JSD(x = x, unit = "log2",
                                                est.prob = "empirical"))
 
     #### Calculate TP-TN-FP-FN ####

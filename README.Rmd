@@ -58,11 +58,11 @@ library(SpatialDeconTest)
 ```
 
 ```{r parameters, echo = FALSE, eval = FALSE}
-tech <- '10x'
-dwn_smplng <- 'none'
-tissue <- 'mixology'
+tech <- "10x"
+dwn_smplng <- "none"
+tissue <- "mixology"
 
-source('misc/paths_vrs.R')
+source("misc/paths_vrs.R")
 ```
 
 ### Dataset: Single Cell Mixology
@@ -73,11 +73,11 @@ We are going to use this data since it is put out to carry out benchmarking expe
 ### Loading the data
 ```{r}
 # load('data/mixture_data/9cellmix_qc.RData') # This file loads single cell experiment objects
-load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/9cellmix_qc.RData'))
+load(url("https://github.com/LuyiTian/sc_mixology/raw/master/data/9cellmix_qc.RData"))
 # sce_9cells_qc;sce_POP_sel_qc;sce_SC1_qc;sce_SC2_qc;sce_SC3_qc;sce_SC4_qc 
 
 # load('data/mixture_data/sincell_with_class_5cl.RData') # This file loads single cell experiment objects
-load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/sincell_with_class_5cl.RData'))
+load(url("https://github.com/LuyiTian/sc_mixology/raw/master/data/sincell_with_class_5cl.RData"))
 # sc_Celseq2_5cl_p1;sc_Celseq2_5cl_p2;sc_Celseq2_5cl_p3;sce_sc_10x_5cl_qc
 # All this files are single cell
 ```
@@ -85,8 +85,8 @@ load(url('https://github.com/LuyiTian/sc_mixology/raw/master/data/sincell_with_c
 To train the model we will use the 10x data from the file sincell_with_class_5cl.RData. We will first run some QC tests to assess the quality. The first step will be to convert it to a Seurat object.
 ```{r}
 se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays$data$counts,
-                                               project = '10x_mixology', 
-                                               assay = 'RNA', 
+                                               project = "10x_mixology", 
+                                               assay = "RNA", 
                                                meta.data = data.frame(colData(sce_sc_10x_5cl_qc)))
 
 ```
@@ -113,15 +113,15 @@ Once we have the data ready to pass to the model we can train it as shown below.
 ```{r}
 #### Train LDA model ####
 set.seed(1000)
-lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', 
+lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = "cell_line_demuxlet", 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
                         verbose = 100, iter = 500, burnin = 0,
                         best = TRUE, keep = 1, nstart = 5)
 
 # Select the best model
 lda_mod <- lda_mod_ls[[1]]
-# saveRDS(object = lda_mod,file = 'lda_mod.RDS')
-# lda_mod <- readRDS(file = 'lda_mod.RDS')
+# saveRDS(object = lda_mod,file = "lda_mod.RDS")
+# lda_mod <- readRDS(file = "lda_mod.RDS")
 
 ```
 
@@ -132,12 +132,12 @@ We get the cell composition and the topic profile por each combination. We will 
 Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r}
 # Extract count matrix
-spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
+spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
 ens_genes <- rownames(spot_counts)
 
 # Convert Ensembl ids to symbols
 # library(org.Hs.eg.db)
-symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = 'SYMBOL', keytype = 'ENSEMBL')
+symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = "SYMBOL", keytype = "ENSEMBL")
 rownames(spot_counts) <- symb_genes
 
 # Subset to genes used to train the model
@@ -147,7 +147,7 @@ spot_counts <- spot_counts[rownames(spot_counts) %in% lda_mod@terms, ]
 spot_counts <- BiocGenerics::t(spot_counts)
 
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
-                                     clust_vr = 'cell_line_demuxlet',  spot_counts = spot_counts, 
+                                     clust_vr = "cell_line_demuxlet",  spot_counts = spot_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
                                      top_dist = 155, top_jsd = 1)
 
@@ -157,13 +157,13 @@ decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
 Assess the performance comparing with the ground truth.
 We need to remove the 90 cell spots:
 ```{r}
-sce_9cells_metadata <- as.matrix(colData(sce_9cells_qc)[,c('H1975','H2228','HCC827')])
+sce_9cells_metadata <- as.matrix(colData(sce_9cells_qc)[, c("H1975", "H2228", "HCC827")])
 sce_9cells_metadata[is.na(sce_9cells_metadata)] <- 0
 
 keep_spots <- which(rowSums(sce_9cells_metadata) != 0)
 
 ## Keep spots
-sce_9cells_metadata <- sce_9cells_metadata[keep_spots,]
+sce_9cells_metadata <- sce_9cells_metadata[keep_spots, ]
 ```
 
 Note that 2 type of statistcs are returned. JSD refers to Jensen-Shannon Divergence distance metric which indicates how close 2 probability distributions are, therefore answering the question - *How close are the proportions predicted to the ground truth?*. In parallel we also assess how good we are at detecting cell types that are present within that spot, regardless of its proportion. The metrics used are *Accuracy*, *Sensitivity*, *Specificity*, *precision*, *recall*, *F1 score*. In this case:
@@ -190,9 +190,9 @@ library(ggplot2); theme_set(theme_classic())
 
 ```{r}
 data.frame(lda_mod@logLiks) %>% 
-  rowid_to_column('rowid') %>% 
+  rowid_to_column("rowid") %>% 
   ggplot2::ggplot() + 
-    geom_point(aes(x = rowid, y=lda_mod@logLiks), alpha = 0.6, col = 'blue')
+    geom_point(aes(x = rowid, y = lda_mod@logLiks), alpha = 0.6, col = "blue")
 ```
 
 
@@ -209,16 +209,16 @@ control_LDA_Gibbs <- list(alpha = 0.01, verbose = 100, keep = 1,
 # Train model
 s_gibbs_start <- Sys.time()
 print(s_gibbs_start)
-lda_mod <- LDA(se_lda_ready, k=k, model = lda_mod,
-               method='Gibbs', # Seedwords are only available with Gibbs sampling
-               control=control_LDA_Gibbs)
-print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_start, units = 'mins'))) # Takes ~10min
+lda_mod <- LDA(se_lda_ready, k = k, model = lda_mod,
+               method = "Gibbs", # Seedwords are only available with Gibbs sampling
+               control = control_LDA_Gibbs)
+print(sprintf("LDA seeded took: %s", difftime(Sys.time(), s_gibbs_start, units = "mins"))) # Takes ~10min
 
 ```
 
 If the model had already reached a local minima or we have reached it by re-training the model we can assess its performance with synthetically generated test spots. We can generate test spots with the function *test_spot_fun()* below. 
 ```{r}
-test_spots_ls <- test_spot_fun(se_obj=se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', n=1000, verbose=TRUE)
+test_spots_ls <- test_spot_fun(se_obj = se_sc_10x_5cl_qc, clust_vr = "cell_line_demuxlet", n = 1000, verbose = TRUE)
 
 test_spots_counts <- test_spots_ls[[1]]
 
@@ -227,13 +227,13 @@ test_spots_counts <- BiocGenerics::t(test_spots_counts)
 
 
 test_spots_metadata <- test_spots_ls[[2]]
-test_spots_metadata <- as.matrix(test_spots_metadata[,which(colnames(test_spots_metadata) != 'name')])
+test_spots_metadata <- as.matrix(test_spots_metadata[,which(colnames(test_spots_metadata) != "name")])
 ```
 
 We then predict the topic profiles of these synthetic generated spots
 ```{r}
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
-                                     clust_vr = 'cell_line_demuxlet',  spot_counts = test_spots_counts, 
+                                     clust_vr = "cell_line_demuxlet",  spot_counts = test_spots_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
                                      top_dist = 100, top_jsd = 1)
 # lda_mod = lda_mod; spot_counts = test_spots_counts; ncores = ncores; parallelize=TRUE
@@ -252,7 +252,9 @@ If you want to understand a bit better what is going on in the previous step her
 
 Normalizing and Transform the data, dimensionality reduction and clusters assignment.
 ```{r eval = FALSE}
-se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, vars.to.regress = "percent.mt", verbose = T,variable.features.n = 5000)
+se_sc_10x_5cl_qc$percent.mt <- 1 - se_sc_10x_5cl_qc$non_mt_percent
+
+se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, verbose = T,variable.features.n = 5000)
 se_sc_10x_5cl_qc <- FindVariableFeatures(object = se_sc_10x_5cl_qc, nfeatures = 5000)
 
 se_sc_10x_5cl_qc <- RunPCA(se_sc_10x_5cl_qc, verbose = FALSE)
@@ -264,12 +266,10 @@ se_sc_10x_5cl_qc <- FindClusters(se_sc_10x_5cl_qc, verbose = FALSE)
 
 1st standard viz
 ```{r eval = FALSE}
-se_sc_10x_5cl_qc$percent.mt <- 1-se_sc_10x_5cl_qc$non_mt_percent
-
 count_thresh <- log10(750)
 gene_thresh <- 250
 mt_thresh <- 0.30
-vrs_names <- c('nCount_RNA', 'nFeature_RNA', 'percent.mt')
+vrs_names <- c("nCount_RNA", "nFeature_RNA", "percent.mt")
 
 # Running plots
 QC_plots1 <- QC_plots_fun(
@@ -284,12 +284,12 @@ QC_plots2 <- QC_UMAP_fun(
   vrs_names = vrs_names
 )
 
-top_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[1]], QC_plots1[[2]], QC_plots1[[3]]), ncol = 3, align = 'hv')
-bot_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[4]], QC_plots2), ncol = 2, align = 'hv')
+top_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[1]], QC_plots1[[2]], QC_plots1[[3]]), ncol = 3, align = "hv")
+bot_row <- ggpubr::ggarrange(plotlist = list(QC_plots1[[4]], QC_plots2), ncol = 2, align = "hv")
 QC_plts <- ggpubr::ggarrange(plotlist = list(top_row, bot_row),
-                             nrow = 2, align = 'hv')
+                             nrow = 2, align = "hv")
 QC_plts
-QC_plts %>% ggpubr::ggexport(plotlist = ., filename = 'img/QC_plots_comb.pdf', width = 12, height = 8, res = 600)
+# QC_plts %>% ggpubr::ggexport(plotlist = ., filename = "img/QC_plots_comb.pdf", width = 12, height = 8, res = 600)
 ```
 ![QC plots](img/QC_plots_comb.png)
 
@@ -297,27 +297,27 @@ From the QC plots we can see that library size, number of detected genes and mit
 
 Looking at the clustering we can clearly see that the cells cluster by cell line.
 ```{r eval = FALSE}
-DimPlot(se_sc_10x_5cl_qc, reduction = 'pca', group.by = 'cell_line')
-DimPlot(se_sc_10x_5cl_qc, reduction = 'pca', group.by = 'cell_line_demuxlet')
+DimPlot(se_sc_10x_5cl_qc, reduction = "pca", group.by = "cell_line")
+DimPlot(se_sc_10x_5cl_qc, reduction = "pca", group.by = "cell_line_demuxlet")
 
-DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line')
-DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line_demuxlet')
-DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'seurat_clusters', label = T)
+DimPlot(se_sc_10x_5cl_qc, reduction = "umap", group.by = "cell_line")
+DimPlot(se_sc_10x_5cl_qc, reduction = "umap", group.by = "cell_line_demuxlet")
+DimPlot(se_sc_10x_5cl_qc, reduction = "umap", group.by = "seurat_clusters", label = T)
 
-DimPlot(se_sc_10x_5cl_qc, reduction = 'umap', group.by = 'cell_line_demuxlet') %>% 
-  ggpubr::ggexport(plotlist = ., filename = 'img/UMAP_demuxlet.pdf', width = 12, height = 8, res = 600)
+# DimPlot(se_sc_10x_5cl_qc, reduction = "umap", group.by = "cell_line_demuxlet") %>% 
+#   ggpubr::ggexport(plotlist = ., filename = "img/UMAP_demuxlet.pdf", width = 12, height = 8, res = 600)
 ```
 ![UMAP demuxlet](img/UMAP_demuxlet.png)
 
-If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized. Since it is always better to not over-correct the data we won't regress out the cell cycle.
+If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized, G2 signature is present but ince it is better to not over-correct the data we won"t regress out the cell cycle.
 ```{r eval = FALSE}
-FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C','CCND1'))
-FeaturePlot(se_sc_10x_5cl_qc,features = c('MYC','CDT1','CDC25A','CDC25B','CDC25C','CCND1')) %>% 
-  ggpubr::ggexport(plotlist = ., filename = 'img/Feat_plot_CC.pdf', width = 12, height = 8, res = 600)
+se_sc_10x_5cl_qc <- CellCycleScoring(se_sc_10x_5cl_qc,
+                                     s.features = cc.genes.updated.2019$s.genes, 
+                                     g2m.features = cc.genes.updated.2019$g2m.genes, 
+                                     set.ident = TRUE)
 
-# Cdt1 accumulates in G1 and is degraded in S
-# CDC25A/B/C - DNA markers are good markers to study the G1/S phase.
-# CCND1 (Cyclin D1) is required for G1/S cell cycle transition and can also be used as a G2/M checkpoint marker
+FeaturePlot(se_sc_10x_5cl_qc,features = c("S.Score", "G2M.Score"))
+# se_sc_10x_5cl_qc <- ScaleData(se_sc_10x_5cl_qc, vars.to.regress = "G2M.Score", features = rownames(se_sc_10x_5cl_qc))
 ```
 ![Feature plot Cell cycle](img/Feat_plot_CC.png)
 
@@ -328,14 +328,14 @@ We can extract the top marker genes from each cluster and select the unique ones
 
 Select only the 3 cell types used in the mixed spots
 ```{r eval = FALSE}
-se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[,se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827","H1975","H2228")]
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827", "H1975", "H2228")]
 ```
 
 ```{r eval = FALSE}
 Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
 cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
-# saveRDS(object = cluster_markers_all,file = sprintf('%s/%s/cluster_markers_all_%s.RDS', an_01, robj_dir, ver))
-# cluster_markers_all <- readRDS(file = sprintf('%s/%s/cluster_markers_all_%s.RDS', an_01, robj_dir, ver))
+# saveRDS(object = cluster_markers_all,file = sprintf("%s/%s/cluster_markers_all_%s.RDS", an_01, robj_dir, ver))
+# cluster_markers_all <- readRDS(file = sprintf("%s/%s/cluster_markers_all_%s.RDS", an_01, robj_dir, ver))
 ```
 
 Combine marker genes and highest variable genes and subset genes
@@ -345,12 +345,12 @@ keep_genes <- unique(c(VariableFeatures(se_sc_10x_5cl_qc), cluster_markers_all$g
 
 Get cell IDs to subset by cluster
 ```{r eval = FALSE}
-keep_ids <- lapply(split(se_sc_10x_5cl_qc@meta.data, se_sc_10x_5cl_qc@meta.data$seurat_clusters), function(subdf){
+keep_ids <- lapply(split(se_sc_10x_5cl_qc@meta.data, se_sc_10x_5cl_qc@meta.data$seurat_clusters), function(subdf) {
   # Determine n_sample, if the size of the group is < 100 use all the group, if not just use 100
   n_sample <- if_else(nrow(subdf) < 100, nrow(subdf), 100L)
   # Subset a random selection of that group and get the identifiers
-  tmp_ds <- subdf[sample(1:nrow(subdf), n_sample),] %>% 
-    rownames_to_column('ID') %>%
+  tmp_ds <- subdf[sample(1:nrow(subdf), n_sample), ] %>% 
+    rownames_to_column("ID") %>%
     dplyr::pull(ID)
   return(tmp_ds)
 }) %>%
@@ -359,7 +359,7 @@ keep_ids <- lapply(split(se_sc_10x_5cl_qc@meta.data, se_sc_10x_5cl_qc@meta.data$
 
 Subset seurat object
 ```{r eval = FALSE}
-se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[keep_genes,keep_ids]
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[keep_genes, keep_ids]
 ```
 
 ### Train model
@@ -381,9 +381,9 @@ cluster_markers <- cut_markers2(markers = cluster_markers_all, ntop = 100L)
 
 Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
 ```{r eval = FALSE}
-cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust){
-  ls1 <- cluster_markers[cluster_markers$cluster == clust,'gene']
-  ls2 <- cluster_markers[cluster_markers$cluster != clust,'gene']
+cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust) {
+  ls1 <- cluster_markers[cluster_markers$cluster == clust, "gene"]
+  ls2 <- cluster_markers[cluster_markers$cluster != clust, "gene"]
   ls1_unique <- ls1[!ls1 %in% ls2]
   
   return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique,])
@@ -395,10 +395,13 @@ cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust){
 Set seedwords from top markers. Here we are setting the weights for each topic, the words that are weighted positively are those belonging to the list of top markers for a cluster. In the seedgenes matrix each row represents a topic and each column represents a gene. To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC 
 ```{r eval = FALSE}
 # initialize matrix
-seedgenes <- matrix(nrow=k, ncol=ncol(se_lda_ready), data=0)
+seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
 colnames(seedgenes) = colnames(se_lda_ready)
 
-for (i in 1:k) { seedgenes[i,cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'gene']] = cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]],'logFC_z']; print(i) }
+for (i in 1:k) { 
+  seedgenes[i,cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]], "gene"]] = 
+              cluster_markers_uniq[cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]], "logFC_z"]
+  }
 
 # Verify that weights have been added
 table(seedgenes != 0)
@@ -415,14 +418,14 @@ control_LDA_Gibbs <- list(alpha = al, estimate.beta = TRUE,
 
 # Train model
 s_gibbs_seed <- Sys.time()
-print(sprintf('Starting to train LDA model at %s. No output is returned during training, please wait.',s_gibbs_seed))
+print(sprintf("Starting to train LDA model at %s. No output is returned during training, please wait.", s_gibbs_seed))
 set.seed(123)
-lda_mod <- LDA(se_lda_ready, k=k,
-                   method='Gibbs', seedwords=seedgenes, # Seedwords are only available with Gibbs sampling
-                   control=control_LDA_Gibbs)
-print(sprintf('LDA seeded took: %s', difftime(Sys.time(), s_gibbs_seed, units = 'mins'))) # Takes ~10min
-saveRDS(lda_mod, file = sprintf('%s/seeded_lda_%s_%s_%s.RDS', robj_dir, al, ver, id_comp))
-print(sprintf('%s/seeded_lda_%s_%s_%s.RDS', rotbj_dir, al, ver, id_comp))
+lda_mod <- LDA(se_lda_ready, k = k,
+                   method = "Gibbs", seedwords = seedgenes, # Seedwords are only available with Gibbs sampling
+                   control = control_LDA_Gibbs)
+print(sprintf("LDA seeded took: %s", difftime(Sys.time(), s_gibbs_seed, units = "mins"))) # Takes ~10min
+saveRDS(lda_mod, file = sprintf("%s/seeded_lda_%s_%s_%s.RDS", robj_dir, al, ver, id_comp))
+print(sprintf("%s/seeded_lda_%s_%s_%s.RDS", rotbj_dir, al, ver, id_comp))
 
 lda_mod <- lda_mod_ls[[1]]
 ```
@@ -437,12 +440,12 @@ topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
 Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r  eval = FALSE}
 # Extract count matrix
-spot_counts <- Matrix(sce_9cells_qc@assays$data$counts,sparse = T)
+spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
 ens_genes <- rownames(spot_counts)
 
 # Convert Ensembl ids to symbols
 # library(org.Hs.eg.db)
-symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = 'SYMBOL', keytype = 'ENSEMBL')
+symb_genes <- mapIds(x = org.Hs.eg.db, keys = ens_genes, column = "SYMBOL", keytype = "ENSEMBL")
 rownames(spot_counts) <- symb_genes
 
 # Subset to genes used to train the model
@@ -466,20 +469,20 @@ doSNOW::registerDoSNOW(cl)
 pred_start <- Sys.time()
 Sys.time()
 
-print('Running predictions')
+print("Running predictions")
 
 ## Set progress bar ##
-iterations <- length(seq(1,nrow(spot_counts),10))
+iterations <- length(seq(1, nrow(spot_counts), 10))
 pb <- txtProgressBar(max = iterations, style = 3)
 progress <- function(n) setTxtProgressBar(pb, n)
 opts <- list(progress = progress)
 
-prediction <- foreach(index=seq(1,nrow(spot_counts),10),
-                      .combine = 'rbind',
-                      .packages=c('topicmodels','Matrix', 'dplyr'),
+prediction <- foreach(index=seq(1, nrow(spot_counts), 10),
+                      .combine = "rbind",
+                      .packages = c("topicmodels", "Matrix", "dplyr"),
                       .options.snow = opts) %dopar% {
 
-  index_end <- dplyr::if_else( (index+9) <= nrow(spot_counts), as.double(index+9), as.double(nrow(spot_counts)))
+  index_end <- dplyr::if_else( (index + 9) <= nrow(spot_counts), as.double(index + 9), as.double(nrow(spot_counts)))
 
   test_spots_pred <- topicmodels::posterior(object = lda_mod,
                                             newdata = spot_counts[index:index_end,])
@@ -488,7 +491,7 @@ prediction <- foreach(index=seq(1,nrow(spot_counts),10),
 }
 
 parallel::stopCluster(cl)
-print(sprintf('Time to predict: %s', round(difftime(Sys.time(), pred_start, units = 'mins')),2))
+print(sprintf("Time to predict: %s", round(difftime(Sys.time(), pred_start, units = "mins")), 2))
 ```
 
 
@@ -497,13 +500,13 @@ Below we generate all the possible spot combinations containing between 2-8 cell
 ```{r eval = FALSE}
 #### Calculate topic profiles for every cluster ####
 clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = clust_vr)
-round(clust_profiles,4)
+round(clust_profiles, 4)
 
 if(class(clust_profiles) != "matrix") clust_profiles <- as.matrix(clust_profiles)
 
 # If a cluster is 0 change it to 1
 if(sum(grepl(pattern = "0",rownames(clust_profiles))) != 0){
-  rownames(clust_profiles) <- as.character(as.numeric(rownames(clust_profiles))+1)
+  rownames(clust_profiles) <- as.character(as.numeric(rownames(clust_profiles)) + 1)
 }
 
 # Compute all possible combinations up to grabbing round(nrow(comb)*0.66)
@@ -511,7 +514,7 @@ k_sub <- 8
 comb <- combinations(x = c(0:(nrow(clust_profiles))), k = k_sub, replace=TRUE)
 
 # Remove all those combinations that only include 1 or 2 cells
-comb <- comb[rowSums(comb != 0) > 2,]
+comb <- comb[rowSums(comb != 0) > 2, ]
 
 
 # Create all possible combinations
@@ -519,30 +522,30 @@ comb <- comb[rowSums(comb != 0) > 2,]
 tmp_mtrx <- matrix(nrow = nrow(comb), ncol = ncol(clust_profiles))
 tmp_metadata <- matrix(nrow = nrow(comb), ncol = nrow(clust_profiles))
 
-print('Creating synthetic spots'); st_syn_spot <- Sys.time()
+print("Creating synthetic spots"); st_syn_spot <- Sys.time()
 pb_for <- txtProgressBar(min = 0, max = nrow(comb), style = 3) # Progress bar
 
-for (i in 1:nrow(comb)) {
+for (seq_len(nrow(comb))) {
   # Get how many cells of each type we have
-  tt <- table(comb[i,][comb[i,]!=0])
-  tmp_metadata[i,as.numeric(names(tt))] <- tt
+  tt <- table(comb[i, ][comb[i, ] != 0])
+  tmp_metadata[i, as.numeric(names(tt))] <- tt
 
   # Add all the profiles together
   row_i <- lapply(names(tt), function(nm){
-    tmp_vec <- tt[[nm]]*clust_profiles[rownames(clust_profiles)[[as.numeric(nm)]],]
-  }) %>% purrr::reduce(.,`+`)
+    tmp_vec <- tt[[nm]] * clust_profiles[rownames(clust_profiles)[[as.numeric(nm)]], ]
+  }) %>% purrr::reduce(., `+`)
 
-  tmp_mtrx[i,] <- row_i/sum(tt)
+  tmp_mtrx[i,] <- row_i / sum(tt)
   # update progress bar
   setTxtProgressBar(pb_for, i)
 }
 # rm(list(i,tt,row_i)) # For clean and good practice code, that there are no random tmp variables floating
 close(pb_for)
-print(sprintf('Creation of %s synthetic spot profiles took: %s minutes',
+print(sprintf("Creation of %s synthetic spot profiles took: %s minutes",
                           nrow(comb),
-                          round(difftime(time1 = Sys.time(),time2 = st_syn_spot,units = 'mins'),2)))
+                          round(difftime(time1 = Sys.time(), time2 = st_syn_spot, units = "mins"), 2)))
 
-syn_spots_ls <- list(tmp_mtrx,tmp_metadata)
+syn_spots_ls <- list(tmp_mtrx, tmp_metadata)
 
 ```
 
@@ -556,7 +559,7 @@ syn_spots_metadata <- as.matrix(syn_spots_ls[[2]])
 syn_spots_metadata[is.na(syn_spots_metadata)] <- 0
 
 # Calculate all pairwise euclidean distances between the predicted and simulated topic profiles
-dist <- pdist(X=prediction,Y=syn_spots_profiles)
+dist <- pdist(X = prediction, Y = syn_spots_profiles)
 dist_mtrx <- as.matrix(dist)
 
 jsd_start <- Sys.time()
@@ -567,21 +570,22 @@ jsd_indices <- top_n_predictions(dist_mtrx = dist_mtrx, n = top_dist)
 #### Calculate JSD for the subset of best predictions according to Euclidean distance
 mtrx_jsd_full <- suppressMessages(calculate_jsd_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, jsd_indices = jsd_indices))
 
-quants_jsd <- round(quantile(matrixStats::rowMins(mtrx_jsd_full,na.rm = TRUE),c(0.25,0.5,0.75)),5)
-cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
+quants_jsd <- round(quantile(matrixStats::rowMins(mtrx_jsd_full, na.rm = TRUE), c(0.25, 0.5, 0.75)), 5)
+cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", 
+            quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
 
 # Get the index for each list from JSD_indices with the lowest JSD
 top_jsd <- if_else(top_jsd <= top_dist, top_jsd, top_dist)
 
 min15_error <- Rfast::rownth(x = mtrx_jsd_full, elems = rep(top_jsd, nrow(mtrx_jsd_full)), na.rm = TRUE)
-min_indices_jsd <- lapply(1:length(min15_error), function(i){
-  which(mtrx_jsd_full[i,] <= min15_error[i])
+min_indices_jsd <- lapply(seq_len(length(min15_error)), function(i) {
+  which(mtrx_jsd_full[i, ] <= min15_error[i])
 })
 
 ##### Get Spot composition #####
 spot_composition_mtrx <- matrix(nrow = length(min_indices_jsd), ncol = ncol(syn_spots_metadata))
-for (i in 1:nrow(spot_composition_mtrx)) {
-  spot_composition_mtrx[i,] <- round(colMeans(syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]],],na.rm = TRUE),0)
+for (seq_len(1:nrow(spot_composition_mtrx))) {
+  spot_composition_mtrx[i, ] <- round(colMeans(syn_spots_metadata[jsd_indices[[i]][min_indices_jsd[[i]]], ], na.rm = TRUE), 0)
 }
 
 ```

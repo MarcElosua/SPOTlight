@@ -56,7 +56,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
 
   # Select top 100 genes for each cluster
-  cluster_markers <- cut_markers2(markers = cluster_markers_all, ntop = 100)
+  cluster_markers <- suppressMessages(cut_markers2(markers = cluster_markers_all, ntop = 100))
 
   # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
   cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust) {
@@ -80,9 +80,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
 
   for (i in seq_len(k)) {
     clust_row <- cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]]
-    seedgenes[i,
-      cluster_markers_uniq[clust_row, "gene"]] =
-      cluster_markers_uniq[clust_row, "logFC_z"]
+    seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
     }
 
   # Verify that weights have been added
