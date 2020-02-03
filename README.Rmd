@@ -1,15 +1,15 @@
 ---
 title: "SpatialDecon"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-# output:
-#   md_document:
-#     variant: markdown_github
-# editor_options:
-#   chunk_output_type: console
 output:
-  rmdformats::readthedown:
-    toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
-    highlight: tango  # specifies the syntax highlighting style
+  md_document:
+    variant: markdown_github
+editor_options:
+  chunk_output_type: console
+# output:
+  # rmdformats::readthedown:
+    # toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+    # highlight: tango  # specifies the syntax highlighting style
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -96,10 +96,10 @@ If the dataset is very large we want to downsample it, both in terms of number o
 We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
 We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
 ```{r}
-se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[,se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827","H1975","H2228")]
+se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827", "H1975", "H2228")]
 
 #### Extract the top marker genes from each cluster ####
-Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
+Seurat::Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
 cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
 
 se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all)
@@ -132,7 +132,7 @@ We get the cell composition and the topic profile por each combination. We will 
 Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r}
 # Extract count matrix
-spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
+spot_counts <- Matrix::Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
 ens_genes <- rownames(spot_counts)
 
 # Convert Ensembl ids to symbols
