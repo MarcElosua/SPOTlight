@@ -14,7 +14,7 @@ Suggests:
     spelling
 Language: en-US
 RoxygenNote: 7.0.2
-Depends: arrangements (>= 1.1.8), 
+Imports: arrangements (>= 1.1.8), 
          BiocGenerics (>= 0.32.0),
          data.table (>= 1.12.8),
          doSNOW (>= 1.0.18),
