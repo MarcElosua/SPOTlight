@@ -96,7 +96,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   # Train model
   s_gibbs_start <- Sys.time()
   print(s_gibbs_start)
-  lda_mod <- LDA(se_lda_ready, k = k,
+  lda_mod <- topicmodels::LDA(se_lda_ready, k = k,
                  method = "Gibbs", seedwords = seedgenes, # Seedwords are only available with Gibbs sampling
                  control = control_LDA_Gibbs, ...)
   print(sprintf("LDA seeded took: %s minutes",
