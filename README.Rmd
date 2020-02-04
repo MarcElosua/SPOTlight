@@ -112,7 +112,7 @@ se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cel
 Once we have the data ready to pass to the model we can train it as shown below. For larger and more complex datasets ~8000 gibbs iterations are recommended. If more iterations are needed you can always resume where you left off and run more iterations on the previosuly trained model.
 ```{r}
 #### Train LDA model ####
-set.seed(1000)
+set.seed(123)
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = "cell_line_demuxlet", 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
                         verbose = 100, iter = 500, burnin = 0,

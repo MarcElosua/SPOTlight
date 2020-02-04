@@ -41,7 +41,7 @@ topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr) {
                                          seq_len(nlevels(se_obj$seurat_clusters)),
                                          sep = "")) %>%
     dplyr::summarise_all(list(median)) %>%
-    BiocGenerics::as.data.frame(clust_profiles) %>%
+    base::as.data.frame() %>%
     tibble::column_to_rownames("seurat_clusters")
 
   colnames(clust_profiles) <- seq_len(ncol(clust_profiles))

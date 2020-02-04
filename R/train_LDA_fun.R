@@ -89,9 +89,11 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   #### LDA model ####
   # Set parameters
   control_LDA_Gibbs <- list(alpha = al, estimate.beta = estimate.beta,
-                            verbose = verbose, prefix = tempfile(), save = save, keep = keep,
-                            seed = sample(x = 1:1000, size = nstart), nstart = nstart, best = best,
-                            delta = delta, iter = iter, burnin = burnin, thin = thin)
+                            verbose = verbose, prefix = tempfile(),
+                            keep = keep, nstart = nstart, best = best,
+                            delta = delta, iter = iter, burnin = burnin,
+                            thin = thin, save = save,
+                            seed = round(runif(nstart, min = 1, max = 1000)))
 
   # Train model
   s_gibbs_start <- Sys.time()
