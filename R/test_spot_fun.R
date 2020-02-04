@@ -120,6 +120,6 @@ test_spot_fun <- function(se_obj, clust_vr, n=1000, verbose=TRUE) {
 
   print(sprintf("Generation of %s test spots took %s mins", n,
                 difftime(Sys.time(), start_gen, units = "mins")))
-  cat("output consists of a list with two dataframes, this first one has the weighted count matrix and the second has the metadata for each spot")
+  print("output consists of a list with two dataframes, this first one has the weighted count matrix and the second has the metadata for each spot")
   return(list(topic_profiles = ds_syn_spots, cell_composition = ds_spots_metadata))
 }

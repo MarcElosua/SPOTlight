@@ -57,7 +57,8 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=1000, top_jsd
   mtrx_jsd_full <- suppressMessages(calculate_jsd_subset(prediction = prediction, syn_spots_profiles = syn_spots_profiles, jsd_indices = jsd_indices))
 
   quants_jsd <- round(quantile(matrixStats::rowMins(mtrx_jsd_full, na.rm = TRUE), c(0.25, 0.5, 0.75)), 5)
-  cat(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]", quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
+  print(sprintf("Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - %s[%s-%s]",
+                quants_jsd[[2]], quants_jsd[[1]], quants_jsd[[3]]))
 
   ##### Get the index for each list from JSD_indices with the lowest JSD #####
   min15_error <- Rfast::rownth(x = mtrx_jsd_full, elems = rep(top_jsd, nrow(mtrx_jsd_full)), na.rm = TRUE)

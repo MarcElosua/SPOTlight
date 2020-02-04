@@ -27,7 +27,7 @@ downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 100)
   if (length(Seurat::VariableFeatures(se_obj)) == 0) se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = 3000)
 
   #### Combine marker genes and highest variable genes and subset genes ####
-  keep_genes <- unique(c(VariableFeatures(se_obj), clust_genes))
+  keep_genes <- unique(c(VariableFeatures(se_obj), cluster_markers_all$gene))
 
   #### Get cell IDs to subset by cluster ####
   keep_ids <- lapply(split(se_obj@meta.data, se_obj@meta.data$seurat_clusters), function(subdf) {
