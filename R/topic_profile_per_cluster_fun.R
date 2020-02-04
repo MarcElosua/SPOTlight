@@ -35,7 +35,7 @@ topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr) {
 
   # generate clust_profiles
   clust_profiles <- cbind(se_meta, g_mtrx) %>%
-    # dtplyr::lazy_dt() %>%
+    dtplyr::lazy_dt() %>%
     dplyr::group_by(seurat_clusters) %>%
     dplyr::select(seurat_clusters, paste("topic_",
                                          seq_len(nlevels(se_obj$seurat_clusters)),
