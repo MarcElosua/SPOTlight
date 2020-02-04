@@ -87,7 +87,7 @@ To train the model we will use the 10x data from the file sincell_with_class_5cl
 se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays$data$counts,
                                                project = "10x_mixology", 
                                                assay = "RNA", 
-                                               meta.data = data.frame(colData(sce_sc_10x_5cl_qc)))
+                                               meta.data = data.frame(SingleCellExperiment::colData(sce_sc_10x_5cl_qc)))
 
 ```
 
@@ -102,7 +102,15 @@ se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% 
 Seurat::Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
 cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
 
-se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, clust_vr = 'cell_line_demuxlet', cluster_markers_all = cluster_markers_all)
+#### Subset relevant genes ####
+# We will only consider those genes with an adjusted p value < 0.01 and an avg_logFC > 1
+cluster_markers_all <- cluster_markers_all[cluster_markers_all$p_val_adj < 0.01 &
+                                           cluster_markers_all$avg_logFC > 1, ]
+
+
+se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, 
+                                      clust_vr = 'cell_line_demuxlet', 
+                                      cluster_markers_all = cluster_markers_all)
 # saveRDS(object = se_sc_10x_5cl_qc,file = 'se_sc_10x_5cl_qc.RDS')
 # se_sc_10x_5cl_qc <- readRDS(file = 'se_sc_10x_5cl_qc.RDS')
 
@@ -116,7 +124,7 @@ set.seed(123)
 lda_mod_ls <- train_lda(se_obj = se_sc_10x_5cl_qc, clust_vr = "cell_line_demuxlet", 
                         cluster_markers_all = cluster_markers_all, al = 0.01, 
                         verbose = 100, iter = 500, burnin = 0,
-                        best = TRUE, keep = 1, nstart = 5)
+                        best = TRUE, keep = 10, nstart = 5)
 
 # Select the best model
 lda_mod <- lda_mod_ls[[1]]
@@ -149,7 +157,7 @@ spot_counts <- BiocGenerics::t(spot_counts)
 decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, 
                                      clust_vr = "cell_line_demuxlet",  spot_counts = spot_counts, 
                                      verbose = TRUE, ncores = 5, parallelize = TRUE,
-                                     top_dist = 155, top_jsd = 1)
+                                     top_dist = 155, top_jsd = 3)
 
 ```
 

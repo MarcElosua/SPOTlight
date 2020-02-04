@@ -3,21 +3,17 @@
 #' @param se_obj Object of class Seurat with the data of interest
 #' @param clust_vr Name of the variable containing the cell clustering
 #' @param cluster_markers_all Object of class dataframe obtained from the function Seurat::FindAllMarkers()
-#' @param cl_padj Object of class numeric indicating which p_val_adj cutoff to use when selecting the marker genes for each cluster, 0.01 by default.
-#' @param cl_logfc Object of class numeric indicating which avg_logFC cutoff to use when selecting the marker genes for each cluster, 1 by default.
 #' @param cl_n Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
 #' @return A downsampled Seurat object from the original
 #' @export
 #' @examples
 
-downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_padj = 0.01, cl_logfc = 1, cl_n = 100) {
+downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 100) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.data.frame(cluster_markers_all)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
-  if (!is.numeric(cl_padj)) stop("ERROR: cl_padj must be an object of class numeric!")
-  if (!is.numeric(cl_logfc)) stop("ERROR: cl_logfc must be an object of class numeric!")
   if (!is.numeric(cl_n)) stop("ERROR: cl_n must be an object of class integer!")
 
   # load required packages
@@ -29,11 +25,6 @@ downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_padj = 0
   se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
   if (length(Seurat::VariableFeatures(se_obj)) == 0) se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = 3000)
-
-  #### Subset relevant genes ####
-  # We will only consider those genes with an adjusted p value < 0.01 and an avg_logFC > 1
-  clust_genes <- cluster_markers_all[cluster_markers_all$p_val_adj < cl_padj &
-                                     cluster_markers_all$avg_logFC > cl_logfc, "gene"]
 
   #### Combine marker genes and highest variable genes and subset genes ####
   keep_genes <- unique(c(VariableFeatures(se_obj), clust_genes))
