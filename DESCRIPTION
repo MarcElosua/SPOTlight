@@ -14,12 +14,12 @@ Suggests:
     spelling
 Language: en-US
 RoxygenNote: 7.0.2
+Depends: dplyr (>= 0.8.3),
 Imports: arrangements (>= 1.1.8), 
          BiocGenerics (>= 0.32.0),
          data.table (>= 1.12.8),
          doSNOW (>= 1.0.18),
          doParallel (>= 1.0.15),
-         dplyr (>= 0.8.3),
          dtplyr (>= 1.0.0),
          foreach (>= 1.4.7),
          knitrProgressBar (>= 1.1.0),
