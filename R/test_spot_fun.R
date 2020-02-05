@@ -17,10 +17,10 @@ test_spot_fun <- function(se_obj, clust_vr, n=1000, verbose=TRUE) {
   if (!is.numeric(n)) stop("ERROR: n must be an integer!")
   if (!is.logical(verbose)) stop("ERROR: verbose must be a logical object!")
 
-  suppressMessages(require(DropletUtils)) # For the downsampling
-  suppressMessages(require(dtplyr)) # To use dplyr commands with DT speed
-  suppressMessages(require(dplyr)) # To use dplyr commands with DT speed
-  suppressMessages(require(tidyr)) # To use dplyr commands with DT speed
+  # suppressMessages(require(DropletUtils)) # For the downsampling
+  # suppressMessages(require(dtplyr)) # To use dplyr commands with DT speed
+  # suppressMessages(require(dplyr)) # To use dplyr commands with DT speed
+  # suppressMessages(require(tidyr)) # To use dplyr commands with DT speed
 
 
   se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
@@ -78,7 +78,7 @@ test_spot_fun <- function(se_obj, clust_vr, n=1000, verbose=TRUE) {
     ## Downsample
     ### 25k is a bit above average 20k UMIs observed in spatial transcriptomics data then downsample to 20k
     if (sum(syn_spot) > 25000) {
-      syn_spot_sparse <- downsampleMatrix(Matrix::Matrix(syn_spot, sparse = T),
+      syn_spot_sparse <- DropletUtils::downsampleMatrix(Matrix::Matrix(syn_spot, sparse = T),
                                           prop = 20000 / sum(syn_spot))
     } else {
       syn_spot_sparse <- Matrix::Matrix(syn_spot, sparse = T)

@@ -1,4 +1,4 @@
-#' This function takes in a seurat object with several tuning parameters and it assesses its performance on synthetic test spots 
+#' This function takes in a seurat object with several tuning parameters and it assesses its performance on synthetic test spots
 #'
 #' @param se_obj Object of class Seurat.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
@@ -14,7 +14,7 @@
 #'
 
 spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 7500, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15) {
-  
+
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
@@ -25,56 +25,53 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
   if (!is.numeric(keep)) stop("ERROR: keep must be of class integer!")
   if (!is.numeric(top_dist)) stop("ERROR: top_dist must be an integer!")
   if (!is.numeric(top_jsd)) stop("ERROR: top_jsd must be an integer!")
-  
-  
-  
-  se_obj <- Seurat::SCTransform(se_obj, ncells = 3000, verbose = TRUE) %>% 
-    Seurat::RunPCA(verbose = TRUE) %>%
-    Seurat::RunUMAP(dims = 1:30)
-  
-  
+
+
+
+  se_obj <- Seurat::SCTransform(se_obj, ncells = 3000, verbose = TRUE)
+
   Seurat::Idents(object = se_obj) <- se_obj@meta.data[, clust_vr]
   cluster_markers_all <- Seurat::FindAllMarkers(object = se_obj, verbose = verbose, only.pos = T)
-  
+
   cluster_markers_all <- cluster_markers_all[cluster_markers_all$p_val_adj < 0.01 &
                                                cluster_markers_all$avg_logFC > 1, ]
-  
+
   se_obj <- downsample_se_obj(se_obj = se_obj, clust_vr = clust_vr, cluster_markers_all = cluster_markers_all)
-  
+
   #### Train LDA model ####
   set.seed(1000)
   start_time <- Sys.time()
-  
-  lda_mod_ls <- train_lda(se_obj = se_obj, clust_vr = clust_vr, 
-                          cluster_markers_all = cluster_markers_all, al = 0.01, 
+
+  lda_mod_ls <- train_lda(se_obj = se_obj, clust_vr = clust_vr,
+                          cluster_markers_all = cluster_markers_all, al = 0.01,
                           verbose = keep, iter = iter, burnin = 0,
                           best = TRUE, keep = keep, nstart = nstart)
-  
-  print(sprintf("Time to run LDA model for %s is %s", 
+
+  print(sprintf("Time to run LDA model for %s is %s",
                 tech, round(difftime(Sys.time(), start_time, units = "mins"), 2)))
-  
+
   # Select the best model
   lda_mod <- lda_mod_ls[[1]]
 
   test_spots_ls <- test_spot_fun(se_obj = se_obj, clust_vr = clust_vr, n = 1000, verbose = verbose)
-  
+
   test_spots_counts <- test_spots_ls[[1]]
-  
+
   # Transpose spot_counts so its SPOTxGENES
   test_spots_counts <- BiocGenerics::t(test_spots_counts)
-  
-  
+
+
   test_spots_metadata <- test_spots_ls[[2]]
   test_spots_metadata <- as.matrix(test_spots_metadata[, which(colnames(test_spots_metadata) != "name")])
-  
+
   decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_obj,
-                                   clust_vr = clust_vr,  spot_counts = test_spots_counts, 
+                                   clust_vr = clust_vr,  spot_counts = test_spots_counts,
                                    verbose = verbose, ncores = 5, parallelize = TRUE,
                                    top_dist = top_dist, top_jsd = top_jsd)
-  
-  raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = test_spots_metadata, 
+
+  raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = test_spots_metadata,
                                                   spot_composition_mtrx = decon_mtrx)
   raw_statistics_ls
-  
+
   return(list(lda_mod, test_spots_ls, raw_statistics_ls))
 }

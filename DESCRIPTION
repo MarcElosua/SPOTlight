@@ -31,3 +31,4 @@ Imports: arrangements (>= 1.1.8),
          SingleCellExperiment (>= 1.8.0),
          tibble (>= 2.1.3),
          topicmodels (>= 0.2.9)
+         DropletUtils (>= 1.6.1)
