@@ -16,7 +16,7 @@ topic_profile_per_cluster(lda_mod, se_obj, clust_vr)
 \item{verbose}{Object of class Logical determining if progress should be reported or not (TRUE by default).}
 }
 \value{
-This function returns a list where the first element is a matric with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
+This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
 }
 \description{
 This function takes in a seurat object and an LDA model generated from topic models and returns a list with a topic profile per cluster.

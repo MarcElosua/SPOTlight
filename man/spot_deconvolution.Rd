@@ -13,7 +13,7 @@ spot_deconvolution(
   ncores = NULL,
   parallelize = TRUE,
   top_dist = 1000,
-  top_JSD = 15
+  top_jsd = 15
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ spot_deconvolution(
 
 \item{top_dist}{Object of class integer, on how many top euclidean distance are we going to calculate the JSD.}
 
-\item{top_JSD}{Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.}
+\item{top_jsd}{Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.}
 }
 \value{
 matrix with the exact predicted composition of each spot.
