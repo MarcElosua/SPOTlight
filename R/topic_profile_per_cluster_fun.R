@@ -4,7 +4,7 @@
 #' @param se_obj Object of class Seurat.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
-#' @return This function returns a list where the first element is a matric with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
+#' @return This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
 #' @export
 #' @examples
 #'
