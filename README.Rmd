@@ -190,7 +190,7 @@ raw_statistics_ls
 ### BONUS - Benchmark with synthetic test spots
 Furthermore, we can test the performance of the model on synthetically generated test spots to get a sense on how well the model will perform on your data.
 
-First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelyhood has plateaud.
+First of all we can check if the model has achieved an optimal solution by checking if the maximum-likelihood has plateaued.
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 library(ggplot2); theme_set(theme_classic())
 
@@ -204,7 +204,7 @@ data.frame(lda_mod@logLiks) %>%
 ```
 
 
-If the model hasn't plateaud or has plateaud below the best model with the set number of iterations we can run more iterations on the model right where we left off. We can change the nstart parameter which will run the model at 3 different stochastic start points to try to find a better local minima.
+If the model hasn't plateaued or has plateaued below the best model with the set number of iterations we can run more iterations on the model right where we left off. We can change the nstart parameter which will run the model at 3 different stochastic start points to try to find a better local minima.
 ```{r}
 # Prepare count matrix to pass to the model
 se_lda_ready <- prep_seobj_topic_fun(se_obj = se_sc_10x_5cl_qc)
@@ -301,7 +301,7 @@ QC_plts
 ```
 ![QC plots](img/QC_plots_comb.png)
 
-From the QC plots we can see that library size, number of detected genes and mitochondrial gene proportion follow a normal distribution with not much skewness. Furthermore the mitochondrial proportion does not show a correlatino with the number of detected genes so we wont regress out the effect ot mitochondrial proportion. No obvious low quality cells remain in this dataset so we won't exclude any further ones.
+From the QC plots we can see that library size, number of detected genes and mitochondrial gene proportion follow a normal distribution with not much skewness. Furthermore the mitochondrial proportion does not show a correlation with the number of detected genes so we wont regress out the effect of mitochondrial proportion. No obvious low quality cells remain in this dataset so we won't exclude any further ones.
 
 Looking at the clustering we can clearly see that the cells cluster by cell line.
 ```{r eval = FALSE}
@@ -317,7 +317,7 @@ DimPlot(se_sc_10x_5cl_qc, reduction = "umap", group.by = "seurat_clusters", labe
 ```
 ![UMAP demuxlet](img/UMAP_demuxlet.png)
 
-If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized, G2 signature is present but ince it is better to not over-correct the data we won"t regress out the cell cycle.
+If we take a look at cell cycle genes to see if we need to correct by it we see that the cells are pretty synchronized, G2 signature is slightly present but it is better to not over-correct the data we won"t regress out the cell cycle.
 ```{r eval = FALSE}
 se_sc_10x_5cl_qc <- CellCycleScoring(se_sc_10x_5cl_qc,
                                      s.features = cc.genes.updated.2019$s.genes, 
@@ -329,8 +329,8 @@ FeaturePlot(se_sc_10x_5cl_qc,features = c("S.Score", "G2M.Score"))
 ```
 ![Feature plot Cell cycle](img/Feat_plot_CC.png)
 
-### Downsampling dataset
-If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
+### Down-sampling dataset
+If the dataset is very large we want to down-sample it, both in terms of number of cells and number of genes, to train the model. To do this down-sampling we want to keep a representative amount of cells per cluster and the most important genes.
 We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
 We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
 
@@ -371,7 +371,7 @@ se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[keep_genes, keep_ids]
 ```
 
 ### Train model
-We will set some parameters the we will use to train the model. K is the numer of topics which we will assume to be the same as the number of clusters found by Seurat. With droplevels we make sure that there are no levels defined with no representation
+We will set some parameters the we will use to train the model. K is the number of topics which we will assume to be the same as the number of clusters found by Seurat. With droplevels we make sure that there are no levels defined with no representation
 ```{r eval = FALSE}
 k <- nlevels(droplevels(factor(se_sc_10x_5cl_qc$cell_line_demuxlet)))
 nfeatures <- nrow(se_sc_10x_5cl_qc)
@@ -400,7 +400,7 @@ cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust) 
 
 ```
 
-Set seedwords from top markers. Here we are setting the weights for each topic, the words that are weighted positively are those belonging to the list of top markers for a cluster. In the seedgenes matrix each row represents a topic and each column represents a gene. To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC 
+Set seed words from top markers. Here we are setting the weights for each topic, the words that are weighted positively are those belonging to the list of top markers for a cluster. In the seed genes matrix each row represents a topic and each column represents a gene. To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC 
 ```{r eval = FALSE}
 # initialize matrix
 seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
@@ -445,7 +445,7 @@ topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
 ```
 
 ### Predict topic profiles
-Mixed spots representing the grount truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
+Mixed spots representing the ground truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r  eval = FALSE}
 # Extract count matrix
 spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
@@ -503,8 +503,8 @@ print(sprintf("Time to predict: %s", round(difftime(Sys.time(), pred_start, unit
 ```
 
 
-### Generate all posible synthetic spots
-Below we generate all the possible spot combinations containing between 2-8 cells since we aproximate that by their size the spots won't have more than ~10 cells
+### Generate all possible synthetic spots
+Below we generate all the possible spot combinations containing between 2-8 cells since we approximate that by their size the spots won't have more than ~10 cells
 ```{r eval = FALSE}
 #### Calculate topic profiles for every cluster ####
 clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = clust_vr)
@@ -558,8 +558,8 @@ syn_spots_ls <- list(tmp_mtrx, tmp_metadata)
 ```
 
 ### Spot Deconvolution
-Create all posible combinations between 3-8 cells per spot.
-We get the cell composition and the topic profile por each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the spatial spots through the LDA model.  The prediction process can be parallelized to speed it up.
+Create all possible combinations between 3-8 cells per spot.
+We get the cell composition and the topic profile for each combination. We will compare the topic profiles of all these synthetic spots with the predicted topic profiles obtained from running the spatial spots through the LDA model.  The prediction process can be parallelized to speed it up.
 
 ```{r eval = FALSE}
 syn_spots_profiles <- syn_spots_ls[[1]]

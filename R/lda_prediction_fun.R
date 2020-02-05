@@ -44,7 +44,7 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T) {
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
 
-  prediction <- foreach(index = seq(1, nrow(spot_counts), 10),
+  prediction <- foreach::foreach(index = seq(1, nrow(spot_counts), 10),
                         .combine = "rbind",
                         .options.snow = opts,
                         .packages = c("topicmodels", "Matrix", "dplyr")) %dopar% {
@@ -59,8 +59,8 @@ lda_prediction <- function(lda_mod, spot_counts, ncores, parallelize=T) {
   }
 
   if (parallelize) parallel::stopCluster(cl)
-  print(sprintf("Time to predict: %s minutes",
-                round(difftime(Sys.time(), pred_start, units = "mins")), 2))
+  cat(sprintf("\nTime to predict: %s minutes",
+                round(difftime(Sys.time(), pred_start, units = "mins")), 2), sep = "\n")
 
   return(prediction)
 }

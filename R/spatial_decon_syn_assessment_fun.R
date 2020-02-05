@@ -8,12 +8,13 @@
 #' @param keep Object of class "integer"; if a positive integer, the log-likelihood is saved every keep iterations, by default 100.
 #' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD.
 #' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
+#' @param clust_vr Name of the variable containing the cell clustering
 #' @return This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
 #' @export
 #' @examples
 #'
 
-spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 7500, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15) {
+spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 7500, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15, cl_n = 100) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -27,16 +28,18 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
   if (!is.numeric(top_jsd)) stop("ERROR: top_jsd must be an integer!")
 
 
-
-  se_obj <- Seurat::SCTransform(se_obj, ncells = 3000, verbose = TRUE)
-
+  # Set Identities as the cluster variables
   Seurat::Idents(object = se_obj) <- se_obj@meta.data[, clust_vr]
+
+  # Get marker genes for all the clusters
   cluster_markers_all <- Seurat::FindAllMarkers(object = se_obj, verbose = verbose, only.pos = T)
 
+  # Filter marker genes by p value and logFC
   cluster_markers_all <- cluster_markers_all[cluster_markers_all$p_val_adj < 0.01 &
                                                cluster_markers_all$avg_logFC > 1, ]
 
-  se_obj <- downsample_se_obj(se_obj = se_obj, clust_vr = clust_vr, cluster_markers_all = cluster_markers_all)
+  # Downsample seurat object to reduce n cells and n genes
+  se_obj <- downsample_se_obj(se_obj = se_obj, clust_vr = clust_vr, cluster_markers_all = cluster_markers_all, cl_n = cl_n)
 
   #### Train LDA model ####
   set.seed(1000)
@@ -53,25 +56,25 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
   # Select the best model
   lda_mod <- lda_mod_ls[[1]]
 
+  # Generate test spots synthetically
   test_spots_ls <- test_spot_fun(se_obj = se_obj, clust_vr = clust_vr, n = 1000, verbose = verbose)
 
   test_spots_counts <- test_spots_ls[[1]]
 
   # Transpose spot_counts so its SPOTxGENES
   test_spots_counts <- BiocGenerics::t(test_spots_counts)
-
-
   test_spots_metadata <- test_spots_ls[[2]]
   test_spots_metadata <- as.matrix(test_spots_metadata[, which(colnames(test_spots_metadata) != "name")])
 
+  # Perform spot deconvolution
   decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_obj,
                                    clust_vr = clust_vr,  spot_counts = test_spots_counts,
                                    verbose = verbose, ncores = 5, parallelize = TRUE,
                                    top_dist = top_dist, top_jsd = top_jsd)
 
+  # Assess deconvolution performance
   raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = test_spots_metadata,
                                                   spot_composition_mtrx = decon_mtrx)
-  raw_statistics_ls
 
   return(list(lda_mod, test_spots_ls, raw_statistics_ls))
 }
