@@ -8,13 +8,13 @@
 #' @param keep Object of class "integer"; if a positive integer, the log-likelihood is saved every keep iterations, by default 100.
 #' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD.
 #' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
-#' @param clust_vr Name of the variable containing the cell clustering
+#' @param cl_n Object of class integer, how many cells to grab from each cluster.
 #' @return This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
 #' @export
 #' @examples
 #'
 
-spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 7500, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15, cl_n = 100) {
+spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 3000, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15, cl_n = 100) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
