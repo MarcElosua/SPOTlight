@@ -8,11 +8,12 @@ spatial_decon_syn_assessment_fun(
   se_obj,
   clust_vr,
   verbose = TRUE,
-  iter = 7500,
+  iter = 3000,
   nstart = 1,
   keep = 100,
   top_dist = 1000,
-  top_jsd = 15
+  top_jsd = 15,
+  cl_n = 100
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ spatial_decon_syn_assessment_fun(
 \item{top_dist}{Object of class integer, on how many top euclidean distance are we going to calculate the JSD.}
 
 \item{top_jsd}{Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.}
+
+\item{cl_n}{Object of class integer, how many cells to grab from each cluster.}
 }
 \value{
 This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
