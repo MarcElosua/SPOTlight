@@ -597,3 +597,23 @@ for (seq_len(1:nrow(spot_composition_mtrx))) {
 }
 
 ```
+
+
+### Spatial interaction graph
+Lastly, now that we know which cell types are found within each spot we can make a graph representing spatial interactions where celltypes will have stronger nodes between them the more likely it is we find them within the same spot. To do this we will only need to run the function `get_spatial_interaction_graph`. This function prints the plot and returns the elements needed to plot it.
+```{r eval = FALSE}
+network <- get_spatial_interaction_graph(decon_mtrx = spot_composition_mtrx)
+```
+
+If you want to tune how the graph looks you can do the following or you can check out more options [here](https://www.r-graph-gallery.com/network.html):
+```{r eval = FALSE}
+# Count the number of degree for each node:
+deg <- degree(network, mode="all")
+
+plot(network, 
+     edge.width = E(network)$importance * 2, 
+     vertex.size = deg * 2, 
+     vertex.color = rgb(0.4, 0.2, 0.1, 0.5),
+     layout = layout.circle)
+```
+

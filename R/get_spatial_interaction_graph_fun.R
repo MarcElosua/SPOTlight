@@ -1,7 +1,7 @@
-#' This function takes in deconvolution matrix and returns a list with an igraph object and the degree of each node 
+#' This function takes in deconvolution matrix and returns a network igraph object
 #'
 #' @param decon_mtrx Object of class matrix.
-#' @return This function returns a list with an igraph object and the graph plot 
+#' @return This function returns a network igraph object and prints the graph plot
 #' @export
 #' @examples
 #'
@@ -68,5 +68,5 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
        vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
        layout = layout.fruchterman.reingold)
   
-  return(list(network, deg))
+  return(network)
 }
