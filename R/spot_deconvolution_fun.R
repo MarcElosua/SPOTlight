@@ -37,7 +37,6 @@ spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts,
 
 
   # Create all synthetic spot combinations
-  if (verbose) print("Generating all synthetic spot combinations")
   syn_spots_ls <- syn_spot_comb_topic(lda_mod = lda_mod,
                                       se_obj = se_obj,
                                       clust_vr = clust_vr,

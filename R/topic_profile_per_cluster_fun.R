@@ -33,6 +33,7 @@ topic_profile_per_cluster <- function(lda_mod, se_obj, clust_vr) {
   colnames(g_mtrx) <- paste("topic_", seq_len(ncol(g_mtrx)), sep = "")
   se_meta <- se_obj@meta.data
 
+  if (nrow(se_meta) != nrow(g_mtrx)) stop("se_obj@meta.data and lda_mod@gamma don't have the same number of rows (cells). Please make sure you're passing the same Seurat object you passes to the function 'train_LDA_fun()'")
   # generate clust_profiles
   clust_profiles <- cbind(se_meta, g_mtrx) %>%
     # dtplyr::lazy_dt() %>%

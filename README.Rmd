@@ -600,7 +600,7 @@ for (seq_len(1:nrow(spot_composition_mtrx))) {
 
 
 ### Spatial interaction graph
-Lastly, now that we know which cell types are found within each spot we can make a graph representing spatial interactions where celltypes will have stronger nodes between them the more likely it is we find them within the same spot. To do this we will only need to run the function `get_spatial_interaction_graph`. This function prints the plot and returns the elements needed to plot it.
+Furthermore, now that we know which cell types are found within each spot we can make a graph representing spatial interactions where celltypes will have stronger nodes between them the more likely it is we find them within the same spot. To do this we will only need to run the function `get_spatial_interaction_graph`. This function prints the plot and returns the elements needed to plot it.
 ```{r eval = FALSE}
 network <- get_spatial_interaction_graph(decon_mtrx = spot_composition_mtrx)
 ```
@@ -615,5 +615,32 @@ plot(network,
      vertex.size = deg * 2, 
      vertex.color = rgb(0.4, 0.2, 0.1, 0.5),
      layout = layout.circle)
+```
+
+
+### Topic probability per cluster
+Lastly, if we want to visualize the topic by which each cell identity is made out of we can do the following.
+1st- access the topic profiles of each cluster
+```{r eval = FALSE}
+clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_obj, clust_vr = clust_vr)
+```
+
+Visualize them as a DotPlot for example:
+```{r eval = FALSE}
+round(clust_profiles, 4) %>% 
+  tibble::rownames_to_column('Cell identity') %>% 
+  tidyr::pivot_longer(cols = -`Cell identity`, names_to = "Topics") %>% 
+  mutate(
+    Topics = factor(Topics, levels = 1:max(as.numeric(Topics))),
+    `Cell identity` = factor(`Cell identity`, 
+                             levels = 0:max(as.numeric(`Cell identity`))),
+    value_txt = if_else(value > 0.25, round(value, 2), NULL)) %>% 
+  ggplot(aes(x = `Cell identity`, y = Topics)) +
+  geom_point(aes(size = value, colour = value)) +
+  geom_text(aes(label = value_txt)) +
+  scale_color_continuous(low = "grey", high = "Green") +
+  theme_classic() +
+  labs(title = "Topic proportion by cluster")
+
 ```
 

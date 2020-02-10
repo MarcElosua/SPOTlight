@@ -22,6 +22,7 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
   suppressMessages(require(arrangements))
   suppressMessages(require(progress))
   suppressMessages(require(purrr))
+  suppressMessages(require(topicmodels))
 
 
   #### Calculate topic profiles for every cluster ####
@@ -37,10 +38,25 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
     rownames(clust_profiles) <- as.character(as.numeric(rownames(clust_profiles)) + 1)
   }
 
-  # Compute all possible combinations up to grabbing round(nrow(comb)*0.66)
+  # Compute all possible combinations
   k_sub <- 8
-  comb <- arrangements::combinations(x = c(0:(nrow(clust_profiles))),
-                                     k = k_sub, replace = TRUE)
+
+  # First compute how many combinations are possible
+  total_comb <- arrangements::ncombinations(x = c(0:nrow(clust_profiles)), k = k_sub, replace = TRUE)
+
+  # If the total number of combinations exceeds 500K with k_sub = 8 we will select 1M random combinations
+  # 18 cluster with k_sub 8 gives ~1M possible combinations,
+  if (total_comb > 1e6) {
+    # select 1M from all the k_sub = 8 possible comb and the rest will be discarded.
+    if (verbose) print(sprintf("The total number of possible combinations selecting up to 8 cells per spot is: %s, using %s random combinations", total_comb, 1e6))
+    comb <- arrangements::combinations(x = c(0 : nrow(clust_profiles)),
+                                       k = k_sub, replace = TRUE, nsample = 1e6)
+  } else {
+    # Do all possible combinatinos
+    if (verbose) print("Generating all synthetic spot combinations: %s", total_comb)
+    comb <- arrangements::combinations(x = c(0:nrow(clust_profiles)),
+                                       k = k_sub, replace = TRUE)
+  }
 
   # Remove all those combinations that only include 1 or 2 cells
   comb <- comb[rowSums(comb != 0) > 2, ]
