@@ -93,7 +93,7 @@ se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays
 
 ### Downsampling + Data preprocessing
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
-We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
+We will select first the genes of interest, to do so we will grab each cluster's markers plus the 3000 most variable genes.  
 We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
 ```{r}
 se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827", "H1975", "H2228")]
@@ -117,7 +117,7 @@ se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc,
 ```
 
 ### Train LDA model
-Once we have the data ready to pass to the model we can train it as shown below. For larger and more complex datasets ~8000 gibbs iterations are recommended. If more iterations are needed you can always resume where you left off and run more iterations on the previosuly trained model.
+Once we have the data ready to pass to the model we can train it as shown below. For larger and more complex datasets more gibbs iterations are recommended. If more iterations are needed you can always resume where you left off and run more iterations on the previosuly trained model.
 ```{r}
 #### Train LDA model ####
 set.seed(123)
@@ -262,7 +262,7 @@ Normalizing and Transform the data, dimensionality reduction and clusters assign
 ```{r eval = FALSE}
 se_sc_10x_5cl_qc$percent.mt <- 1 - se_sc_10x_5cl_qc$non_mt_percent
 
-se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, verbose = T,variable.features.n = 5000)
+se_sc_10x_5cl_qc <- SCTransform(se_sc_10x_5cl_qc, verbose = T, variable.features.n = 5000)
 se_sc_10x_5cl_qc <- FindVariableFeatures(object = se_sc_10x_5cl_qc, nfeatures = 5000)
 
 se_sc_10x_5cl_qc <- RunPCA(se_sc_10x_5cl_qc, verbose = FALSE)
@@ -331,7 +331,7 @@ FeaturePlot(se_sc_10x_5cl_qc,features = c("S.Score", "G2M.Score"))
 
 ### Down-sampling dataset
 If the dataset is very large we want to down-sample it, both in terms of number of cells and number of genes, to train the model. To do this down-sampling we want to keep a representative amount of cells per cluster and the most important genes.
-We will select first the genes of interest, to do so we will grab each cluster's markers plus the 5000 most variable genes.  
+We will select first the genes of interest, to do so we will grab each cluster's markers plus the 3000 most variable genes.  
 We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
 
 Select only the 3 cell types used in the mixed spots
@@ -443,6 +443,7 @@ We can visualize the genes defining each topic we can plot it as follows.
 ```{r eval = FALSE}
 topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
 ```
+[Topic visualization](img/topic_visualization.png)
 
 ### Predict topic profiles
 Mixed spots representing the ground truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
@@ -616,7 +617,7 @@ plot(network,
      vertex.color = rgb(0.4, 0.2, 0.1, 0.5),
      layout = layout.circle)
 ```
-
+[Graph network](img/graph_network.png)
 
 ### Topic probability per cluster
 Lastly, if we want to visualize the topic by which each cell identity is made out of we can do the following.
@@ -643,4 +644,6 @@ round(clust_profiles, 4) %>%
   labs(title = "Topic proportion by cluster")
 
 ```
+![Topic profiles](img/topic_profile_profile_brain.png)
+
 

@@ -45,14 +45,19 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
 
 
   # Join matrices and scale comb_val centering it around 1
-  ntwrk_mtrx <- cbind(comb_id, scale(comb_val, center = 1))
+  ntwrk_mtrx <- cbind(comb_id, comb_val)
+  # Remove rows belonging to cell types not interacting
+  ntwrk_mtrx <- ntwrk_mtrx[ntwrk_mtrx[, 3] != "0", ]
+  # add column with scaled values
+  ntwrk_mtrx <- cbind(ntwrk_mtrx, scale(as.numeric(ntwrk_mtrx[, 3]), center = 1))
+
 
   # set.seed(1)
   # data <- matrix(sample(0:1, 100, replace=TRUE, prob=c(0.8,0.2)), nc=10)
   links <- data.frame(
     source = ntwrk_mtrx[, 1],
     target = ntwrk_mtrx[, 2],
-    importance = as.numeric(ntwrk_mtrx[, 3])
+    importance = as.numeric(ntwrk_mtrx[, 4])
   )
   nodes <- data.frame(name=colnames(decon_mtrx))
 
@@ -64,9 +69,9 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
 
   plot(network,
        edge.width = E(network)$importance * 3,
-       vertex.size = deg * 2,
+       vertex.size = deg,
        vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
-       layout = layout.fruchterman.reingold)
+       layout = layout.circle)
 
   return(network)
 }
