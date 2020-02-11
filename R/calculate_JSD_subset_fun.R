@@ -20,8 +20,6 @@ calculate_jsd_subset <- function(prediction, syn_spots_profiles, jsd_indices) {
   #### Initialize JS matrix ####
   mtrx_jsd_full <- matrix(nrow = nrow(prediction),
                           ncol = max(lengths(jsd_indices)))
-  print("Calculating Jensen-Shannon Divergence")
-  pb_jsd <- txtProgressBar(min = 0, max = nrow(prediction), style = 3)
 
   ##### Calculate Jensen-Shannon divergence of the subset of the data
   for (i in seq_len(nrow(prediction))) {
@@ -29,9 +27,6 @@ calculate_jsd_subset <- function(prediction, syn_spots_profiles, jsd_indices) {
       x <- rbind(prediction[i, ], syn_spots_profiles[jsd_indices[[i]][ii], ])
       mtrx_jsd_full[i, ii] <- suppressMessages(JSD(x, unit = "log2"))
     }
-    # update progress bar
-    setTxtProgressBar(pb_jsd, i)
   }
-  close(pb_jsd)
   return(mtrx_jsd_full)
 }
