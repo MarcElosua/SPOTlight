@@ -53,7 +53,7 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
                                        k = k_sub, replace = TRUE, nsample = 1e6)
   } else {
     # Do all possible combinatinos
-    if (verbose) print("Generating all synthetic spot combinations: %s", total_comb)
+    if (verbose) print(sprintf("Generating all synthetic spot combinations: %s", total_comb))
     comb <- arrangements::combinations(x = c(0:nrow(clust_profiles)),
                                        k = k_sub, replace = TRUE)
   }
