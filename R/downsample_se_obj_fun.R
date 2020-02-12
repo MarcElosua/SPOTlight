@@ -8,7 +8,7 @@
 #' @export
 #' @examples
 
-downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 100) {
+downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 10) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -31,7 +31,7 @@ downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 100)
 
   #### Get cell IDs to subset by cluster ####
   keep_ids <- lapply(split(se_obj@meta.data, se_obj@meta.data$seurat_clusters), function(subdf) {
-    # Determine n_sample, if the size of the group is < 100 use all the group, if not just use 100
+    # Determine n_sample, if the size of the group is < cl_n use all the group, if not just use cl_n
     n_sample <- if_else(nrow(subdf) < cl_n, as.numeric(nrow(subdf)), as.numeric(cl_n))
     # Subset a random selection of that group and get the identifiers
     tmp_ds <- subdf[sample(seq_len(nrow(subdf)), n_sample), ] %>%
