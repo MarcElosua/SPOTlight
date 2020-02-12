@@ -93,24 +93,43 @@ se_sc_10x_5cl_qc <- Seurat::CreateSeuratObject(counts = sce_sc_10x_5cl_qc@assays
 
 ### Downsampling + Data preprocessing
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes.
-We will select first the genes of interest, to do so we will grab each cluster's markers plus the 3000 most variable genes.  
-We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model
+
+To determine the most important genes we can use the function `Seurat::FindAllMarkers` which will return the markers for each cluster.
+Note that we set the following parameters:
+- only.pos = TRUE - we are only interested in those genes specifically expressed in that cluster.
+- logfc.threshold = 1 - we are more interested in genes that show larger differences with respect to the rest.
+- min.pct = 0.9 - we want to select markers that are present in almost all the cells in that cluster.
 ```{r}
 se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% c("HCC827", "H1975", "H2228")]
 
 #### Extract the top marker genes from each cluster ####
 Seurat::Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
-cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, verbose = TRUE, only.pos = T)
+cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc, 
+                                              verbose = TRUE, 
+                                              only.pos = TRUE, 
+                                              logfc.threshold = 1, 
+                                              min.pct = 0.9)
 
+```
+
+We can extract the top marker genes from each cluster and select the unique ones to use as seeds for the model. This step is very important, cluster-marker genes are key for training the model! Feel free to add a row, representing a gene, in `cluster_markers_all` if you think it is an important marker. The use of the filters is the following:
+- p_val_adj < 0.01 - we want to make sure the genes we are using are trully differentially expressed.
+- avg_logFC > 1 - redundant with logfc.threshold = 1.
+- pct.1 >= 0.9 - min.pct in `FindAllMarkers` selects for both pct.1 and pct.2 but we are interested in genes present in almost all the cells from that cluster.
+```{r}
 #### Subset relevant genes ####
 # We will only consider those genes with an adjusted p value < 0.01 and an avg_logFC > 1
 cluster_markers_all <- cluster_markers_all[cluster_markers_all$p_val_adj < 0.01 &
-                                           cluster_markers_all$avg_logFC > 1, ]
+                                           cluster_markers_all$avg_logFC > 1 &
+                                           pct.1 >= 0.9, ]
+```
 
-
+Lastly we downsample the genes and number of cells of interest. For genes we will grab each cluster's markers as passed in cluster_markers_all plus the 3000 most variable genes. The number of cells per cluster is set to 10 by default, performance is unchanged if we increase it and selecting more cells can increase the running time of the model.
+```{r}
 se_sc_10x_5cl_qc <- downsample_se_obj(se_obj = se_sc_10x_5cl_qc, 
                                       clust_vr = 'cell_line_demuxlet', 
-                                      cluster_markers_all = cluster_markers_all)
+                                      cluster_markers_all = cluster_markers_all,
+                                      cl_n = 10)
 # saveRDS(object = se_sc_10x_5cl_qc,file = 'se_sc_10x_5cl_qc.RDS')
 # se_sc_10x_5cl_qc <- readRDS(file = 'se_sc_10x_5cl_qc.RDS')
 
