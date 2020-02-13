@@ -32,7 +32,7 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
   Seurat::Idents(object = se_obj) <- se_obj@meta.data[, clust_vr]
 
   # Get marker genes for all the clusters
-  cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc,
+  cluster_markers_all <- Seurat::FindAllMarkers(object = se_obj,
                                                 verbose = TRUE,
                                                 only.pos = TRUE,
                                                 logfc.threshold = 1,
