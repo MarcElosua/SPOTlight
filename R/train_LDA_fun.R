@@ -55,14 +55,14 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   #### Get dataset ready ####
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
 
-  # Select top 100 genes for each cluster
+  # Select up to top 100 genes for each cluster
   cluster_markers <- suppressMessages(cut_markers2(markers = cluster_markers_all, ntop = 100))
 
   # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
   cluster_markers_uniq <- lapply(unique(cluster_markers$cluster), function(clust) {
     ls1 <- cluster_markers[cluster_markers$cluster == clust, "gene"]
     ls2 <- cluster_markers[cluster_markers$cluster != clust, "gene"]
-    ls1_unique <- ls1[!ls1 %in% ls2]
+    ls1_unique <- ls1[! ls1 %in% ls2]
 
     return(cluster_markers[cluster_markers$cluster == clust & cluster_markers$gene %in% ls1_unique, ])
   }) %>%
@@ -77,9 +77,9 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
   colnames(seedgenes) = colnames(se_lda_ready)
 
-
+  # Add seeds to model, if a cluster has 0 markers its row will be set to all 0
   for (i in seq_len(k)) {
-    clust_row <- cluster_markers_uniq$cluster == cluster_markers_uniq$cluster[[i]]
+    clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
     seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
     }
 
