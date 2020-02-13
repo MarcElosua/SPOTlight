@@ -15,6 +15,9 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
   # Require needed libraries
   suppressMessages(require(igraph))
 
+  if (is.null(colnames(decon_mtrx))) {
+    colnames(decon_mtrx) <- as.character(1:ncol(decon_mtrx))
+  }
   comb_id <- arrangements::combinations(x = colnames(decon_mtrx), k = 2, replace = F)
   comb_id_str <- paste(comb_id[, 1], comb_id[, 2], sep = "_")
   comb_val <- matrix(data = 0, nrow = nrow(comb_id), ncol = 1)
