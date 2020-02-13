@@ -14,7 +14,7 @@ cut_markers2 <- function(markers, ntop) {
   if (!is.numeric(ntop)) stop("ERROR: ntop must be a an integer!")
   if (!"cluster" %in% colnames(markers)) stop("ERROR: cluster needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
   if (!"p_val_adj" %in% colnames(markers)) stop("ERROR: p_val_adj needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
-  if (!"avg_logFC" %in% colnames(markers)) stop("ERROR: avg_logFC needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
+  if (!"avg_logFC" %in% colnames(markers) | "avg_diff" %in% colnames(markers)) stop("ERROR: avg_logFC needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
   if (!"gene" %in% colnames(markers)) stop("ERROR: gene needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
 
   # load required packages
