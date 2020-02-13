@@ -20,21 +20,26 @@ cut_markers2 <- function(markers, ntop) {
   # load required packages
   suppressMessages(require(dplyr))
 
+  # Check if we have logFC or avg_diff, if we have avg_diff assign it to avg_logFC to use it instead
+  if ("avg_diff" %in% colnames(markers) & ! "avg_logFC" %in% colnames(markers)) {
+    markers$avg_logFC <- markers$avg_diff
+  }
+
   tmp_markers <- markers %>%
-    filter(p_val_adj < 0.01) %>%
-    arrange(cluster, p_val_adj, avg_logFC) %>%
-    mutate(
+    dplyr::filter(p_val_adj < 0.01) %>%
+    dplyr::arrange(cluster, p_val_adj, avg_logFC) %>%
+    dplyr::mutate(
       # If there are + or - infinite values set them as the highest value or lowest value, we are just ranking them so the absolute value isn't crucial
-      avg_logFC_mod = if_else(is.finite(avg_logFC), avg_logFC, NA_real_),
-      avg_logFC = if_else(is.finite(avg_logFC), avg_logFC,
-                          if_else(avg_logFC > 0,
-                                  max(avg_logFC_mod, na.rm = TRUE) + 1,
-                                  min(avg_logFC_mod, na.rm = TRUE) - 1)),
+      avg_logFC_mod = dplyr::if_else(is.finite(avg_logFC), avg_logFC, NA_real_),
+      avg_logFC = dplyr::if_else(is.finite(avg_logFC), avg_logFC,
+                                 dplyr::if_else(avg_logFC > 0,
+                                                max(avg_logFC_mod, na.rm = TRUE) + 1,
+                                                min(avg_logFC_mod, na.rm = TRUE) - 1)),
       logFC_z = abs(scale(avg_logFC))
       ) %>%
-    group_by(cluster) %>%
-    top_n(ntop) %>%
-    ungroup() %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::top_n(ntop) %>%
+    dplyr::ungroup() %>%
     dplyr::select(gene, logFC_z, cluster) %>%
     data.frame()
 

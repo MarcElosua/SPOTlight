@@ -77,14 +77,14 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
   colnames(seedgenes) = colnames(se_lda_ready)
 
-  # Add seeds to model, if a cluster has 0 markers its row will be set to all 0
+  # Add seeds to model, if a cluster has 0 unique markers its row will be set to all 0
   for (i in seq_len(k)) {
     clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
     seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
     }
 
   # Verify that weights have been added
-  table(seedgenes != 0)
+  # table(seedgenes != 0)
 
   #### LDA model ####
   # Set parameters
