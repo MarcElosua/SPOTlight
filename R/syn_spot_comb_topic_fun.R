@@ -89,7 +89,7 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
 
   tmp_metadata[is.na(tmp_metadata)] <- 0
 
-  close(pb_for)
+  if (verbose) close(pb_for)
   if (verbose) print(sprintf("Creation of %s synthetic spot profiles took: %s minutes",
                             nrow(comb),
                             round(difftime(time1 = Sys.time(),
