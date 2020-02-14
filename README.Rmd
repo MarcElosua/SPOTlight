@@ -225,7 +225,7 @@ First of all we can check if the model has achieved an optimal solution by check
 library(ggplot2); theme_set(theme_classic())
 ```
 
-```{r}
+```{r eval = FALSE}
 data.frame(lda_mod@logLiks) %>% 
   rowid_to_column("rowid") %>% 
   ggplot2::ggplot() + 
@@ -285,9 +285,9 @@ raw_statistics_ls
 ```
 
 
-```{r, include = FALSE}
+```{r include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  # collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%",
@@ -297,12 +297,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ## Step-by-step workflow
 If you want to understand a bit better what is going on in the previous broad stepped tutorial here is the workflow executed step-by-step.
 
 Normalizing and Transform the data, dimensionality reduction and clusters assignment.
-```{r }
+```{r}
 se_sc_10x_5cl_qc$percent.mt <- 1 - se_sc_10x_5cl_qc$non_mt_percent
 
 # We scale the gene count data so that we can use it to find cell type markers.
@@ -385,10 +384,10 @@ se_sc_10x_5cl_qc <- se_sc_10x_5cl_qc[, se_sc_10x_5cl_qc$cell_line_demuxlet %in% 
 
 To determine the most important genes we can use the function `Seurat::FindAllMarkers` which will return the markers for each cluster.
 Note that we set the following parameters:
-- **assay** = "RNA" + **slot** = "scale.data" - we want to select the markers out of **ALL** the possible genes no only from the most highly variable ones.
-- **only.pos** = TRUE - we are only interested in those genes specifically expressed in that cluster.
-- **logfc.threshold** = 1 - we are more interested in genes that show larger differences with respect to the rest.
-- **min.pct** = 0.9 - we want to select markers that are present in almost all the cells in that cluster.
+* **assay** = "RNA" + **slot** = "scale.data" - we want to select the markers out of **ALL** the possible genes no only from the most highly variable ones.
+* **only.pos** = TRUE - we are only interested in those genes specifically expressed in that cluster.
+* **logfc.threshold** = 1 - we are more interested in genes that show larger differences with respect to the rest.
+* **min.pct** = 0.9 - we want to select markers that are present in almost all the cells in that cluster.
 ```{r }
 #### Extract the top marker genes from each cluster ####
 Seurat::Idents(object = se_sc_10x_5cl_qc) <- se_sc_10x_5cl_qc$cell_line_demuxlet
@@ -403,9 +402,10 @@ cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc,
 ```
 
 We extract the top marker genes from each cluster and select the unique ones to use as seeds for the model. This step is very important, cluster specific marker genes are key for training the model! We can further filter the marker genes:
-- **p_val_adj** < 0.01 - we want to make sure the genes we are using are trully differentially expressed.
-- [**avg_logFC**|**avg_diff**] > 1 - redundant with logfc.threshold = 1.
-- **pct.1** >= 0.9 - min.pct in `FindAllMarkers` selects for both pct.1 and pct.2 but we are interested in genes present in almost all the cells from that cluster.
+
+* **p_val_adj** < 0.01 - we want to make sure the genes we are using are trully differentially expressed.
+* [**avg_logFC**|**avg_diff**] > 1 - redundant with logfc.threshold = 1.
+* **pct.1** >= 0.9 - min.pct in `FindAllMarkers` selects for both pct.1 and pct.2 but we are interested in genes present in almost all the cells from that cluster.
 
 ```{r }
 #### Subset relevant genes ####
@@ -717,8 +717,13 @@ for (i in seq_len(nrow(spot_composition_mtrx))) {
 
 ```
 
+## Brain data
+If we use a real mouse brain data we obtain the following results. 
+The single-cell cortex dataset use is the one put out by Satija in his vignette, it can be downloaded [here](https://www.dropbox.com/s/cuowvm4vrf65pvq/allen_cortex.rds?dl=1). This data consists of ~14,000 adult mouse cortical cell taxonomy from the Allen Institute, generated with the SMART-Seq2 protocol published [Adult mouse cortical cell taxonomy revealed by single cell transcriptomics](https://www.nature.com/articles/nn.4216).
+For the spatial data we can use the dataset data provided by 10X which can be downloaded [here](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Anterior). Once the file is downloaded be sure to change the filename of *V1_Mouse_Brain_Sagittal_Anterior_filtered_feature_bc_matrix.h5* to *filtered_feature_bc_matrix.h5*, the latter is the name spaceranger outputs this file and it looks for it, also need to untar the compressed files.
+
 ### Spatial interaction graph
-Furthermore, now that we know which cell types are found within each spot we can make a graph representing spatial interactions where celltypes will have stronger nodes between them the more likely it is we find them within the same spot. To do this we will only need to run the function `get_spatial_interaction_graph`. This function prints the plot and returns the igraph network object needed to plot it.
+After running the tool we know which cell types are found within each spot we can make a graph representing spatial interactions where celltypes will have stronger nodes between them the more likely it is we find them within the same spot. To do this we will only need to run the function `get_spatial_interaction_graph`. This function prints the plot and returns the igraph network object needed to plot it.
 ```{r }
 network <- get_spatial_interaction_graph(decon_mtrx = spot_composition_mtrx)
 ```
@@ -734,10 +739,11 @@ plot(network,
      vertex.color = rgb(0.4, 0.2, 0.1, 0.5),
      layout = layout.circle)
 ```
-[Graph network](img/graph_network.png)
+![Graph network](img/graph_network_new.png)
 
 ### Topic composition of the clusters
-Lastly, if we want to visualize the topic by which each cell identity is made out of we can do the following.
+Lastly, if we want to visualize the topic composition of each cluster of we can do the following. This plot provides a lot of information since it gives a sense of how good we will be able to differentiate certain clusters, 2 clusters with very similar topic profile composition will tend to be harder to discern between them.
+
 1st- access the topic profiles of each cluster
 ```{r }
 clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc, clust_vr = "cell_line_demuxlet")
@@ -760,6 +766,34 @@ round(clust_profiles, 4) %>%
   labs(title = "Topic proportion by cluster")
 
 ```
-![Topic profiles](img/topic_profile_profile_brain.png)
+![Topic profiles](img/topic_profile_brain_annotated.png)
 
-The above plot gives a lot of information since it gives a sesne of how good we will be able to differentiate certain clusters, 2 clusters with very similar topic profile composition will tend to be harder to discern between them.
+### Spatial mapping of cell types
+Ultimately we can plot where on the tissue we find each cell type, note that the intensity of the colour represents the proportion of that cell type predicted to be within that spot.
+
+Add deconvolution matrix to Seurat object
+```{r}
+decon_mtrx_prop <- decon_mtrx/rowSums(decon_mtrx)
+brain@meta.data <- cbind(brain@meta.data, decon_mtrx_prop)
+```
+
+Plot the proportions
+```{r}
+lapply(c("Astro", "Endo", "Macrophage", "L6b", "CR", "Meis2"), function(ct) {
+  plt_ct <- SpatialFeaturePlot(brain,
+                   features = ct, 
+                   pt.size.factor = 1) +
+    theme(legend.position = "right",
+          plot.margin = unit(c(-0.75,-0.75,-0.75,-0.75), "lines"))
+
+  # tmp_plt <- ggpubr::ggarrange(plotlist = list(plt_clust, plt_ct), nrow = 1)  
+  
+  return(plt_ct)
+}) %>% ggpubr::ggarrange(plotlist = ., 
+                         nrow = 3, 
+                         ncol = 2, 
+                         common.legend = FALSE,
+                         align = "hv")
+```
+![spatial representation](img/spatial_spots_brain.png)
+
