@@ -26,16 +26,19 @@ cut_markers2 <- function(markers, ntop) {
   }
 
   tmp_markers <- markers %>%
-    dplyr::filter(p_val_adj < 0.01) %>%
+    # Remove non signifcant genes and those with negative logFC
+    dplyr::filter(p_val_adj < 0.01 & avg_logFC > 0) %>%
     dplyr::arrange(cluster, p_val_adj, avg_logFC) %>%
     dplyr::mutate(
       # If there are + or - infinite values set them as the highest value or lowest value, we are just ranking them so the absolute value isn't crucial
       avg_logFC_mod = dplyr::if_else(is.finite(avg_logFC), avg_logFC, NA_real_),
       avg_logFC = dplyr::if_else(is.finite(avg_logFC), avg_logFC,
                                  dplyr::if_else(avg_logFC > 0,
-                                                max(avg_logFC_mod, na.rm = TRUE) + 1,
-                                                min(avg_logFC_mod, na.rm = TRUE) - 1)),
-      logFC_z = abs(scale(avg_logFC))
+                                                max(avg_logFC_mod, na.rm = TRUE) + 5,
+                                                min(avg_logFC_mod, na.rm = TRUE) - 5)),
+      # Scale the logFC, we will use this number to seed the model
+      # We are scaling by dividing all the avg_logFC by the max
+      logFC_z = scale(x = avg_logFC, center = F, scale = max(avg_logFC))
       ) %>%
     dplyr::group_by(cluster) %>%
     dplyr::top_n(ntop) %>%
