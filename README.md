@@ -429,7 +429,7 @@ decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_sc_10x_5cl_qc,
 #> |======================================================================| 100%
 #> Time to predict: 9 minutes
 #> [1] "Perform deconvolution of the spatial spots"
-#> |=====================================================================| 100%
+#> |===================================================================== |  99%
 #> [1] "Quantiles of the JSD between the best synthetic spot profile and each spot's topic profile are - 0.00043[2e-04-0.00084]"
 # lda_mod = lda_mod; spot_counts = test_spots_counts; ncores = ncores; parallelize=TRUE
 ```
@@ -754,7 +754,7 @@ follows.
 gene_weights <- topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
 ```
 
-[Topic visualization](img/topic_visualization.png)
+![Topic visualization](img/topic_visualization.png)
 
 ### Predict topic profiles
 
