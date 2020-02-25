@@ -120,7 +120,6 @@ cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc,
                                               only.pos = TRUE, 
                                               logfc.threshold = 1,
                                               min.pct = 0.9)
-
 ```
 
 We extract the top marker genes from each cluster and select the unique ones to use as seeds for the model. This step is very important, cluster specific marker genes are key for training the model! We can further filter the marker genes:
@@ -521,7 +520,7 @@ gene_weights <- topic_viz(lda_mod = lda_mod , k = 1, n_terms = 40)
 Mixed spots representing the ground truth are obtained from the sce_9cells_qc object where all possible combinations of HCC827, H1975, H2228 were carried out.
 ```{r  }
 # Extract count matrix
-spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = T)
+spot_counts <- Matrix(sce_9cells_qc@assays$data$counts, sparse = TRUE)
 ens_genes <- rownames(spot_counts)
 
 # Convert Ensembl ids to symbols

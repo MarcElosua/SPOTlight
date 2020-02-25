@@ -54,8 +54,8 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
                           verbose = keep, iter = iter, burnin = 0,
                           best = TRUE, keep = keep, nstart = nstart)
 
-  print(sprintf("Time to run LDA model for %s is %s",
-                tech, round(difftime(Sys.time(), start_time, units = "mins"), 2)))
+  print(sprintf("Time to run LDA model is %s",
+                round(difftime(Sys.time(), start_time, units = "mins"), 2)))
 
   # Select the best model
   lda_mod <- lda_mod_ls[[1]]

@@ -14,7 +14,8 @@ Suggests:
     spelling
 Language: en-US
 RoxygenNote: 7.0.2
-Depends: dplyr (>= 0.8.3),
+Depends: dplyr (>= 0.8.3)
+biocViews:
 Imports: arrangements (>= 1.1.8), 
          BiocGenerics (>= 0.32.0),
          data.table (>= 1.12.8),
@@ -25,6 +26,7 @@ Imports: arrangements (>= 1.1.8),
          igraph (>= 1.2.4.2),
          Matrix (>= 1.2.18),
          matrixStats (>= 0.55.0),
+         multtest (>= 2.42.0),
          pdist (>= 1.2),
          philentropy (>= 0.4.0),
          purrr (>= 0.3.3),
