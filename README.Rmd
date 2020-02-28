@@ -123,7 +123,6 @@ cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc,
 ```
 
 We extract the top marker genes from each cluster and select the unique ones to use as seeds for the model. This step is very important, cluster specific marker genes are key for training the model! We can further filter the marker genes:
-- **p_val_adj** < 0.01 - we want to make sure the genes we are using are trully differentially expressed.
 - [**avg_logFC**|**avg_diff**] > 1 - redundant with logfc.threshold = 1.
 - **pct.1** >= 0.9 - min.pct in `FindAllMarkers` selects for both pct.1 and pct.2 but we are interested in genes present in almost all the cells from that cluster.
 
@@ -131,7 +130,7 @@ We extract the top marker genes from each cluster and select the unique ones to 
 #### Subset relevant genes ####
 # We will only consider those genes with an adjusted p value < 0.01 and an avg_logFC > 1
 cluster_markers_all <- cluster_markers_all %>%
-  filter(p_val_adj < 0.01 & avg_diff > 1 & pct.1 >= 0.9)
+  filter(avg_diff > 1 & pct.1 >= 0.9)
 ```
 
 Lastly we downsample the genes and number of cells of interest. For genes we will grab each cluster's markers as passed in cluster_markers_all plus the 3000 most variable genes. The number of cells per cluster is set to 10 by default, performance is unchanged if we increase it and selecting more cells can increase the running time of the model.
@@ -402,7 +401,6 @@ cluster_markers_all <- Seurat::FindAllMarkers(object = se_sc_10x_5cl_qc,
 
 We extract the top marker genes from each cluster and select the unique ones to use as seeds for the model. This step is very important, cluster specific marker genes are key for training the model! We can further filter the marker genes:
 
-* **p_val_adj** < 0.01 - we want to make sure the genes we are using are trully differentially expressed.
 * [**avg_logFC**|**avg_diff**] > 1 - redundant with logfc.threshold = 1.
 * **pct.1** >= 0.9 - min.pct in `FindAllMarkers` selects for both pct.1 and pct.2 but we are interested in genes present in almost all the cells from that cluster.
 
@@ -410,7 +408,7 @@ We extract the top marker genes from each cluster and select the unique ones to 
 #### Subset relevant genes ####
 # We will only consider those genes with an adjusted p value < 0.01 and an avg_logFC > 1
 cluster_markers_all <- cluster_markers_all %>%
-  filter(p_val_adj < 0.01 & avg_diff > 1 & pct.1 >= 0.9)
+  filter(avg_diff > 1 & pct.1 >= 0.9)
 ```
 
 Combine marker genes and highest variable genes and subset genes
