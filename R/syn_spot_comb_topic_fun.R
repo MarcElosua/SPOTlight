@@ -1,7 +1,7 @@
 #' This function takes in the cluster profiles and returns a sotchastic combination of all the possible ones
 #'
 #' @param lda_mod Object of class LDA_Gibbs.
-#' @param se_obj Object of class Seurat.
+#' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
 #' @return This function returns a list where the first element is a matric with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
@@ -9,11 +9,11 @@
 #' @examples
 #'
 
-syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
+syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, verbose = TRUE) {
 
   # Check variables
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")
-  if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
+  if (! is(train_cell_clust, "vector")) stop("ERROR: se_obj must be a vector/list object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.logical(verbose)) stop("ERROR: verbose must be a logical object!")
 
@@ -27,7 +27,7 @@ syn_spot_comb_topic <- function(lda_mod, se_obj, clust_vr, verbose = TRUE) {
 
   #### Calculate topic profiles for every cluster ####
   clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod,
-                                              se_obj = se_obj,
+                                              train_cell_clust = train_cell_clust,
                                               clust_vr = clust_vr)
   round(clust_profiles, 4)
 

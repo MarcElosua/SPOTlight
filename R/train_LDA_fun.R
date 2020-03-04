@@ -15,7 +15,7 @@
 #' @param burnin Object of class "integer"; number of omitted Gibbs iterations at beginning, by default equals 0.
 #' @param ... Other arguments passed on to LDA mod
 #' @param thin Object of class "integer"; number of omitted in-between Gibbs iterations, by default equals iter.
-#' @return A Latent Dirichlet Allocation list of model/s depending on if return best is T or F.
+#' @return A Latent Dirichlet Allocation list of model/s depending on if return best is T or F + a vector of the clusters of the cells used to train the model.
 #' @export
 #' @examples
 #'
@@ -78,7 +78,7 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 0)
   colnames(seedgenes) = colnames(se_lda_ready)
 
-  # Add seeds to model, if a cluster has 0 unique markers its row will be set to all 0
+  # Add seeds to model, if a cluster-topic has 0 unique markers its row will be set to all 0
   for (i in seq_len(k)) {
     clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
     seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
@@ -101,9 +101,13 @@ train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1,
   print(s_gibbs_start)
   lda_mod <- topicmodels::LDA(se_lda_ready, k = k,
                  method = "Gibbs", seedwords = seedgenes, # Seedwords are only available with Gibbs sampling
-                 control = control_LDA_Gibbs, ...)
+                 control = control_LDA_Gibbs)
   print(sprintf("LDA seeded took: %s minutes",
                 round(difftime(Sys.time(), s_gibbs_start, units = "mins"), 2))) # Takes ~10min
 
-  if (is(lda_mod)[[1]] == "Gibbs_list") return(lda_mod@fitted) else return(list(lda_mod))
+  if (is(lda_mod, "Gibbs_list")) {
+    return(list(lda_mod@fitted, se_obj@meta.data[, clust_vr]))
+  }  else {
+    return(list(lda_mod, se_obj@meta.data[, clust_vr]))
+  }
 }

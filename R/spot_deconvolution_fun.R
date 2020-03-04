@@ -1,7 +1,7 @@
 #' This function processes the data and trains the LDA model
 #'
 #' @param lda_mod Object of class LDA_Gibbs.
-#' @param se_obj Object of class Seurat.
+#' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @param spot_counts Object of class sparse matrix. Count matrix of the spots to deconvolute.
 #' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
@@ -12,13 +12,13 @@
 #' @examples
 #'
 
-spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts,
+spot_deconvolution <- function(lda_mod, train_cell_clust, clust_vr, spot_counts,
                                verbose = TRUE, ncores = NULL, parallelize = TRUE,
-                               top_dist = 1000, top_jsd = 15) {
+                               top_dist = 1000, top_jsd = 10) {
 
   # Check variables
-  if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")
-  if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
+  if (!is(lda_mod, "LDA_Gibbs")) stop("ERROR: lda_mod must be an LDA_Gibbs object!")
+  if (! is(train_cell_clust, "vector")) stop("ERROR: se_obj must be a vector/list object!")
   if (!is.character(clust_vr))stop("ERROR: clust_vr must be a character string!")
   if (!is.logical(verbose))stop("ERROR: verbose must be a logical object!")
   if (!(is.numeric(ncores) | is.null(ncores))) stop("ERROR: ncores must be an integer!")
@@ -38,7 +38,7 @@ spot_deconvolution <- function(lda_mod, se_obj, clust_vr, spot_counts,
 
   # Create all synthetic spot combinations
   syn_spots_ls <- syn_spot_comb_topic(lda_mod = lda_mod,
-                                      se_obj = se_obj,
+                                      train_cell_clust = train_cell_clust,
                                       clust_vr = clust_vr,
                                       verbose = verbose)
 
