@@ -71,9 +71,12 @@ spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, i
   test_spots_metadata <- as.matrix(test_spots_metadata[, which(colnames(test_spots_metadata) != "name")])
 
   # Perform spot deconvolution
-  decon_mtrx <- spot_deconvolution(lda_mod = lda_mod, se_obj = se_obj,
-                                   clust_vr = clust_vr,  spot_counts = test_spots_counts,
-                                   verbose = verbose, ncores = 5, parallelize = TRUE,
+  decon_mtrx <- spot_deconvolution(lda_mod = lda_mod,
+                                   train_cell_clust = lda_mod_ls[[2]],
+                                   clust_vr = clust_vr,
+                                   spot_counts = test_spots_counts,
+                                   verbose = verbose,
+                                   ncores = 5,
                                    top_dist = top_dist, top_jsd = top_jsd)
 
   # Assess deconvolution performance

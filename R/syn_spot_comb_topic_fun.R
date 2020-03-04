@@ -3,13 +3,15 @@
 #' @param lda_mod Object of class LDA_Gibbs.
 #' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
+#' @param n_max Object of class numeric. Max number of synthetic spots to generate, by the default 1*10^6.
+#' @param k_sub Object of class numeric. Max number of cells per synthetic spot, combination of number of cells per synthetic spot will range between 2:k_sub
 #' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
-#' @return This function returns a list where the first element is a matric with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
+#' @return This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
 #' @export
 #' @examples
 #'
 
-syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, verbose = TRUE) {
+syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, n_max = 1e6, k_sub = 8, verbose = TRUE) {
 
   # Check variables
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")
@@ -38,24 +40,28 @@ syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, verbose = T
     rownames(clust_profiles) <- as.character(as.numeric(rownames(clust_profiles)) + 1)
   }
 
-  # Compute all possible combinations
-  k_sub <- 8
-
   # First compute how many combinations are possible
-  total_comb <- arrangements::ncombinations(x = c(0:nrow(clust_profiles)), k = k_sub, replace = TRUE)
+  total_comb <- arrangements::ncombinations(x = c(0:nrow(clust_profiles)),
+                                            k = k_sub,
+                                            replace = TRUE)
 
   # If the total number of combinations exceeds 500K with k_sub = 8 we will select 1M random combinations
   # 18 cluster with k_sub 8 gives ~1M possible combinations,
-  if (total_comb > 1e6) {
+  if (total_comb > n_max) {
     # select 1M from all the k_sub = 8 possible comb and the rest will be discarded.
-    if (verbose) print(sprintf("The total number of possible combinations selecting up to 8 cells per spot is: %s, using %s random combinations", total_comb, 1e6))
-    comb <- arrangements::combinations(x = c(0 : nrow(clust_profiles)),
-                                       k = k_sub, replace = TRUE, nsample = 1e6)
+    if (verbose) print(sprintf("The total number of possible combinations selecting up to 8 cells per spot is: %s, using %s random combinations", total_comb, n_max))
+    comb <- arrangements::combinations(x = c(0:nrow(clust_profiles)),
+                                       k = k_sub,
+                                       replace = TRUE,
+                                       nsample = n_max)
   } else {
     # Do all possible combinatinos
-    if (verbose) print(sprintf("Generating all synthetic spot combinations: %s", total_comb))
+    if (verbose) print(sprintf("Generating all synthetic spot combinations: %s",
+                               total_comb))
+
     comb <- arrangements::combinations(x = c(0:nrow(clust_profiles)),
-                                       k = k_sub, replace = TRUE)
+                                       k = k_sub,
+                                       replace = TRUE)
   }
 
   # Remove all those combinations that only include 1 or 2 cells
@@ -63,8 +69,12 @@ syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, verbose = T
 
   # Create all possible combinations
   ## Initialize matrix for increased speed so that it doesn't need to create indexes on the fly
-  tmp_mtrx <- matrix(nrow = nrow(comb), ncol = ncol(clust_profiles))
-  tmp_metadata <- matrix(nrow = nrow(comb), ncol = nrow(clust_profiles))
+  tmp_mtrx <- matrix(nrow = nrow(comb),
+                     ncol = ncol(clust_profiles))
+
+  tmp_metadata <- matrix(nrow = nrow(comb),
+                         ncol = nrow(clust_profiles))
+
   colnames(tmp_metadata) <- rownames(clust_profiles)
 
   if (verbose) print("Creating synthetic spots"); st_syn_spot <- Sys.time()

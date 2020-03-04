@@ -9,7 +9,7 @@
 #' @examples
 #'
 
-syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=100, top_jsd=15) {
+syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist = 1000, top_jsd = 5) {
 
   # Check variables
   if (!(is.matrix(prediction) | is.data.frame(prediction))) stop("ERROR: prediction must be a matrix object!")
@@ -32,12 +32,17 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=100, top_jsd=
   min_jsd_vec <- vector()
 
   ##### Get Spot composition #####
-  spot_composition_mtrx <- matrix(nrow = nrow(prediction), ncol = ncol(syn_spots_metadata))
+  spot_composition_mtrx <- matrix(nrow = nrow(prediction),
+                                  ncol = ncol(syn_spots_metadata))
+
   colnames(spot_composition_mtrx) <- colnames(syn_spots_metadata)
 
   step <- 10
-  iterations <- length(seq(1, nrow(prediction), step+1))
-  pb <- txtProgressBar(min = 0, max = nrow(prediction), style = 3)
+  iterations <- length(seq(1, nrow(prediction), step + 1))
+
+  pb <- txtProgressBar(min = 0,
+                       max = nrow(prediction),
+                       style = 3)
 
   # Iterate over the predictions 10 by 10 so as to not overload memory when doing pdist
   for (i in seq(1, nrow(prediction), step)) {
@@ -65,7 +70,8 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=100, top_jsd=
                                                            jsd_indices = jsd_indices))
 
     #### Save the min jsd to get quantiles at the end ####
-    min_jsd_vec <- c(min_jsd_vec, matrixStats::rowMins(mtrx_jsd_full, na.rm = TRUE))
+    min_jsd_vec <- c(min_jsd_vec, matrixStats::rowMins(mtrx_jsd_full,
+                                                       na.rm = TRUE))
 
     ##### Get the index for each list from JSD_indices with the lowest JSD #####
     min_jsd_error <- Rfast::rownth(x = mtrx_jsd_full,
@@ -80,7 +86,8 @@ syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist=100, top_jsd=
       if (is.null(nrow(best_comp))) {
         spot_composition_mtrx[i + ii - 1, ] <- best_comp
       } else {
-        spot_composition_mtrx[i + ii - 1, ] <- round(colMeans(best_comp, na.rm = TRUE), 0)
+        spot_composition_mtrx[i + ii - 1, ] <- round(colMeans(best_comp,
+                                                              na.rm = TRUE),0)
       }
 
     }; rm(ii)
