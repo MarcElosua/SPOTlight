@@ -11,7 +11,8 @@
 downsample_se_obj <- function(se_obj,
                               clust_vr,
                               cluster_markers_all,
-                              cl_n = 10) {
+                              cl_n = 10,
+                              hvg = 1000) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -27,8 +28,8 @@ downsample_se_obj <- function(se_obj,
 
   # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
-  if (length(Seurat::VariableFeatures(se_obj)) == 0) {
-    se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = 3000)
+  if (hvg > 0) {
+    se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = hvg)
   }
 
   #### Combine marker genes and highest variable genes and subset genes ####

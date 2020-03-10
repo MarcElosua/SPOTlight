@@ -3,12 +3,14 @@
 #' @param se_obj Object of class Seurat.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
-#' @param iter Object of class "integer"; number of Gibbs iterations, by default equals 5000.
-#' @param nstart Object of class "integer". Number of repeated random starts.
+#' @param iter Object of class "integer"; number of Gibbs iterations, by default equals 2000.
+#' @param nstart Object of class "integer". Number of repeated random starts, by default 1.
 #' @param keep Object of class "integer"; if a positive integer, the log-likelihood is saved every keep iterations, by default 100.
-#' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD.
-#' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
-#' @param cl_n Object of class integer, how many cells to grab from each cluster.
+#' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD, by default 500.
+#' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition, by default 5.
+#' @param cl_n Object of class integer, how many cells to grab from each cluster, by default 10.
+#' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 1000.
+#' @param al Object of class numeric, which alpha to use to train the model, by default 0.01.
 #' @return This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
 #' @export
 #' @examples
@@ -17,12 +19,14 @@
 spatial_decon_syn_assessment_fun <- function(se_obj,
                                              clust_vr,
                                              verbose = TRUE,
-                                             iter = 3000,
+                                             iter = 2000,
                                              nstart = 1,
                                              keep = 100,
-                                             top_dist = 1000,
-                                             top_jsd = 15,
-                                             cl_n = 100) {
+                                             top_dist = 500,
+                                             top_jsd = 5,
+                                             cl_n = 10,
+                                             hvg = 1000,
+                                             al = 0.01) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -51,7 +55,11 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
     dplyr::filter(p_val_adj < 0.01 & avg_logFC > 1 & pct.1 >= 0.9)
 
   # Downsample seurat object to reduce n cells and n genes
-  se_obj <- downsample_se_obj(se_obj = se_obj, clust_vr = clust_vr, cluster_markers_all = cluster_markers_all, cl_n = cl_n)
+  se_obj <- downsample_se_obj(se_obj = se_obj,
+                              clust_vr = clust_vr,
+                              cluster_markers_all = cluster_markers_all,
+                              cl_n = cl_n,
+                              hvg = hvg)
 
   #### Train LDA model ####
   set.seed(1000)
