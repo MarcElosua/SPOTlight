@@ -36,6 +36,7 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
   if (!is.logical(verbose))stop("ERROR: verbose must be a logical object!")
   if (!is.numeric(iter)) stop("ERROR: iter must be of class integer!")
   if (!is.numeric(nstart)) stop("ERROR: nstart must be of class integer!")
+  if (!is.numeric(hvg)) stop("ERROR: hvg must be an object of class integer!")
   if (!is.numeric(al)) stop("ERROR: al must be of class numeric!")
   if (!is.numeric(ntop)) stop("ERROR: ntop must be of class numeric!")
   if (!is.numeric(keep)) stop("ERROR: keep must be of class integer!")
