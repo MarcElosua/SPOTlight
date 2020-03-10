@@ -11,6 +11,7 @@
 #' @param cl_n Object of class integer, how many cells to grab from each cluster, by default 10.
 #' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 1000.
 #' @param al Object of class numeric, which alpha to use to train the model, by default 0.01.
+#' @param ntop Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
 #' @return This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
 #' @export
 #' @examples
@@ -26,7 +27,8 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
                                              top_jsd = 5,
                                              cl_n = 10,
                                              hvg = 1000,
-                                             al = 0.01) {
+                                             al = 0.01,
+                                             ntop = 100) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -65,10 +67,17 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
   set.seed(1000)
   start_time <- Sys.time()
 
-  lda_mod_ls <- train_lda(se_obj = se_obj, clust_vr = clust_vr,
-                          cluster_markers_all = cluster_markers_all, al = 0.01,
-                          verbose = keep, iter = iter, burnin = 0,
-                          best = TRUE, keep = keep, nstart = nstart)
+  lda_mod_ls <- train_lda(se_obj = se_obj,
+                          clust_vr = clust_vr,
+                          cluster_markers_all = cluster_markers_all,
+                          al = 0.01,
+                          verbose = keep,
+                          iter = iter,
+                          burnin = 0,
+                          best = TRUE,
+                          keep = keep,
+                          nstart = nstart,
+                          ntop = ntop)
 
   print(sprintf("Time to run LDA model is %s",
                 round(difftime(Sys.time(), start_time, units = "mins"), 2)))
