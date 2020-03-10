@@ -26,7 +26,7 @@ test_spot_fun <- function(se_obj,
   # suppressMessages(require(tidyr)) # To use dplyr commands with DT speed
 
 
-  se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
+  # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
   print("Generating synthetic test spots...")
   start_gen <- Sys.time()
@@ -55,15 +55,27 @@ test_spot_fun <- function(se_obj,
     name_simp <- paste("spot_", i, sep = "")
 
     spot_ds <- tmp_ds %>%
-      dplyr::select(seurat_clusters, weight) %>%
+      dplyr::select(all_of(clust_vr), weight) %>%
       dplyr::mutate(seurat_clusters = paste("clust_",
-                                            seurat_clusters, sep = "")) %>%
-      dplyr::group_by(seurat_clusters) %>%
+                                            tmp_ds[, clust_vr], sep = "")) %>%
+      dplyr::group_by(all_of(clust_vr)) %>%
       dplyr::summarise(sum_weights = sum(weight)) %>%
       dplyr::ungroup() %>%
-      tidyr::pivot_wider(names_from = seurat_clusters,
+      tidyr::pivot_wider(names_from = all_of(clust_vr),
                          values_from = sum_weights) %>%
       dplyr::mutate(name = name_simp)
+
+    # spot_ds <- tmp_ds %>%
+    #   dplyr::select(seurat_clusters, weight) %>%
+    #   dplyr::mutate(seurat_clusters = paste("clust_",
+    #                                         seurat_clusters, sep = "")) %>%
+    #   dplyr::group_by(seurat_clusters) %>%
+    #   dplyr::summarise(sum_weights = sum(weight)) %>%
+    #   dplyr::ungroup() %>%
+    #   tidyr::pivot_wider(names_from = seurat_clusters,
+    #                      values_from = sum_weights) %>%
+    #   dplyr::mutate(name = name_simp)
+    #
 
     # Generate synthetic spot
 
@@ -107,9 +119,11 @@ test_spot_fun <- function(se_obj,
   ds_spots_metadata[is.na(ds_spots_metadata)] <- 0
 
   # change column order so that its progressive
-  lev_mod <- gsub("[\\+|\\ ]", ".", levels(se_obj$seurat_clusters))
+  lev_mod <- gsub("[\\+|\\ ]", ".", unique(se_obj@meta.data[, clust_vr]))
   all_cn <- c(paste("clust_", lev_mod, sep = ""), "name")
-  if (sum(all_cn %in% colnames(ds_spots_metadata)) == (nlevels(se_obj$seurat_clusters) + 1)) {
+
+  # Check if there are missing columns (Cell types not selected) and add them as all 0s
+  if (sum(all_cn %in% colnames(ds_spots_metadata)) == (length(unique(se_obj@meta.data[, clust_vr])) + 1)) {
     ds_spots_metadata <- ds_spots_metadata[, all_cn]
   } else {
 
