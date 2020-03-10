@@ -61,10 +61,11 @@ train_lda <- function(se_obj,
   suppressMessages(require(tibble))
   suppressMessages(require(Matrix))
 
-  se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
+  # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
   #### Setting common parameters ####
-  k <- nlevels(droplevels(factor(se_obj$seurat_clusters)))
+  # k <- nlevels(droplevels(factor(se_obj$seurat_clusters)))
+  k <- length(unique(se_obj@meta.data[, clust_vr]))
 
   #### Get dataset ready ####
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)

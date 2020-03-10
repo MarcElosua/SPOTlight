@@ -25,7 +25,7 @@ downsample_se_obj <- function(se_obj,
   suppressMessages(require(dplyr))
   suppressMessages(require(tibble))
 
-  se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
+  # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
   if (length(Seurat::VariableFeatures(se_obj)) == 0) {
     se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = 3000)
@@ -35,7 +35,7 @@ downsample_se_obj <- function(se_obj,
   keep_genes <- unique(c(VariableFeatures(se_obj), cluster_markers_all$gene))
 
   #### Get cell IDs to subset by cluster ####
-  keep_ids <- lapply(split(se_obj@meta.data, se_obj@meta.data$seurat_clusters), function(subdf) {
+  keep_ids <- lapply(split(se_obj@meta.data, se_obj@meta.data[, clust_vr]), function(subdf) {
     # Determine n_sample, if the size of the group is < cl_n use all the group, if not just use cl_n
     n_sample <- if_else(nrow(subdf) < cl_n, as.numeric(nrow(subdf)), as.numeric(cl_n))
     # Subset a random selection of that group and get the identifiers

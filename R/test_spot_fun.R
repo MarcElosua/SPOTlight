@@ -20,13 +20,10 @@ test_spot_fun <- function(se_obj,
   if (!is.numeric(n)) stop("ERROR: n must be an integer!")
   if (!is.logical(verbose)) stop("ERROR: verbose must be a logical object!")
 
-  # suppressMessages(require(DropletUtils)) # For the downsampling
-  # suppressMessages(require(dtplyr)) # To use dplyr commands with DT speed
-  # suppressMessages(require(dplyr)) # To use dplyr commands with DT speed
-  # suppressMessages(require(tidyr)) # To use dplyr commands with DT speed
-
-
-  # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
+  suppressMessages(require(DropletUtils)) # For the downsampling
+  # suppressMessages(require(dtplyr))
+  suppressMessages(require(dplyr))
+  suppressMessages(require(tidyr))
 
   print("Generating synthetic test spots...")
   start_gen <- Sys.time()
@@ -56,26 +53,14 @@ test_spot_fun <- function(se_obj,
 
     spot_ds <- tmp_ds %>%
       dplyr::select(all_of(clust_vr), weight) %>%
-      dplyr::mutate(seurat_clusters = paste("clust_",
-                                            tmp_ds[, clust_vr], sep = "")) %>%
-      dplyr::group_by(all_of(clust_vr)) %>%
+      dplyr::mutate(clust_vr = paste("clust_",
+                                     tmp_ds[, clust_vr], sep = "")) %>%
+      dplyr::group_by(clust_vr) %>%
       dplyr::summarise(sum_weights = sum(weight)) %>%
       dplyr::ungroup() %>%
-      tidyr::pivot_wider(names_from = all_of(clust_vr),
+      tidyr::pivot_wider(names_from = clust_vr,
                          values_from = sum_weights) %>%
       dplyr::mutate(name = name_simp)
-
-    # spot_ds <- tmp_ds %>%
-    #   dplyr::select(seurat_clusters, weight) %>%
-    #   dplyr::mutate(seurat_clusters = paste("clust_",
-    #                                         seurat_clusters, sep = "")) %>%
-    #   dplyr::group_by(seurat_clusters) %>%
-    #   dplyr::summarise(sum_weights = sum(weight)) %>%
-    #   dplyr::ungroup() %>%
-    #   tidyr::pivot_wider(names_from = seurat_clusters,
-    #                      values_from = sum_weights) %>%
-    #   dplyr::mutate(name = name_simp)
-    #
 
     # Generate synthetic spot
 
