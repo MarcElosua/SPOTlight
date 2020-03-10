@@ -8,7 +8,9 @@
 #' @examples
 #'
 
-lda_prediction <- function(lda_mod, spot_counts, ncores) {
+lda_prediction <- function(lda_mod,
+                           spot_counts,
+                           ncores) {
 
   # Check variables
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")

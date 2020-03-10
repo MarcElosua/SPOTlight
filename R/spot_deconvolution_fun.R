@@ -13,9 +13,14 @@
 #' @examples
 #'
 
-spot_deconvolution <- function(lda_mod, train_cell_clust, clust_vr, spot_counts,
-                               verbose = TRUE, ncores = NULL,
-                               top_dist = 1000, top_jsd = 10) {
+spot_deconvolution <- function(lda_mod,
+                               train_cell_clust,
+                               clust_vr,
+                               spot_counts,
+                               verbose = TRUE,
+                               ncores = NULL,
+                               top_dist = 1000,
+                               top_jsd = 10) {
 
   # Check variables
   if (!is(lda_mod, "LDA_Gibbs")) stop("ERROR: lda_mod must be an LDA_Gibbs object!")

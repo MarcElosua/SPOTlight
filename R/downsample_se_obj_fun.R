@@ -8,7 +8,10 @@
 #' @export
 #' @examples
 
-downsample_se_obj <- function(se_obj, clust_vr, cluster_markers_all, cl_n = 10) {
+downsample_se_obj <- function(se_obj,
+                              clust_vr,
+                              cluster_markers_all,
+                              cl_n = 10) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")

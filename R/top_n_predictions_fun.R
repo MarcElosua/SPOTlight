@@ -7,7 +7,8 @@
 #' @examples
 #'
 
-top_n_predictions <- function(dist_mtrx, n) {
+top_n_predictions <- function(dist_mtrx,
+                              n) {
 
   if (!is.matrix(dist_mtrx)) stop("ERROR: dist_mtrx must be a matrix object!")
 

@@ -9,7 +9,10 @@
 #' @examples
 #'
 
-syn_spot_assignment <- function(prediction, syn_spots_ls, top_dist = 1000, top_jsd = 5) {
+syn_spot_assignment <- function(prediction,
+                                syn_spots_ls,
+                                top_dist = 1000,
+                                top_jsd = 5) {
 
   # Check variables
   if (!(is.matrix(prediction) | is.data.frame(prediction))) stop("ERROR: prediction must be a matrix object!")

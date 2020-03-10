@@ -7,7 +7,8 @@
 #' @examples
 #'
 
-test_synthetic_performance <- function(test_spots_metadata_mtrx, spot_composition_mtrx) {
+test_synthetic_performance <- function(test_spots_metadata_mtrx,
+                                       spot_composition_mtrx) {
   # Check variables
   if (!is.matrix(test_spots_metadata_mtrx)) stop("ERROR: test_spots_metadata_mtrx must be a matrix object!")
   if (!is.matrix(spot_composition_mtrx)) stop("ERROR: syn_spots_ls must be the list obtained from the function syn_spot_comb_topic_fun().")

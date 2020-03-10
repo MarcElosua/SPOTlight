@@ -11,7 +11,12 @@
 #' @examples
 #'
 
-syn_spot_comb_topic <- function(lda_mod, train_cell_clust, clust_vr, n_max = 1e6, k_sub = 8, verbose = TRUE) {
+syn_spot_comb_topic <- function(lda_mod,
+                                train_cell_clust,
+                                clust_vr,
+                                n_max = 1e6,
+                                k_sub = 8,
+                                verbose = TRUE) {
 
   # Check variables
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")

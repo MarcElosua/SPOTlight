@@ -14,7 +14,15 @@
 #' @examples
 #'
 
-spatial_decon_syn_assessment_fun <- function(se_obj, clust_vr, verbose = TRUE, iter = 3000, nstart = 1, keep = 100, top_dist = 1000, top_jsd = 15, cl_n = 100) {
+spatial_decon_syn_assessment_fun <- function(se_obj,
+                                             clust_vr,
+                                             verbose = TRUE,
+                                             iter = 3000,
+                                             nstart = 1,
+                                             keep = 100,
+                                             top_dist = 1000,
+                                             top_jsd = 15,
+                                             cl_n = 100) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")

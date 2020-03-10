@@ -9,7 +9,9 @@
 #' @examples
 #'
 
-topic_profile_per_cluster <- function(lda_mod, train_cell_clust, clust_vr) {
+topic_profile_per_cluster <- function(lda_mod,
+                                      train_cell_clust,
+                                      clust_vr) {
 
   # Check variables
   if (!is(lda_mod, "LDA_Gibbs")) stop("ERROR: lda_mod must be an LDA_Gibbs object!")

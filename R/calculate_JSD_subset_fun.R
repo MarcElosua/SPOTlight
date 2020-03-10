@@ -7,7 +7,9 @@
 #' @export
 #' @examples
 #'
-calculate_jsd_subset <- function(prediction, syn_spots_profiles, jsd_indices) {
+calculate_jsd_subset <- function(prediction,
+                                 syn_spots_profiles,
+                                 jsd_indices) {
 
   # Check variables
   if (!(is.matrix(prediction) | is.data.frame(prediction))) stop("ERROR: prediction must be a matrix object!")

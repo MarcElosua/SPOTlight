@@ -20,7 +20,21 @@
 #' @examples
 #'
 
-train_lda <- function(se_obj, clust_vr, cluster_markers_all, al=0.01, verbose=1, estimate.beta=TRUE, save=0, keep=100, nstart=1, best=TRUE, delta=0.1, iter=2000, burnin=0, thin=NULL, ...) {
+train_lda <- function(se_obj,
+                      clust_vr,
+                      cluster_markers_all,
+                      al = 0.01,
+                      verbose = 1,
+                      estimate.beta = TRUE,
+                      save = 0,
+                      keep = 100,
+                      nstart = 1,
+                      best = TRUE,
+                      delta = 0.1,
+                      iter = 2000,
+                      burnin = 0,
+                      thin = NULL,
+                      ...) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")

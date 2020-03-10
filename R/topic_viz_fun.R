@@ -8,7 +8,9 @@
 #' @examples
 #'
 
-topic_viz <- function(lda_mod, k, n_terms) {
+topic_viz <- function(lda_mod,
+                      k,
+                      n_terms) {
 
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be an LDA_Gibbs object!")
   if (!is.numeric(k)) stop("ERROR: k must be an integer!")

@@ -9,7 +9,10 @@
 #' @examples
 #'
 
-test_spot_fun <- function(se_obj, clust_vr, n=1000, verbose=TRUE) {
+test_spot_fun <- function(se_obj,
+                          clust_vr,
+                          n = 1000,
+                          verbose = TRUE) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")

@@ -7,7 +7,8 @@
 #' @examples
 #'
 
-cut_markers2 <- function(markers, ntop) {
+cut_markers2 <- function(markers,
+                         ntop) {
 
   # Check variables
   if (!is.data.frame(markers)) stop("ERROR: markers must be a data.frame object!")
