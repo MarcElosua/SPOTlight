@@ -20,7 +20,7 @@ syn_spot_comb_topic <- function(lda_mod,
 
   # Check variables
   if (is(lda_mod)[[1]] != "LDA_Gibbs") stop("ERROR: lda_mod must be a LDA_Gibbs object!")
-  if (! is(train_cell_clust, "vector")) stop("ERROR: se_obj must be a vector/list object!")
+  if (!is(train_cell_clust, "vector")) stop("ERROR: se_obj must be a vector/list object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.logical(verbose)) stop("ERROR: verbose must be a logical object!")
 
@@ -31,12 +31,10 @@ syn_spot_comb_topic <- function(lda_mod,
   suppressMessages(require(purrr))
   suppressMessages(require(topicmodels))
 
-
   #### Calculate topic profiles for every cluster ####
   clust_profiles <- topic_profile_per_cluster(lda_mod = lda_mod,
                                               train_cell_clust = train_cell_clust,
                                               clust_vr = clust_vr)
-  round(clust_profiles, 4)
 
   if (class(clust_profiles) != "matrix") clust_profiles <- as.matrix(clust_profiles)
 

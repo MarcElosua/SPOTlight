@@ -12,6 +12,8 @@
 #' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 1000.
 #' @param al Object of class numeric, which alpha to use to train the model, by default 0.01.
 #' @param ntop Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
+#' @param n_max Object of class numeric. Max number of synthetic spots to generate, by the default 1*10^6.
+#' @param k_sub Object of class numeric. Max number of cells per synthetic spot, combination of number of cells per synthetic spot will range between 2:k_sub
 #' @return This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
 #' @export
 #' @examples
@@ -28,7 +30,9 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
                                              cl_n = 10,
                                              hvg = 1000,
                                              al = 0.01,
-                                             ntop = 100) {
+                                             ntop = 100,
+                                             n_max = 1e6,
+                                             k_sub = 8) {
 
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
@@ -42,7 +46,8 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
   if (!is.numeric(keep)) stop("ERROR: keep must be of class integer!")
   if (!is.numeric(top_dist)) stop("ERROR: top_dist must be an integer!")
   if (!is.numeric(top_jsd)) stop("ERROR: top_jsd must be an integer!")
-
+  if (!is.numeric(n_max)) stop("ERROR: n_max must be an integer!")
+  if (!is.numeric(k_sub)) stop("ERROR: k_sub must be an integer!")
 
   # Set Identities as the cluster variables
   Seurat::Idents(object = se_obj) <- se_obj@meta.data[, clust_vr]
@@ -88,7 +93,10 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
   lda_mod <- lda_mod_ls[[1]]
 
   # Generate test spots synthetically
-  test_spots_ls <- test_spot_fun(se_obj = se_obj, clust_vr = clust_vr, n = 1000, verbose = verbose)
+  test_spots_ls <- test_spot_fun(se_obj = se_obj,
+                                 clust_vr = clust_vr,
+                                 n = 1000,
+                                 verbose = verbose)
 
   test_spots_counts <- test_spots_ls[[1]]
 
@@ -104,7 +112,8 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
                                    spot_counts = test_spots_counts,
                                    verbose = verbose,
                                    ncores = 5,
-                                   top_dist = top_dist, top_jsd = top_jsd)
+                                   top_dist = top_dist,
+                                   top_jsd = top_jsd)
 
   # Assess deconvolution performance
   raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = test_spots_metadata,

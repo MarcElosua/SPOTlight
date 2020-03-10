@@ -8,6 +8,8 @@
 #' @param ncores Object of class integer, How many cores to use to parallelize the process, if NULL i the process will be run sequentially.
 #' @param top_dist Object of class integer, on how many top euclidean distance are we going to calculate the JSD.
 #' @param top_jsd Object of class integer, how many of the top spots according JSD distance are we going to use to determine the composition.
+#' @param n_max Object of class numeric. Max number of synthetic spots to generate, by the default 1*10^6.
+#' @param k_sub Object of class numeric. Max number of cells per synthetic spot, combination of number of cells per synthetic spot will range between 2:k_sub
 #' @return matrix with the exact predicted composition of each spot.
 #' @export
 #' @examples
@@ -20,7 +22,9 @@ spot_deconvolution <- function(lda_mod,
                                verbose = TRUE,
                                ncores = NULL,
                                top_dist = 1000,
-                               top_jsd = 10) {
+                               top_jsd = 10,
+                               n_max = 1e6,
+                               k_sub = 8) {
 
   # Check variables
   if (!is(lda_mod, "LDA_Gibbs")) stop("ERROR: lda_mod must be an LDA_Gibbs object!")
@@ -30,9 +34,11 @@ spot_deconvolution <- function(lda_mod,
   if (!(is.numeric(ncores) | is.null(ncores))) stop("ERROR: ncores must be an integer!")
   if (!is.numeric(top_dist)) stop("ERROR: top_dist must be an integer!")
   if (!is.numeric(top_jsd)) stop("ERROR: top_jsd must be an integer!")
+  if (!is.numeric(n_max)) stop("ERROR: n_max must be an integer!")
+  if (!is.numeric(k_sub)) stop("ERROR: k_sub must be an integer!")
 
 
-  #load required packages
+  # load required packages
   suppressMessages(require(pdist))
   suppressMessages(require(philentropy))
   suppressMessages(require(Matrix))
@@ -44,7 +50,9 @@ spot_deconvolution <- function(lda_mod,
   syn_spots_ls <- syn_spot_comb_topic(lda_mod = lda_mod,
                                       train_cell_clust = train_cell_clust,
                                       clust_vr = clust_vr,
-                                      verbose = verbose)
+                                      verbose = verbose,
+                                      n_max = n_max,
+                                      k_sub = k_sub)
 
   # Predict topic profiles of spatial spots
   if (verbose) print("Predict topic profiles of spatial spots")
