@@ -53,12 +53,12 @@ test_spot_fun <- function(se_obj,
 
     spot_ds <- tmp_ds %>%
       dplyr::select(all_of(clust_vr), weight) %>%
-      dplyr::mutate(clust_vr = paste("clust_",
-                                     tmp_ds[, clust_vr], sep = "")) %>%
-      dplyr::group_by(clust_vr) %>%
+      # dplyr::mutate(clust_vr = paste("clust_",
+      #                                tmp_ds[, clust_vr], sep = "")) %>%
+      dplyr::group_by(!! sym(clust_vr)) %>%
       dplyr::summarise(sum_weights = sum(weight)) %>%
       dplyr::ungroup() %>%
-      tidyr::pivot_wider(names_from = clust_vr,
+      tidyr::pivot_wider(names_from = all_of(clust_vr),
                          values_from = sum_weights) %>%
       dplyr::mutate(name = name_simp)
 
@@ -105,16 +105,16 @@ test_spot_fun <- function(se_obj,
 
   # change column order so that its progressive
   lev_mod <- gsub("[\\+|\\ ]", ".", unique(se_obj@meta.data[, clust_vr]))
-  all_cn <- c(paste("clust_", lev_mod, sep = ""), "name")
+  # all_cn <- c(paste("clust_", lev_mod, sep = ""), "name")
 
   # Check if there are missing columns (Cell types not selected) and add them as all 0s
-  if (sum(all_cn %in% colnames(ds_spots_metadata)) == (length(unique(se_obj@meta.data[, clust_vr])) + 1)) {
-    ds_spots_metadata <- ds_spots_metadata[, all_cn]
+  if (sum(lev_mod %in% colnames(ds_spots_metadata)) == (length(unique(se_obj@meta.data[, clust_vr])) + 1)) {
+    ds_spots_metadata <- ds_spots_metadata[, lev_mod]
   } else {
 
-    missing_cols <- all_cn[which(!all_cn %in% colnames(ds_spots_metadata))]
+    missing_cols <- lev_mod[which(!lev_mod %in% colnames(ds_spots_metadata))]
     ds_spots_metadata[missing_cols] <- 0
-    ds_spots_metadata <- ds_spots_metadata[, all_cn]
+    ds_spots_metadata <- ds_spots_metadata[, lev_mod]
   }
 
   # Close progress bar
