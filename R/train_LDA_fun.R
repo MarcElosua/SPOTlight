@@ -44,7 +44,7 @@ train_lda <- function(se_obj,
   if (!is.data.frame(cluster_markers_all)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (!is.numeric(al)) stop("ERROR: al must be of class numeric!")
   if (al <= 0) stop("ERROR: al must be greater than 0!")
-  if (!is.numeric(ntop)) stop("ERROR: ntop must be of class numeric!")
+  if (!(is.numeric(ntop) | is.null(ntop))) stop("ERROR: ntop must be of class numeric or set to NULL!")
   if (verbose < 0) stop("ERROR: verbose must be an integer greater or equal than 0!")
   if (!is.logical(estimate.beta)) stop("ERROR: estimate.beta must be of class logical!")
   if (!is.numeric(save)) stop("ERROR: save must be of class integer!")
