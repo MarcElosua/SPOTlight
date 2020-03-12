@@ -61,12 +61,12 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
 
   # Filter marker genes by p value and logFC
   cluster_markers_all <- cluster_markers_all %>%
-    dplyr::filter(p_val_adj < 0.01 & avg_logFC > 1 & pct.1 >= 0.9)
+    dplyr::filter(p_val_adj < 0.01 & avg_logFC > 2 & pct.1 >= 0.9)
 
   # Downsample seurat object to reduce n cells and n genes
   se_obj <- downsample_se_obj(se_obj = se_obj,
                               clust_vr = clust_vr,
-                              cluster_markers_all = cluster_markers_all,
+                              cluster_markers = cluster_markers_all,
                               cl_n = cl_n,
                               hvg = hvg)
 
@@ -76,7 +76,7 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
 
   lda_mod_ls <- train_lda(se_obj = se_obj,
                           clust_vr = clust_vr,
-                          cluster_markers_all = cluster_markers_all,
+                          cluster_markers = cluster_markers_all,
                           al = 0.01,
                           verbose = keep,
                           iter = iter,

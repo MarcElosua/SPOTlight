@@ -2,7 +2,7 @@
 #'
 #' @param se_obj Object of class Seurat with the data of interest
 #' @param clust_vr Name of the variable containing the cell clustering
-#' @param cluster_markers_all Object of class dataframe obtained from the function Seurat::FindAllMarkers()
+#' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
 #' @param alpha Object of class "numeric"; initial value for alpha, by default 0.01.
 #' @param ntop Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
 #' @param verbose Object  of  class "integer".   If  a  positive  integer,  then  the  progress  is  reported  every "integer" verbose iterations. If 0 (default), no output is generated during model fitting
@@ -23,7 +23,7 @@
 
 train_lda <- function(se_obj,
                       clust_vr,
-                      cluster_markers_all,
+                      cluster_markers,
                       al = 0.01,
                       ntop = 100,
                       verbose = 1,
@@ -74,8 +74,8 @@ train_lda <- function(se_obj,
   se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
 
   # Select all marker genes for each cluster AND compute their Z score
-  if (is.null(ntop)) ntop <- max(table(cluster_markers_all$cluster))
-  cluster_markers <- suppressMessages(cut_markers2(markers = cluster_markers_all,
+  if (is.null(ntop)) ntop <- max(table(cluster_markers$cluster))
+  cluster_markers <- suppressMessages(cut_markers2(markers = cluster_markers,
                                                    ntop = ntop))
 
   # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
@@ -99,6 +99,7 @@ train_lda <- function(se_obj,
 
   # Add seeds to model, if a cluster-topic has 0 unique markers its row will be set to all 0
   for (i in seq_len(k)) {
+    print(i)
     clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
     seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
     }
