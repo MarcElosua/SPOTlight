@@ -71,7 +71,7 @@ spatial_decon_syn_assessment_fun <- function(se_obj,
                               hvg = hvg)
 
   #### Train LDA model ####
-  set.seed(1000)
+  # set.seed(1000)
   start_time <- Sys.time()
 
   lda_mod_ls <- train_lda(se_obj = se_obj,
