@@ -41,7 +41,7 @@ train_lda <- function(se_obj,
   # Check variables
   if (is(se_obj) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
-  if (!is.data.frame(cluster_markers_all)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
+  if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (!is.numeric(al)) stop("ERROR: al must be of class numeric!")
   if (al <= 0) stop("ERROR: al must be greater than 0!")
   if (!(is.numeric(ntop) | is.null(ntop))) stop("ERROR: ntop must be of class numeric or set to NULL!")
