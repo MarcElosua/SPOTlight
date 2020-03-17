@@ -29,14 +29,14 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
                                                est.prob = "empirical"))
 
     #### Calculate TP-TN-FP-FN ####
-    for (index in c(seq_len(ncol(test_spots_metadata_mtrx)))) {
-      if (sum(x[1, index]) > 0 & sum(x[2, index]) > 0) {
+    for (index in colnames(test_spots_metadata_mtrx)) {
+      if (x[1, index] > 0 & x[2, index] > 0) {
         tp <- tp + 1
-      } else if (sum(x[1, index]) == 0 & sum(x[2, index]) == 0) {
+      } else if (x[1, index] == 0 & x[2, index] == 0) {
         tn <- tn + 1
-      } else if (sum(x[1, index]) > 0 & sum(x[2, index]) == 0) {
+      } else if (x[1, index] > 0 & x[2, index] == 0) {
         fn <- fn + 1
-      } else if (sum(x[1, index]) == 0 & sum(x[2, index]) > 0) {
+      } else if (x[1, index] == 0 & x[2, index] > 0) {
         fp <- fp + 1
       }
     }; rm(index)
@@ -45,8 +45,8 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
 
   #### Performance metrics ####
   accuracy <- round((tp + tn) / (tp + tn + fp + fn), 2)
-  sensitivity <- round(tp / (tp + fp), 2)
-  specificity <- round(tn / (tn + fn), 2)
+  sensitivity <- round(tp / (tp + fn), 2)
+  specificity <- round(tn / (tn + fp), 2)
   precision <- round(tp / (tp + fp), 2)
   recall <- round(tp / (tp + fn), 2)
   F1 <- round(2 * ((precision * recall) / (precision + recall)), 2)
