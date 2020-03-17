@@ -105,6 +105,7 @@ test_spot_fun <- function(se_obj,
 
   # change column order so that its progressive
   lev_mod <- gsub("[\\+|\\ ]", ".", unique(se_obj@meta.data[, clust_vr]))
+  colnames(ds_spots_metadata) <- gsub("[\\+|\\ ]", ".", colnames(ds_spots_metadata))
   # all_cn <- c(paste("clust_", lev_mod, sep = ""), "name") # This was set to deal when cluster names are numeric
 
   # Check if there are missing columns (Cell types not selected) and add them as all 0s
