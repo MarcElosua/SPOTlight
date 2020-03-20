@@ -31,10 +31,14 @@ downsample_se_obj <- function(se_obj,
 
   if (hvg > 0) {
     se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = hvg)
+
+    #### Union of marker genes and highest variable genes and subset genes ####
+    keep_genes <- unique(c(VariableFeatures(se_obj), cluster_markers$gene))
+  } else {
+    #### Keep marker genes only ####
+    keep_genes <- unique(cluster_markers$gene)
   }
 
-  #### Combine marker genes and highest variable genes and subset genes ####
-  keep_genes <- unique(c(VariableFeatures(se_obj), cluster_markers$gene))
 
   #### Get cell IDs to subset by cluster ####
   keep_ids <- lapply(split(se_obj@meta.data, se_obj@meta.data[, clust_vr]), function(subdf) {
