@@ -101,7 +101,7 @@ train_lda <- function(se_obj,
   for (i in seq_len(k)) {
     print(i)
     clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
-    seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "logFC_z"]
+    seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "weight"]
     }
 
   # Verify that weights have been added
