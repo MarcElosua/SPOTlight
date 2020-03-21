@@ -1,6 +1,6 @@
 #' This functions takes in a seurat object and creates different mixtures resembling spots at different proportions
 #'
-#' @param se_obj seurat object; The seurat object NEEDS to have the variable features calculated
+#' @param se_obj seurat object.
 #' @param clust_vr Name of the variable containing the cell clustering
 #' @param n number of spots to generate
 #' @param verbose Name of the variable containing the cell clustering
