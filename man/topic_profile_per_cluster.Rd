@@ -4,16 +4,14 @@
 \alias{topic_profile_per_cluster}
 \title{This function takes in a seurat object and an LDA model generated from topic models and returns a list with a topic profile per cluster.}
 \usage{
-topic_profile_per_cluster(lda_mod, se_obj, clust_vr)
+topic_profile_per_cluster(lda_mod, train_cell_clust, clust_vr)
 }
 \arguments{
 \item{lda_mod}{Object of class LDA_Gibbs.}
 
-\item{se_obj}{Object of class Seurat.}
+\item{train_cell_clust}{Object of class vector with cluster of the cells used to train the model.}
 
 \item{clust_vr}{Object of class character. Name of the variable containing the cell clustering.}
-
-\item{verbose}{Object of class Logical determining if progress should be reported or not (TRUE by default).}
 }
 \value{
 This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.

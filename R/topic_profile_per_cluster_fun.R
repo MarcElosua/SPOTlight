@@ -3,7 +3,6 @@
 #' @param lda_mod Object of class LDA_Gibbs.
 #' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
-#' @param verbose Object of class Logical determining if progress should be reported or not (TRUE by default).
 #' @return This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
 #' @export
 #' @examples
@@ -15,7 +14,7 @@ topic_profile_per_cluster <- function(lda_mod,
 
   # Check variables
   if (!is(lda_mod, "LDA_Gibbs")) stop("ERROR: lda_mod must be an LDA_Gibbs object!")
-  if (! is(train_cell_clust, "vector")) stop("ERROR: se_obj must be a vector/list object!")
+  if (! is(train_cell_clust, "vector")) stop("ERROR: train_cell_clust must be a vector/list object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
 
   # Loading libraries

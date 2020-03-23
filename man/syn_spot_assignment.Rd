@@ -4,7 +4,7 @@
 \alias{syn_spot_assignment}
 \title{This function processes the data and trains the LDA model}
 \usage{
-syn_spot_assignment(prediction, syn_spots_ls, top_dist = 100, top_jsd = 15)
+syn_spot_assignment(prediction, syn_spots_ls, top_dist = 1000, top_jsd = 5)
 }
 \arguments{
 \item{prediction}{Object of class matrix with the predicted topic probability distributions for each spot. Output from the lda_prediction function.}

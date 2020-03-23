@@ -7,6 +7,7 @@
 #' @return A downsampled Seurat object from the original
 #' @export
 #' @examples
+#'
 
 downsample_se_obj <- function(se_obj,
                               clust_vr,

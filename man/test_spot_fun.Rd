@@ -7,7 +7,7 @@
 test_spot_fun(se_obj, clust_vr, n = 1000, verbose = TRUE)
 }
 \arguments{
-\item{se_obj}{seurat object; The seurat object NEEDS to have the variable features calculated}
+\item{se_obj}{seurat object.}
 
 \item{clust_vr}{Name of the variable containing the cell clustering}
 

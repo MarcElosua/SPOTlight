@@ -7,8 +7,9 @@
 train_lda(
   se_obj,
   clust_vr,
-  cluster_markers_all,
+  cluster_markers,
   al = 0.01,
+  ntop = 100,
   verbose = 1,
   estimate.beta = TRUE,
   save = 0,
@@ -16,7 +17,7 @@ train_lda(
   nstart = 1,
   best = TRUE,
   delta = 0.1,
-  iter = 5000,
+  iter = 2000,
   burnin = 0,
   thin = NULL,
   ...
@@ -27,7 +28,9 @@ train_lda(
 
 \item{clust_vr}{Name of the variable containing the cell clustering}
 
-\item{cluster_markers_all}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
+\item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
+
+\item{ntop}{Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
 
 \item{verbose}{Object  of  class "integer".   If  a  positive  integer,  then  the  progress  is  reported  every "integer" verbose iterations. If 0 (default), no output is generated during model fitting}
 
@@ -54,7 +57,7 @@ train_lda(
 \item{alpha}{Object of class "numeric"; initial value for alpha, by default 0.01.}
 }
 \value{
-A Latent Dirichlet Allocation list of model/s depending on if return best is T or F.
+A Latent Dirichlet Allocation list of model/s depending on if return best is T or F + a vector of the clusters of the cells used to train the model.
 }
 \description{
 This function processes the data and trains the LDA model

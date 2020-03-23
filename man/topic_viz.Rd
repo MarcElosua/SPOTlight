@@ -7,14 +7,14 @@
 topic_viz(lda_mod, k, n_terms)
 }
 \arguments{
-\item{lda_mod}{Object of class LDA_Gibbs}
+\item{lda_mod}{Object of class LDA_Gibbs.}
 
-\item{k}{topic we want to visualize}
+\item{k}{topic we want to visualize.}
 
-\item{n_terms}{number of terms to show}
+\item{n_terms}{number of terms to show.}
 }
 \value{
-A Latent Dirichlet Allocation list of model/s depending on if return best is T or F.
+The n_terms most likely genes defining that cluster.
 }
 \description{
 This function processes the data and trains the LDA model
