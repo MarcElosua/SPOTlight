@@ -14,24 +14,36 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
 
   ## Extract genes used in w, if there are genes not present add them with all 0
   keep_genes <- rownames(basis(nmf_mod))[rownames(basis(nmf_mod)) %in% rownames(mixture_transcriptome)]
+  # fill_genes <- rownames(basis(nmf_mod))[! rownames(basis(nmf_mod)) %in% rownames(mixture_transcriptome)]
+
   mixture_transcriptome_subs <- as.matrix(mixture_transcriptome[keep_genes, ])
 
+  # # Add 0s to those genes not detected
+  # mtrx_0 <- matrix(data = 0,
+  #                  nrow = length(fill_genes),
+  #                  ncol = ncol(mixture_transcriptome_subs))
+  # rownames(mtrx_0) <- fill_genes
+  #
+  # mixture_transcriptome_subs <- rbind(mixture_transcriptome_subs, mtrx_0)
+
   if (transf == "cpm") {
-    count_mtrx <- edgeR::cpm(mixture_transcriptome,
+    count_mtrx <- edgeR::cpm(mixture_transcriptome_subs,
                              normalized.lib.sizes = FALSE)
 
   } else if (transf == "uv") {
-    count_mtrx <- scale(t(mixture_transcriptome),
+    count_mtrx <- scale(t(mixture_transcriptome_subs),
                         center = FALSE,
-                        scale = apply(t(counts), 2, sd, na.rm = TRUE))
+                        scale = apply(mixture_transcriptome_subs, 1, sd, na.rm = TRUE))
     count_mtrx <- t(count_mtrx)
-
+    # Set all 0s if the row is NA
+    pos_0 <- which(rowSums(is.na(count_mtrx)) == ncol(count_mtrx))
+    count_mtrx[pos_0, ] <- 0
   } else if (transf == "sct") {
     # Can't use scale.data since it has negative values
-    count_mtrx <- mixture_transcriptome
+    count_mtrx <- mixture_transcriptome_subs
 
   } else if (is.null(transf)) {
-    count_mtrx <- mixture_transcriptome
+    count_mtrx <- mixture_transcriptome_subs
 
   }
 
@@ -46,11 +58,10 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
 
   ##### Perform NNLS to get coefficients #####
   for (i in seq_len(ncol(count_mtrx))) {
+    print(i)
     nnls_pred <- nnls(A = W, b = count_mtrx[, i])
     coef_pred[, i] <- nnls_pred$x
   }
-
-
 
   return(coef_pred)
 }

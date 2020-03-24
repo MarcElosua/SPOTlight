@@ -13,7 +13,7 @@ Suggests:
     testthat,
     spelling
 Language: en-US
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Depends: dplyr (>= 0.8.3)
 biocViews:
 Imports: arrangements (>= 1.1.8), 
@@ -27,6 +27,8 @@ Imports: arrangements (>= 1.1.8),
          Matrix (>= 1.2.18),
          matrixStats (>= 0.55.0),
          multtest (>= 2.42.0),
+         NMF (>= 0.22.0),
+         nnls (>= 1.4),
          pdist (>= 1.2),
          philentropy (>= 0.4.0),
          purrr (>= 0.3.3),

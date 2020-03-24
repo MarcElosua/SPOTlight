@@ -4,7 +4,7 @@
 \alias{downsample_se_obj}
 \title{This function downsamples the number of cells and genes used to train the model}
 \usage{
-downsample_se_obj(se_obj, clust_vr, cluster_markers, cl_n = 10, hvg = 1000)
+downsample_se_obj(se_obj, clust_vr, cluster_markers, cl_n = 10, hvg = 0)
 }
 \arguments{
 \item{se_obj}{Object of class Seurat with the data of interest}
@@ -14,6 +14,8 @@ downsample_se_obj(se_obj, clust_vr, cluster_markers, cl_n = 10, hvg = 1000)
 \item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
 
 \item{cl_n}{Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.}
+
+\item{hvg}{Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0}
 }
 \value{
 A downsampled Seurat object from the original

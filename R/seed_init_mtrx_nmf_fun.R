@@ -42,7 +42,7 @@ seed_init_mtrx_nmf <- function(cluster_markers,
 
   # initialize matrix
   seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 1e-10)
-  colnames(seedgenes) = colnames(se_lda_ready)
+  colnames(seedgenes) <- colnames(se_lda_ready)
 
   # Add seeds to model, if a cluster-topic has 0 unique markers its row will be set to all 0
   for (i in seq_len(k)) {
