@@ -12,6 +12,9 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
                                          mixture_transcriptome,
                                          transf) {
 
+  # Loading libraries
+  suppressMessages(require(nnls))
+
   ## Extract genes used in w, if there are genes not present add them with all 0
   keep_genes <- rownames(basis(nmf_mod))[rownames(basis(nmf_mod)) %in% rownames(mixture_transcriptome)]
   # fill_genes <- rownames(basis(nmf_mod))[! rownames(basis(nmf_mod)) %in% rownames(mixture_transcriptome)]
@@ -38,6 +41,7 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
     # Set all 0s if the row is NA
     pos_0 <- which(rowSums(is.na(count_mtrx)) == ncol(count_mtrx))
     count_mtrx[pos_0, ] <- 0
+
   } else if (transf == "sct") {
     # Can't use scale.data since it has negative values
     count_mtrx <- mixture_transcriptome_subs
@@ -49,7 +53,6 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
 
   ##### Extract Basis matrix W #####
   W <- basis(nmf_mod)
-  H <- coef(nmf_mod)
 
   coef_pred <- matrix(data = NA,
                     nrow = ncol(W),
@@ -58,8 +61,7 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
 
   ##### Perform NNLS to get coefficients #####
   for (i in seq_len(ncol(count_mtrx))) {
-    print(i)
-    nnls_pred <- nnls(A = W, b = count_mtrx[, i])
+    nnls_pred <- nnls::nnls(A = W, b = count_mtrx[, i])
     coef_pred[, i] <- nnls_pred$x
   }
 

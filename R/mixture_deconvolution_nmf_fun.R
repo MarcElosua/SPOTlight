@@ -4,6 +4,7 @@
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
 #' @param transf Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), NULL (no transformation applied).
 #' @param reference_profiles Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.
+#' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 9% of the total.
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.
 #' @export
 #' @examples
@@ -12,33 +13,31 @@
 mixture_deconvolution_nmf <- function(nmf_mod,
                                       mixture_transcriptome,
                                       transf,
-                                      reference_profiles) {
+                                      reference_profiles,
+                                      min_cont = 0.09) {
 
+  # Loading libraries
+  suppressMessages(require(nnls))
+  print("Getting profile_mtrx")
   profile_mtrx <- predict_spatial_mixtures_nmf(nmf_mod = nmf_mod,
                                mixture_transcriptome = mixture_transcriptome,
                                transf = transf)
+  print("Have profile_mtrx")
 
   # We add 1 extra column to add the residual error
-  decon_mtrx <- matrix(data = NA, nrow = ncol(profile_mtrx), ncol = nrow(h) + 1)
+  decon_mtrx <- matrix(data = NA, nrow = ncol(profile_mtrx), ncol = ncol(reference_profiles) + 1)
   colnames(decon_mtrx) <- c(colnames(reference_profiles), "res_ss")
 
   for (i in seq_len(ncol(profile_mtrx))) {
     ## NNLS to get cell type composition
-    nnls_pred <- nnls(A = reference_profiles, b = profile_mtrx[, i])
+    nnls_pred <- nnls::nnls(A = reference_profiles, b = profile_mtrx[, i])
 
     ## get proportions of each cell type and multiply by 10 to get those cell types present > 10%, meaning representation of at least 1 cell
-    comp <- nnls_pred$x / sum(nnls_pred$x) * 10
-    comp[comp < 0.9] <- 0
-    decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp
+    comp <- nnls_pred$x / sum(nnls_pred$x)
+    comp[comp < min_cont] <- 0
+    decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp*10
     decon_mtrx[i, ncol(decon_mtrx)] <- nnls_pred$deviance
   }
-
-  res_ss_quant <- round(quantile(x = decon_mtrx[, ncol(decon_mtrx)],
-                                 c(0.25, 0.5, 0.75),
-                                 na.rm = TRUE), 5)
-
-  print(sprintf("Quantiles of ss residuals are %s [%s - %s]",
-                res_ss_quant[2], res_ss_quant[1], res_ss_quant[3]))
 
   return(decon_mtrx)
 }

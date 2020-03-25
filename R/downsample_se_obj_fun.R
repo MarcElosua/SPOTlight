@@ -31,11 +31,16 @@ downsample_se_obj <- function(se_obj,
 
   # se_obj$seurat_clusters <- droplevels(factor(se_obj@meta.data[, clust_vr]))
 
-  if (hvg > 0) {
+  if (is.null(hvg)) {
+    se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = 3000)
+    keep_genes <- c(VariableFeatures(se_obj))
+
+  } else if (hvg > 0) {
     se_obj <- Seurat::FindVariableFeatures(object = se_obj, nfeatures = hvg)
 
     #### Union of marker genes and highest variable genes and subset genes ####
     keep_genes <- unique(c(VariableFeatures(se_obj), cluster_markers$gene))
+
   } else {
     #### Keep marker genes only ####
     keep_genes <- unique(cluster_markers$gene)

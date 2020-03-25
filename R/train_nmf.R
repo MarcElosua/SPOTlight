@@ -22,7 +22,18 @@ train_nmf <- function(cluster_markers,
                       method = "nsNMF",
                       hvg = 0) {
 
+  # Loading libraries
+  suppressMessages(require(NMF))
+  suppressMessages(require(dplyr))
+
   # Only train the model with genes shared between the scRNAseq and spatial data
+  ## Remove rows with all gene counts 0
+  genes_0_sc <- which(! rowSums(as.matrix(se_sc@assays$RNA@counts) == 0) == ncol(se_sc@assays$RNA@counts))
+  se_sc <- se_sc[genes_0_sc, ]
+
+  genes_0_sp <- which(! rowSums(as.matrix(mtrx_spatial) == 0) == ncol(mtrx_spatial))
+  mtrx_spatial <- mtrx_spatial[genes_0_sp, ]
+
   ## Remove non union genes from the scRNAseq data
   genes_spatial <- rownames(mtrx_spatial)
   genes_sc <- rownames(se_sc@assays$RNA@counts)
@@ -48,7 +59,7 @@ train_nmf <- function(cluster_markers,
     # Can't use scale.data since it has negative values
     count_mtrx <- as.matrix(se_sc@assays$SCT@counts)
 
-  } else if (is.null(transf)) {
+  } else if (transf == "raw") {
     count_mtrx <- as.matrix(se_sc@assays$RNA@counts)
   }
 
@@ -67,14 +78,14 @@ train_nmf <- function(cluster_markers,
                                   ntop = 100)
 
   # Initialize the matrix with the seeded matrices
-  nmf_init <- nmfModel(W = init_mtrx[["W"]],
+  nmf_init <- NMF::nmfModel(W = init_mtrx[["W"]],
                        H = init_mtrx[["H"]],
                        model = mod)
 
   # Train NMF model
   start_t <- Sys.time()
 
-  nmf_mod <- nmf(x = count_mtrx,
+  nmf_mod <- NMF::nmf(x = count_mtrx,
                  rank = k,
                  seed = nmf_init,
                  method = method)
