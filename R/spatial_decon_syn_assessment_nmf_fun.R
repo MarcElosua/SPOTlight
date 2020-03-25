@@ -35,7 +35,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   ##########################
   ### Generate test data ###
   ##########################
-  test_spot_ls <- test_spot_fun(se_obj = allen_reference,
+  test_spot_ls <- test_spot_fun(se_obj = se_obj,
                                 clust_vr = clust_vr,
                                 n = 1000)
 
@@ -48,8 +48,8 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   ############################
   ### Marker genes
   #### Extract the top marker genes from each cluster ####
-  Seurat::Idents(object = allen_reference) <- allen_reference@meta.data[, clust_vr]
-  # cluster_markers_all <- Seurat::FindAllMarkers(object = allen_reference,
+  Seurat::Idents(object = se_obj) <- se_obj@meta.data[, clust_vr]
+  # cluster_markers_all <- Seurat::FindAllMarkers(object = se_obj,
   #                                               verbose = TRUE,
   #                                               only.pos = TRUE,
   #                                               assay = "SCT",
@@ -71,7 +71,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   ####################
   # Downsample number of genes and number of samples
 
-  allen_reference_down <- downsample_se_obj(se_obj = allen_reference,
+  se_obj_down <- downsample_se_obj(se_obj = se_obj,
                                             clust_vr = clust_vr,
                                             cluster_markers = cluster_markers_filt,
                                             cl_n = cl_n,
@@ -80,7 +80,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   #### Train NMF ####
   ###################
   nmf_mod_ls <- train_nmf(cluster_markers = cluster_markers_filt,
-                          se_sc = allen_reference_down,
+                          se_sc = se_obj,
                           mtrx_spatial = test_spot_counts,
                           ntop = ntop,
                           transf = transf,

@@ -3,7 +3,7 @@
 #' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
 #' @param se_sc Object of class Seurat with the scRNAseq data.
 #' @param se_spatial Object of class Seurat with the spatial data.
-#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), NULL (no transformation applied). By default CPM.
+#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.
 #' @param ntop Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
 #' @param clust_vr Object of class character; Name of the variable containing the cell clustering
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.

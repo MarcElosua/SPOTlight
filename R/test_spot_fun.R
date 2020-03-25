@@ -21,7 +21,7 @@ test_spot_fun <- function(se_obj,
   if (!is.logical(verbose)) stop("ERROR: verbose must be a logical object!")
 
   suppressMessages(require(DropletUtils)) # For the downsampling
-  # suppressMessages(require(dtplyr))
+  suppressMessages(require(purrr))
   suppressMessages(require(dplyr))
   suppressMessages(require(tidyr))
 
@@ -93,11 +93,11 @@ test_spot_fun <- function(se_obj,
     return(list(syn_spot_sparse, spot_ds))
   })
 
-  ds_syn_spots <- map(ds_spots, 1) %>%
+  ds_syn_spots <- purrr::map(ds_spots, 1) %>%
     base::Reduce(function(m1, m2) cbind(unlist(m1), unlist(m2)), .)
 
   # Generate dataframe of spot characteristic
-  ds_spots_metadata <- map(ds_spots, 2) %>%
+  ds_spots_metadata <- purrr::map(ds_spots, 2) %>%
     dplyr::bind_rows() %>%
     data.frame()
 
