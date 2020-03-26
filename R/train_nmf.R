@@ -80,7 +80,8 @@ train_nmf <- function(cluster_markers,
   # Initialize the matrix with the seeded matrices
   nmf_init <- NMF::nmfModel(W = init_mtrx[["W"]],
                        H = init_mtrx[["H"]],
-                       model = mod)
+                       model = mod,
+                       .options='v-t')
 
   # Train NMF model
   start_t <- Sys.time()
@@ -93,6 +94,6 @@ train_nmf <- function(cluster_markers,
   total_t <- round(difftime(Sys.time(), start_t, units = "mins"), 2)
   print(sprintf("Time to train NMF model was %smins", total_t))
 
-  return(list(nmf_mod, se_sc@meta.data[, clust_vr]))
+  return(list(nmf_mod, as.vector(se_sc@meta.data[, clust_vr])))
 }
 

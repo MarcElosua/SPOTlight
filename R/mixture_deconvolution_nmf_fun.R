@@ -18,15 +18,18 @@ mixture_deconvolution_nmf <- function(nmf_mod,
 
   # Loading libraries
   suppressMessages(require(nnls))
-  print("Getting profile_mtrx")
   profile_mtrx <- predict_spatial_mixtures_nmf(nmf_mod = nmf_mod,
                                mixture_transcriptome = mixture_transcriptome,
                                transf = transf)
-  print("Have profile_mtrx")
 
   # We add 1 extra column to add the residual error
   decon_mtrx <- matrix(data = NA, nrow = ncol(profile_mtrx), ncol = ncol(reference_profiles) + 1)
   colnames(decon_mtrx) <- c(colnames(reference_profiles), "res_ss")
+
+  # create progress bar
+  print("Deconvoluting spots")
+  total <- ncol(profile_mtrx)
+  pb <- txtProgressBar(min = 0, max = total, style = 3)
 
   for (i in seq_len(ncol(profile_mtrx))) {
     ## NNLS to get cell type composition
@@ -37,7 +40,12 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     comp[comp < min_cont] <- 0
     decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp*10
     decon_mtrx[i, ncol(decon_mtrx)] <- nnls_pred$deviance
+
+    # update progress bar
+    setTxtProgressBar(pb, i)
   }
+  # Close progress bar
+  close(pb)
 
   return(decon_mtrx)
 }

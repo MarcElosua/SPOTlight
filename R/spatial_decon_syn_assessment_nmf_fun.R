@@ -77,10 +77,10 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   # Downsample number of genes and number of samples
   print("Downsampling genes and cells")
   se_obj_down <- downsample_se_obj(se_obj = se_obj,
-                                            clust_vr = clust_vr,
-                                            cluster_markers = cluster_markers_filt,
-                                            cl_n = cl_n,
-                                            hvg = hvg)
+                                   clust_vr = clust_vr,
+                                   cluster_markers = cluster_markers_filt,
+                                   cl_n = cl_n,
+                                   hvg = hvg)
   ###################
   #### Train NMF ####
   ###################
@@ -113,8 +113,9 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   ################################
   #### Performance statistics ####
   ################################
-  raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = as.matrix(test_spot_metadata[, colnames(pred_comp)[-24]]),
-                                                  spot_composition_mtrx = pred_comp[, -24])
+  ct_cols <- colnames(pred_comp)[which(colnames(pred_comp) != "res_ss")]
+  raw_statistics_ls <- test_synthetic_performance(test_spots_metadata_mtrx = as.matrix(test_spot_metadata[, ct_cols]),
+                                                  spot_composition_mtrx = pred_comp[, ct_cols])
 
   return(list("nmf_mod" = nmf_mod_ls, "stats" = raw_statistics_ls))
 }
