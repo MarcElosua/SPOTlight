@@ -1,6 +1,6 @@
 #' This function takes in the H coefficient matrix object from and NMF object and returns a matrix object with the topic profile for each cell type
 #'
-#' @param H Object of class LDA_Gibbs.
+#' @param h Object of class LDA_Gibbs.
 #' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @return This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
@@ -8,12 +8,12 @@
 #' @examples
 #'
 
-topic_profile_per_cluster_nmf <- function(H,
+topic_profile_per_cluster_nmf <- function(h,
                                           train_cell_clust,
                                           clust_vr) {
 
   # Check variables
-  if (!is(H, "matrix")) stop("ERROR: h must be a matric object!")
+  if (!is(h, "matrix")) stop("ERROR: h must be a matric object!")
   if (! is(train_cell_clust, "vector")) stop("ERROR: train_cell_clust must be a vector/list object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
 
@@ -21,7 +21,7 @@ topic_profile_per_cluster_nmf <- function(H,
   suppressMessages(require(tibble))
   suppressMessages(require(dplyr))
 
-  h_ds <- data.frame(t(H))
+  h_ds <- data.frame(t(h))
   h_ds[, clust_vr] <- train_cell_clust
 
   ct_topic_profiles <- h_ds %>%
