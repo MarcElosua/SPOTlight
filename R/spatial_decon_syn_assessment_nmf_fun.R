@@ -31,7 +31,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_obj,
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.logical(verbose))stop("ERROR: verbose must be a logical object!")
   if (!is.numeric(cl_n)) stop("ERROR: ntop must be of class numeric!")
-  if (!(is.numeric(hvg) | is.null(hvg))) stop("ERROR: hvg must be an object of class integer or NULL!")
+  if (!(is.numeric(hvg) | hvg == "uns")) stop("ERROR: hvg must be an object of class integer or 'uns'!")
   if (!is.numeric(ntop)) stop("ERROR: ntop must be of class numeric!")
   if (!is.character(transf)) stop("ERROR: ntop must be of class character!")
   if (!is.character(method)) stop("ERROR: ntop must be of class character!")

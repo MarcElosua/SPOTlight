@@ -21,7 +21,7 @@ downsample_se_obj <- function(se_obj,
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (!is.numeric(cl_n)) stop("ERROR: cl_n must be an object of class integer!")
-  if (! (is.numeric(hvg) | is.null(hvg))) stop("ERROR: hvg must be an object of class integer or NULL!")
+  if (! (is.numeric(hvg) | hvg == "uns")) stop("ERROR: hvg must be an object of class integer or a string 'uns'!")
 
   # load required packages
   suppressMessages(require(Seurat))
