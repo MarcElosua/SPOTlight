@@ -2,7 +2,7 @@
 #'
 #' @param nmf_mod Object of class dataframe obtained from the function Seurat::FindAllMarkers().
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
-#' @param transf Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), NULL (no transformation applied).
+#' @param transf Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied).
 #' @param reference_profiles Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.
 #' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 9% of the total.
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.

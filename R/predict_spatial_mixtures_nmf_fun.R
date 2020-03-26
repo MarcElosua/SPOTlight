@@ -2,7 +2,7 @@
 #'
 #' @param nmf_mod Object of class dataframe obtained from the function Seurat::FindAllMarkers().
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
-#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), NULL (no transformation applied).
+#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied).
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.
 #' @export
 #' @examples
@@ -42,14 +42,10 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
     pos_0 <- which(rowSums(is.na(count_mtrx)) == ncol(count_mtrx))
     count_mtrx[pos_0, ] <- 0
 
-  } else if (transf == "sct") {
-    # Can't use scale.data since it has negative values
+  } else if (transf == "raw") {
     count_mtrx <- mixture_transcriptome_subs
 
-  } else if (is.null(transf)) {
-    count_mtrx <- mixture_transcriptome_subs
-
-  }
+  } else stop("Error non specified parameter passed for transf!")
 
   ##### Extract Basis matrix W #####
   W <- basis(nmf_mod)
