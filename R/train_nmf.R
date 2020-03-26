@@ -80,8 +80,7 @@ train_nmf <- function(cluster_markers,
   # Initialize the matrix with the seeded matrices
   nmf_init <- NMF::nmfModel(W = init_mtrx[["W"]],
                        H = init_mtrx[["H"]],
-                       model = mod,
-                       .options='v-t')
+                       model = mod)
 
   # Train NMF model
   start_t <- Sys.time()
