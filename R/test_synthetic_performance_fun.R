@@ -22,6 +22,9 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
   for (i in seq_len(nrow(test_spots_metadata_mtrx))) {
 
     # Create matrix to feed to JSD
+    x <- rbind(test_spots_metadata_mtrx[i, ],
+               spot_composition_mtrx[i, ])
+
     # Calculate JSD and save it in true_JSD_mtrx
     if(sum(spot_composition_mtrx[i, ]) > 0) {
       true_jsd_mtrx[i, 1] <- suppressMessages(JSD(x = x, unit = "log2",
