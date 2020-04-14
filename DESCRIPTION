@@ -16,14 +16,18 @@ Language: en-US
 RoxygenNote: 7.1.0
 Depends: dplyr (>= 0.8.3)
 biocViews:
-Imports: arrangements (>= 1.1.8), 
+Imports: arrangements (>= 1.1.8),
          BiocGenerics (>= 0.32.0),
+         cowplot (>= 1.0.0),
          data.table (>= 1.12.8),
          doSNOW (>= 1.0.18),
          doParallel (>= 1.0.15),
-         dtplyr (>= 1.0.0),
+         edgeR (>= 3.28.1),
          foreach (>= 1.4.7),
+         ggplot2 (>= 3.3.0),
+         ggpubr (>= 0.2.5),
          igraph (>= 1.2.4.2),
+         imager (>= 0.42.1),
          Matrix (>= 1.2.18),
          matrixStats (>= 0.55.0),
          multtest (>= 2.42.0),

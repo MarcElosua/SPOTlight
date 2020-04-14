@@ -79,7 +79,7 @@ train_nmf <- function(cluster_markers,
     # Get init seeding matrices
     init_mtrx <- seed_init_mtrx_nmf(cluster_markers = cluster_markers,
                                     se_obj = se_sc,
-                                    ntop = 100)
+                                    ntop = ntop)
 
     # Initialize the matrix with the seeded matrices
     nmf_init <- NMF::nmfModel(W = init_mtrx[["W"]],

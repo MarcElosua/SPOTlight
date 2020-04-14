@@ -16,8 +16,14 @@ mixture_deconvolution_nmf <- function(nmf_mod,
                                       reference_profiles,
                                       min_cont = 0.09) {
 
+  # Check variables
+  if (!is(h, "matrix")) stop("ERROR: h must be a matric object!")
+  if (! is(train_cell_clust, "vector")) stop("ERROR: train_cell_clust must be a vector/list object!")
+  if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
+
   # Loading libraries
   suppressMessages(require(nnls))
+
   profile_mtrx <- predict_spatial_mixtures_nmf(nmf_mod = nmf_mod,
                                mixture_transcriptome = mixture_transcriptome,
                                transf = transf)

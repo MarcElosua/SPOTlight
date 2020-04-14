@@ -12,8 +12,14 @@ predict_spatial_mixtures_nmf <- function(nmf_mod,
                                          mixture_transcriptome,
                                          transf) {
 
+  # Check variables
+  # if (!is(h, "matrix")) stop("ERROR: h must be a matric object!")
+  # if (! is(train_cell_clust, "vector")) stop("ERROR: train_cell_clust must be a vector/list object!")
+  # if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
+
   # Loading libraries
   suppressMessages(require(nnls))
+  suppressMessages(require(edgeR))
 
   ## Extract genes used in w, if there are genes not present add them with all 0
   keep_genes <- rownames(basis(nmf_mod))[rownames(basis(nmf_mod)) %in% rownames(mixture_transcriptome)]

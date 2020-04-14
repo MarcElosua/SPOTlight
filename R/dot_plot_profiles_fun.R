@@ -50,7 +50,7 @@ dot_plot_profiles_fun <- function(h,
     tidyr::pivot_longer(cols = -`Cell type`, names_to = "Topics") %>%
     mutate(
       value_txt = if_else(value > 0.1, round(value, 2), NULL),
-      Topics = factor(x = Topics, levels = paste("X",1:23,sep=""))
+      Topics = factor(x = Topics, levels = paste("X", 1:(ncol(h_ds) - 1), sep=""))
     ) %>%
     ggplot(aes(x = `Cell type`, y = Topics)) +
     geom_point(aes(size = value, colour = value)) +
