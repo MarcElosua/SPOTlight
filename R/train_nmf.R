@@ -4,10 +4,10 @@
 #' @param se_sc Object of class Seurat with the scRNAseq data.
 #' @param se_spatial Object of class Seurat with the spatial data.
 #' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.
-#' @param ntop Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
+#' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
 #' @param clust_vr Object of class character; Name of the variable containing the cell clustering
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.
-#' @param hvg Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
+#' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
 #' @return This function returns a list with the initialized matrices H and W.
 #' @export
 #' @examples
@@ -17,14 +17,27 @@ train_nmf <- function(cluster_markers,
                       se_sc,
                       mtrx_spatial,
                       clust_vr,
-                      ntop = 100,
+                      ntop = NULL,
                       transf = "cpm",
                       method = "nsNMF",
-                      hvg = 0) {
+                      hvg = 3000) {
+
+  # Check variables
+  if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
+  if (is(se_sc) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
+  if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
+  if (!is.matrix(mtrx_spatial)) stop("ERROR: mtrx_spatial must be a matrix object!")
+  if (!(is.numeric(ntop) | is.null(ntop))) stop("ERROR: ntop must be numeric or NULL!")
+  if (!is.character(transf)) stop("ERROR: transf must be a character string!")
+  if (!is.character(method)) stop("ERROR: method must be a character string!")
+  if (!(is.numeric(hvg) | hvg == "uns")) stop("ERROR: hvg must be a numeric or 'uns'!")
 
   # Loading libraries
   suppressMessages(require(NMF))
+  suppressMessages(require(seurat))
+  suppressMessages(require(Matrix))
   suppressMessages(require(dplyr))
+  suppressMessages(require(edgeR))
 
   # Only train the model with genes shared between the scRNAseq and spatial data
   ## Remove rows with all gene counts 0
