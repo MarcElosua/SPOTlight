@@ -26,7 +26,7 @@ train_nmf <- function(cluster_markers,
   if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (is(se_sc) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
-  if (!is.matrix(mtrx_spatial)) stop("ERROR: mtrx_spatial must be a matrix object!")
+  if (!is(mtrx_spatial, "Matrix")) stop("ERROR: mtrx_spatial must be a matrix object!")
   if (!(is.numeric(ntop) | is.null(ntop))) stop("ERROR: ntop must be numeric or NULL!")
   if (!is.character(transf)) stop("ERROR: transf must be a character string!")
   if (!is.character(method)) stop("ERROR: method must be a character string!")
@@ -63,10 +63,10 @@ train_nmf <- function(cluster_markers,
 
   } else if (transf == "uv") {
     counts <- as.matrix(se_sc@assays$RNA@counts)
-    count_mtrx <- scale(t(counts),
+    count_mtrx_t <- scale(t(counts),
                         center = FALSE,
                         scale = apply(counts, 1, sd, na.rm = TRUE))
-    count_mtrx <- t(count_mtrx)
+    count_mtrx <- t(count_mtrx_t)
 
   } else if (transf == "sct") {
     # Can't use scale.data since it has negative values

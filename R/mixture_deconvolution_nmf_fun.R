@@ -32,7 +32,9 @@ mixture_deconvolution_nmf <- function(nmf_mod,
                                transf = transf)
 
   # We add 1 extra column to add the residual error
-  decon_mtrx <- matrix(data = NA, nrow = ncol(profile_mtrx), ncol = ncol(reference_profiles) + 1)
+  decon_mtrx <- matrix(data = NA,
+                       nrow = ncol(profile_mtrx),
+                       ncol = ncol(reference_profiles) + 1)
   colnames(decon_mtrx) <- c(colnames(reference_profiles), "res_ss")
 
   # create progress bar

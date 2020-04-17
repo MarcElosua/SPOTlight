@@ -63,7 +63,7 @@ scatterpie_plot <- function(se_obj,
 
     metadata_ds <- metadata_ds %>%
       tibble::rownames_to_column("ID") %>%
-      dplyr::mutate(rsum = rowSums(.[, cell_types_interest])) %>%
+      dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
       dplyr::select("ID") %>%
       dplyr::left_join(metadata_ds %>% rownames_to_column("ID"),by = "ID") %>%
