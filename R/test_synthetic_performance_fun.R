@@ -20,13 +20,18 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
   true_jsd_mtrx <- matrix(nrow = nrow(test_spots_metadata_mtrx), ncol = 1)
   tp <- 0; tn <- 0; fp <- 0; fn <- 0
   for (i in seq_len(nrow(test_spots_metadata_mtrx))) {
+
     # Create matrix to feed to JSD
-    x <- rbind("truth" = test_spots_metadata_mtrx[i, ],
-               "pred" = spot_composition_mtrx[i, ])
+    x <- rbind(test_spots_metadata_mtrx[i, ],
+               spot_composition_mtrx[i, ])
 
     # Calculate JSD and save it in true_JSD_mtrx
-    true_jsd_mtrx[i, 1] <- suppressMessages(JSD(x = x, unit = "log2",
-                                               est.prob = "empirical"))
+    if(sum(spot_composition_mtrx[i, ]) > 0) {
+      true_jsd_mtrx[i, 1] <- suppressMessages(JSD(x = x, unit = "log2",
+                                                  est.prob = "empirical"))
+    } else {
+      true_jsd_mtrx[i, 1] <- 1
+    }
 
     #### Calculate TP-TN-FP-FN ####
     for (index in colnames(test_spots_metadata_mtrx)) {

@@ -25,6 +25,9 @@ test_spot_fun <- function(se_obj,
   suppressMessages(require(dplyr))
   suppressMessages(require(tidyr))
 
+  se_obj@meta.data[, clust_vr] <- gsub(pattern = "[[:punct:]]|[[:blank:]]", ".",
+                                       x = se_obj@meta.data[, clust_vr],
+                                       perl = TRUE)
   print("Generating synthetic test spots...")
   start_gen <- Sys.time()
   # create progress bar
