@@ -13,6 +13,12 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
   if (!is.matrix(test_spots_metadata_mtrx)) stop("ERROR: test_spots_metadata_mtrx must be a matrix object!")
   if (!is.matrix(spot_composition_mtrx)) stop("ERROR: syn_spots_ls must be the list obtained from the function syn_spot_comb_topic_fun().")
 
+  colnames(spot_composition_mtrx) <- gsub(pattern = "[[:punct:]]|[[:blank:]]", ".",
+                                x = colnames(spot_composition_mtrx),
+                                perl = TRUE)
+  colnames(test_spots_metadata_mtrx) <- gsub(pattern = "[[:punct:]]|[[:blank:]]", ".",
+                                   x = colnames(test_spots_metadata_mtrx),
+                                   perl = TRUE)
   #load required packages
   suppressMessages(require(philentropy))
 
