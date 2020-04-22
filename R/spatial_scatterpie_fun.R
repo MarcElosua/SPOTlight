@@ -55,7 +55,8 @@ spatial_scatterpie <- function(se_obj,
                                     slice = slice,
                                     scatterpie_alpha = scatterpie_alpha,
                                     cell_types_interest = cell_types_interest,
-                                    col_df = col_df)
+                                    col_df = col_df) +
+    coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
 
   if (return_legend) {
     legend_grob <- get_legend(scatterpie_plt)
