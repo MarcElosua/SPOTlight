@@ -16,8 +16,8 @@ dot_plot_profiles_fun <- function(h,
   h_ds[, clust_vr] <- train_cell_clust
 
   train_cells_plt <- h_ds %>%
-    dplyr::mutate(id = as.character(1:n())) %>%
-    tidyr::pivot_longer(cols = 1:(ncol(h_ds)-1),
+    tibble::rowid_to_column("id") %>%
+    tidyr::pivot_longer(cols = -c(all_of(clust_vr), id),
                         names_to = "topics",
                         values_to = "weights") %>%
     dplyr::group_by(!!! syms(clust_vr)) %>%
@@ -50,7 +50,9 @@ dot_plot_profiles_fun <- function(h,
     tidyr::pivot_longer(cols = -`Cell type`, names_to = "Topics") %>%
     mutate(
       value_txt = if_else(value > 0.1, round(value, 2), NULL),
-      Topics = factor(x = Topics, levels = paste("X", 1:(ncol(h_ds) - 1), sep=""))
+      Topics = factor(x = Topics,
+                      levels = str_sort(colnames(ct_topic_profiles),
+                                        numeric = TRUE))
     ) %>%
     ggplot(aes(x = `Cell type`, y = Topics)) +
     geom_point(aes(size = value, colour = value)) +
@@ -66,3 +68,4 @@ dot_plot_profiles_fun <- function(h,
 
   return(list(train_cells_plt, cell_type_plt))
 }
+

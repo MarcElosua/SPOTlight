@@ -77,5 +77,4 @@ spatial_scatterpie <- function(se_obj,
     return(spatial_superposed)
   }
 
-
 }
