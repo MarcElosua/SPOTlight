@@ -34,7 +34,7 @@ train_nmf <- function(cluster_markers,
 
   # Loading libraries
   suppressMessages(require(NMF))
-  suppressMessages(require(seurat))
+  suppressMessages(require(Seurat))
   suppressMessages(require(Matrix))
   suppressMessages(require(dplyr))
   suppressMessages(require(edgeR))
