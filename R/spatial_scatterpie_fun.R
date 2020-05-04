@@ -64,12 +64,12 @@ spatial_scatterpie <- function(se_obj,
     scatterpie_plt <- scatterpie_plt + theme(legend.position="none")
   }
   # Align and superopose plots
-  aligned_plts <- align_plots(he_plt,
+  aligned_plts <- cowplot::align_plots(he_plt,
                               scatterpie_plt,
                               align = "hv",
                               axis = "tblr")
 
-  spatial_superposed <- ggdraw(aligned_plts[[1]]) + draw_plot(aligned_plts[[2]])
+  spatial_superposed <- cowplot::ggdraw(aligned_plts[[1]]) + cowplot::draw_plot(aligned_plts[[2]])
 
   if (return_legend) {
     return(list(spatial_superposed, legend_grob))

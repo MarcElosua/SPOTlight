@@ -46,12 +46,24 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     ## NNLS to get cell type composition
     nnls_pred <- nnls::nnls(A = reference_profiles, b = profile_mtrx[, i])
 
-    ## get proportions of each cell type and multiply by 10 to get those cell types present > 10%, meaning representation of at least 1 cell
+    ## get proportions of each cell type
     comp <- nnls_pred$x / sum(nnls_pred$x)
     comp[comp < min_cont] <- 0
-    decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp*10
-    decon_mtrx[i, ncol(decon_mtrx)] <- nnls_pred$deviance
 
+    ### Updated proportions after filtering out minimum contributions
+    comp_prop <- comp / sum(comp)
+
+    ## Updated residual squares
+    fit_val <- rowSums(comp_prop * reference_profiles)
+    res_ss <- sum((profile_mtrx[, i] - fit_val)^2)
+
+    mean_row <- mean(profile_mtrx[, i])
+    tot_ss <- sum((profile_mtrx[, i] - mean_row)^2)
+
+    unexpl_ss <- res_ss / tot_ss
+
+    decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp_prop
+    decon_mtrx[i, ncol(decon_mtrx)] <- unexpl_ss
     # update progress bar
     setTxtProgressBar(pb, i)
   }

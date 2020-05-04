@@ -12,7 +12,15 @@ dot_plot_profiles_fun <- function(h,
                                   train_cell_clust,
                                   clust_vr) {
 
-  h_ds <- data.frame(t(h))
+  suppressMessages(require(stringr)) # For the downsampling
+  suppressMessages(require(dplyr))
+  suppressMessages(require(tibble))
+  suppressMessages(require(tidyr))
+  suppressMessages(require(ggplot2))
+
+  h_df <- data.frame(t(h))
+  # Get proportions for each row
+  h_ds <- round(h_df/rowSums(h_df), 4)
   h_ds[, clust_vr] <- train_cell_clust
 
   train_cells_plt <- h_ds %>%
@@ -33,10 +41,10 @@ dot_plot_profiles_fun <- function(h,
     labs(title = "NMF: Topic proportion within cell types") +
     theme(
       plot.title = element_text(hjust = 0.5, size = 20),
-      axis.text.x = element_text(angle = 45, vjust = 0.5),
+      axis.text.x = element_text(angle = 90, vjust = 0.5),
       axis.text = element_text(size = 15)) +
-    scale_size(range = c(0, 20)) +
-    guides(colour = guide_legend(""), size = guide_legend(""))
+    scale_size(range = c(0, 5)) +
+    guides(colour = guide_legend("Proportion"), size = guide_legend("Proportion"))
 
   ct_topic_profiles <- h_ds %>%
     dplyr::group_by(!!! syms(clust_vr)) %>%
@@ -51,7 +59,7 @@ dot_plot_profiles_fun <- function(h,
     mutate(
       value_txt = if_else(value > 0.1, round(value, 2), NULL),
       Topics = factor(x = Topics,
-                      levels = str_sort(colnames(ct_topic_profiles),
+                      levels = stringr::str_sort(colnames(ct_topic_profiles),
                                         numeric = TRUE))
     ) %>%
     ggplot(aes(x = `Cell type`, y = Topics)) +
@@ -61,10 +69,10 @@ dot_plot_profiles_fun <- function(h,
     labs(title = "NMF: Topic profiles by cell type") +
     theme(
       plot.title = element_text(hjust = 0.5, size = 20),
-      axis.text.x = element_text(angle = 45, vjust = 0.5),
+      axis.text.x = element_text(angle = 90, vjust = 0.5),
       axis.text = element_text(size = 15)) +
-    scale_size(range = c(0, 15)) +
-    guides(colour = guide_legend(""), size = guide_legend(""))
+    scale_size(range = c(0, 10)) +
+    guides(colour = guide_legend("Proportion"), size = guide_legend("Proportion"))
 
   return(list(train_cells_plt, cell_type_plt))
 }
