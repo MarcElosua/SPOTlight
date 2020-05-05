@@ -45,25 +45,32 @@ mixture_deconvolution_nmf <- function(nmf_mod,
   for (i in seq_len(ncol(profile_mtrx))) {
     ## NNLS to get cell type composition
     nnls_pred <- nnls::nnls(A = reference_profiles, b = profile_mtrx[, i])
+    weights <- nnls_pred$x
 
     ## get proportions of each cell type
-    comp <- nnls_pred$x / sum(nnls_pred$x)
-    comp[comp < min_cont] <- 0
+    comp <- weights / sum(weights)
+
+    ## Remove cell types not contributing the minimum
+    weights[comp < min_cont] <- 0
 
     ### Updated proportions after filtering out minimum contributions
     comp_prop <- comp / sum(comp)
+    comp_prop[is.na(comp_prop)] <- 0
 
-    ## Updated residual squares
-    fit_val <- rowSums(comp_prop * reference_profiles)
-    res_ss <- sum((profile_mtrx[, i] - fit_val)^2)
+    ## Get residual sum of squares
+    fit_val <- rowSums(nnls_pred$x * reference_profiles)
+    res_ss <- sum((profile_mtrx[, i] - fit_val) ^ 2)
 
-    mean_row <- mean(profile_mtrx[, i])
-    tot_ss <- sum((profile_mtrx[, i] - mean_row)^2)
+    ## Get Total sum of squares
+    fit_null <- mean(profile_mtrx[, i])
+    tot_ss <- sum((profile_mtrx[, i] - fit_null) ^ 2)
 
+    ## Get % of unexplained residuals
     unexpl_ss <- res_ss / tot_ss
 
     decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp_prop
     decon_mtrx[i, ncol(decon_mtrx)] <- unexpl_ss
+
     # update progress bar
     setTxtProgressBar(pb, i)
   }
