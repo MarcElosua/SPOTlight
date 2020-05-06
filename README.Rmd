@@ -26,27 +26,53 @@ knitr::opts_chunk$set(
 )
 ```
 
-# SpatialDeconTest
+# SPOTlight
 ```{r echo = FALSE, eval=FALSE, message=FALSE}
 # <!-- badges: start -->
-# <!-- [![Travis build status](https://travis-ci.org/MarcElosua/SpatialDeconTest.svg?branch=master)](https://travis-ci.org/MarcElosua/SpatialDeconTest) -->
-# <!-- [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/MarcElosua/SpatialDeconTest?branch=master&svg=true)](https://ci.appveyor.com/project/MarcElosua/SpatialDeconTest) -->
-# <!-- [![Codecov test coverage](https://codecov.io/gh/MarcElosua/SpatialDeconTest/branch/master/graph/badge.svg)](https://codecov.io/gh/MarcElosua/SpatialDeconTest?branch=master) -->
+# <!-- [![Travis build status](https://travis-ci.org/MarcElosua/SPOTlight.svg?branch=master)](https://travis-ci.org/MarcElosua/SPOTlight) -->
+# <!-- [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/MarcElosua/SPOTlight?branch=master&svg=true)](https://ci.appveyor.com/project/MarcElosua/SPOTlight) -->
+# <!-- [![Codecov test coverage](https://codecov.io/gh/MarcElosua/SPOTlight/branch/master/graph/badge.svg)](https://codecov.io/gh/MarcElosua/SPOTlight?branch=master) -->
 # <!-- badges: end -->
 ```
 
-The goal of SpatialDeconTest is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each spot obtained from 10X's visium - spatial trancsiptomics- technology. It is based on finding topic profile signatures, by means of a Latent Dirichlet Allocation model, for each cell type and finding which combination fits best the spot we want to deconvolute.
+The goal of **SPOTlight** is to provide a tool that enables the deconvolution of cell types and cell type proportions present within each capture locations comprising mixtures of cells, originally developed for 10X's Visium - spatial trancsiptomics- technology, it can be used for all technologies returning mixtures of cells. **SPOTlight** is based on finding topic profile signatures, by means of an NMFreg  model, for each cell type and finding which combination fits best the spot we want to deconvolute.
 
-![Graphical abstract](img/graphical_abstract_deconvolution.png)
+![Graphical abstract](img/SPOTlight_graphical_abstract.png)
 
 ## Installation
 
-You can install the latest version from the GitHub repository [SpatialDeconTest](https://github.com/MarcElosua/SpatialDeconTest) with:
-
-``` r
+You can install the latest stable version from the GitHub repository [SPOTlight](https://github.com/MarcElosua/SPOTlight) with:
+```{r, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("https://github.com/MarcElosua/SpatialDeconTest")
+devtools::install_github("https://github.com/MarcElosua/SPOTlight")
 ```
+
+Or the latest version in development by downloading the devel branch
+```{r}
+devtools::install_github("https://github.com/MarcElosua/SPOTlight", ref = "devel")
+```
+
+To ensure the environment is compatible we have put out a docker environmnet that can be downloaded from DOCKERHUB. 
+To download the R environment image
+```
+# R environment
+docker pull marcelosua/spotlight_env_r:first
+```
+
+To download the R studio image
+```
+# Rstudio environment
+docker pull marcelosua/spotlight_env_rstudio:first
+
+#
+docker run -e PASSWORD=pwd -p 8787:8787 spotlight_env_rstudio 
+```
+Go to http://localhost:8787/
+Log in with:
+username: rstudio
+password: pwd # Same password set in the above command
+
+Once in the Rstudio environment you can upload files 
 
 ## Tutorial
 
@@ -54,7 +80,7 @@ This is a basic example on a simple dataset to illustrate how to run the workflo
 
 ```{r warning=FALSE, message=FALSE}
 library(org.Hs.eg.db)
-library(SpatialDeconTest)
+library(SPOTlight)
 library(Seurat)
 ```
 

@@ -1,10 +1,10 @@
-Package: SpatialDeconTest
+Package: SPOTlight
 Type: Package
 Title: Cell type deconvolution of Visium data
 Version: 0.1.0
 Author: Marc Elosua-Bayes
 Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eu>
-Description: This package is aimed at deconvoluting the cell types and proportions of 10x Visium spots.
+Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -22,6 +22,7 @@ Imports: arrangements (>= 1.1.8),
          data.table (>= 1.12.8),
          doSNOW (>= 1.0.18),
          doParallel (>= 1.0.15),
+         DropletUtils (>= 1.6.1),
          edgeR (>= 3.28.1),
          foreach (>= 1.4.7),
          ggplot2 (>= 3.3.0),
@@ -33,11 +34,9 @@ Imports: arrangements (>= 1.1.8),
          multtest (>= 2.42.0),
          NMF (>= 0.22.0),
          nnls (>= 1.4),
-         pdist (>= 1.2),
-         philentropy (>= 0.4.0),
          purrr (>= 0.3.3),
          Seurat (>= 3.1.0),
          SingleCellExperiment (>= 1.8.0),
          tibble (>= 2.1.3),
-         topicmodels (>= 0.2.9),
-         DropletUtils (>= 1.6.1)
+         topicmodels (>= 0.2.9)
+         

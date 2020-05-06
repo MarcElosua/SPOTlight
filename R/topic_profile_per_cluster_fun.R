@@ -38,7 +38,6 @@ topic_profile_per_cluster <- function(lda_mod,
   # generate clust_profiles
   clust_profiles <- cbind("cluster" = train_cell_clust, round(g_mtrx, 4)) %>%
     data.frame() %>%
-    # tibble::as_tibble() %>%
     dplyr::group_by(cluster) %>%
     dplyr::summarise_all(list(median)) %>%
     tibble::column_to_rownames("cluster")
