@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-SpatialDeconTest
+SPOTlight Tutorial
 ================
 
 The goal of SpatialDeconTest is to provide a tool that enables the
