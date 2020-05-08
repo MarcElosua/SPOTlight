@@ -1,7 +1,6 @@
 #' This function takes in deconvolution matrix and returns a network igraph object
 #'
-#' @param decon_mtrx Object of class matrix.
-#' @return This function returns a network igraph object and prints the graph plot
+#' @param decon_mtrx Object of class matrix, SPOTxCELL-TYPE, with the cell-type proportions per spot.
 #' @export
 #' @examples
 #'
@@ -10,7 +9,7 @@
 get_spatial_interaction_graph <- function(decon_mtrx) {
 
   # Check variables
-  if (!is(object = decon_mtrx, class2 = "matrix")) stop("ERROR: decon_mtrx must be a matrix object!")
+  if (is.matrix(object = decon_mtrx)) stop("ERROR: decon_mtrx must be a matrix object!")
 
   # Require needed libraries
   suppressMessages(require(igraph))
@@ -55,7 +54,6 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
   ntwrk_mtrx <- cbind(ntwrk_mtrx, scale(as.numeric(ntwrk_mtrx[, 3]), center = 1))
 
 
-  # set.seed(1)
   # data <- matrix(sample(0:1, 100, replace=TRUE, prob=c(0.8,0.2)), nc=10)
   links <- data.frame(
     source = ntwrk_mtrx[, 1],
@@ -71,8 +69,10 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
   deg <- degree(network, mode="all")
 
   plot(network,
-       edge.width = E(network)$importance * 3,
-       vertex.size = deg,
+       # Size of the edge
+       edge.width = E(network)$importance * 2,
+       # Size of the buble
+       vertex.size = deg / 2,
        vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
        layout = layout.circle)
 

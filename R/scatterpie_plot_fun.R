@@ -10,6 +10,7 @@
 #' @return this function returns a plot composition of class gg
 #' @export
 #' @examples
+#'
 
 scatterpie_plot <- function(se_obj,
                             cell_types_all,

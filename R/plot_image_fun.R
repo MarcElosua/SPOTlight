@@ -5,6 +5,7 @@
 #' @return this function returns a plot of class gg
 #' @export
 #' @examples
+#'
 
 plot_image <- function(img_path,
                        img_alpha = 1) {

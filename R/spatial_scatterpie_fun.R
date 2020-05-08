@@ -13,6 +13,7 @@
 #' @return this function returns a plot composition of class gg
 #' @export
 #' @examples
+#'
 
 spatial_scatterpie <- function(se_obj,
                                cell_types_all,
