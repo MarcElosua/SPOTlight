@@ -9,7 +9,7 @@
 get_spatial_interaction_graph <- function(decon_mtrx) {
 
   # Check variables
-  if (is.matrix(object = decon_mtrx)) stop("ERROR: decon_mtrx must be a matrix object!")
+  if (!is.matrix(decon_mtrx)) stop("ERROR: decon_mtrx must be a matrix object!")
 
   # Require needed libraries
   suppressMessages(require(igraph))
@@ -65,14 +65,16 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
   network <- igraph::graph_from_data_frame(d = links,
                                            vertices = nodes,
                                            directed = F)
-  # Count the number of degree for each node:
-  deg <- degree(network, mode="all")
+  # Set the degree to the number of spots a cell type is found in
+  # deg <- degree(network, mode="all")
+  deg <- colSums(decon_mtrx > 0)
+  deg_scale <- scale(deg, center = FALSE, scale = TRUE)
 
   plot(network,
        # Size of the edge
        edge.width = E(network)$importance * 2,
        # Size of the buble
-       vertex.size = deg / 2,
+       vertex.size = deg_scale*3,
        vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
        layout = layout.circle)
 

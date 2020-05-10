@@ -51,6 +51,7 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     comp <- weights / sum(weights)
 
     ## Remove cell types not contributing the minimum
+    comp[comp < min_cont] <- 0
     weights[comp < min_cont] <- 0
 
     ### Updated proportions after filtering out minimum contributions
@@ -58,15 +59,16 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     comp_prop[is.na(comp_prop)] <- 0
 
     ## Get residual sum of squares
-    fit_val <- rowSums(nnls_pred$x * reference_profiles)
-    res_ss <- sum((profile_mtrx[, i] - fit_val) ^ 2)
+    # fit_val <- rowSums(weights * reference_profiles)
+    # res_ss <- sum((profile_mtrx[, i] - fit_val) ^ 2)
 
     ## Get Total sum of squares
     fit_null <- mean(profile_mtrx[, i])
+    fit_null <- 0
     tot_ss <- sum((profile_mtrx[, i] - fit_null) ^ 2)
 
     ## Get % of unexplained residuals
-    unexpl_ss <- res_ss / tot_ss
+    unexpl_ss <- nnls_pred$deviance / tot_ss
 
     decon_mtrx[i, 1:(ncol(decon_mtrx) - 1)] <- comp_prop
     decon_mtrx[i, ncol(decon_mtrx)] <- unexpl_ss
