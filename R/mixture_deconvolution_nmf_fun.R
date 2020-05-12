@@ -2,6 +2,7 @@
 #'
 #' @param nmf_mod Object of class dataframe obtained from the function Seurat::FindAllMarkers().
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
+#' @param clust_vr Object of class character; Name of the variable containing the cell clustering.
 #' @param transf Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied).
 #' @param reference_profiles Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.
 #' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 9% of the total.
@@ -12,6 +13,7 @@
 
 mixture_deconvolution_nmf <- function(nmf_mod,
                                       mixture_transcriptome,
+                                      clust_vr,
                                       transf,
                                       reference_profiles,
                                       min_cont = 0.09) {

@@ -5,7 +5,7 @@
 #' @param mtrx_spatial Object of class Matrix of shape GENESxSPOT.
 #' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.
 #' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
-#' @param clust_vr Object of class character; Name of the variable containing the cell clustering
+#' @param clust_vr Object of class character; Name of the variable containing the cell clustering.
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.
 #' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
 #' @return This function returns a list with the initialized matrices H and W.

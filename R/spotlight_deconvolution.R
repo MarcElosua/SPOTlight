@@ -51,6 +51,7 @@ spotlight_deconvolution <- function(se_sc,
   # Perform deconvolution of the capture location mixtures
   decon_mtrx <- mixture_deconvolution_nmf(nmf_mod = nmf_mod_ls[[1]],
                                           mixture_transcriptome = counts_spatial,
+                                          clust_vr = clust_vr,
                                           transf = transf,
                                           reference_profiles = ct_topic_profiles,
                                           min_cont = min_cont)
