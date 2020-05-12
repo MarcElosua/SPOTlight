@@ -11,6 +11,7 @@
 
 seed_init_mtrx_nmf <- function(cluster_markers,
                                se_obj,
+                               clust_vr,
                                ntop = NULL) {
 
   #### Get dataset ready ####

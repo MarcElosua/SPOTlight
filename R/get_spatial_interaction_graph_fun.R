@@ -74,7 +74,7 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
        # Size of the edge
        edge.width = E(network)$importance * 2,
        # Size of the buble
-       vertex.size = deg_scale*3,
+       vertex.size = deg_scale,
        vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
        layout = layout.circle)
 

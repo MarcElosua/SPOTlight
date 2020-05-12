@@ -39,6 +39,7 @@ train_nmf <- function(cluster_markers,
   suppressMessages(require(dplyr))
   suppressMessages(require(edgeR))
 
+  print("Preparing Gene set")
   # Only train the model with genes shared between the scRNAseq and spatial data
   ## Remove rows with all gene counts 0
   genes_0_sc <- which(! rowSums(as.matrix(se_sc@assays$RNA@counts) == 0) == ncol(se_sc@assays$RNA@counts))
@@ -56,6 +57,7 @@ train_nmf <- function(cluster_markers,
   cluster_markers <- cluster_markers[cluster_markers$gene %in% rownames(se_sc), ]
 
   # Normalize count matrix
+  print("Normalizing count matrix")
   if (transf == "cpm") {
     counts <- as.matrix(se_sc@assays$RNA@counts)
     count_mtrx <- edgeR::cpm(counts,
@@ -87,19 +89,18 @@ train_nmf <- function(cluster_markers,
 
   # Define initial seeding model and set the right type
   if (method == "nsNMF") mod <- "NMFns" else mod <- "NMFstd"
-
   if (is.numeric(hvg)) {
+    print("Seeding initial matrices")
     # Get init seeding matrices
     init_mtrx <- seed_init_mtrx_nmf(cluster_markers = cluster_markers,
                                     se_obj = se_sc,
-                                    ntop = ntop)
-
+                                    ntop = ntop,
+                                    clust_vr = clust_vr)
     # Initialize the matrix with the seeded matrices
     nmf_init <- NMF::nmfModel(W = init_mtrx[["W"]],
                               H = init_mtrx[["H"]],
                               model = mod)
-
-
+    print("Training...")
     nmf_mod <- NMF::nmf(x = count_mtrx,
                         rank = k,
                         seed = nmf_init,

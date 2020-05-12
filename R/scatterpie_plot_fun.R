@@ -24,7 +24,7 @@ scatterpie_plot <- function(se_obj,
   if (!is(se_obj, "Seurat")) stop("ERROR: se_obj must be a Seurat object!")
   if (! is(cell_types_all, "vector")) stop("ERROR: cell_types_all must be a vector/list object!")
   if (!(is(cell_types_interest, "vector") | is.null(cell_types_interest))) stop("ERROR: cell_types_interest must be a vector/list object or NULL!")
-  if (is.character(slice) & !slice %in% names(se_obj@images)) stop("ERROR: slice is not in names(se_obj@images)!")
+  if (is.null(slice) | (!is.null(slice) && !slice %in% names(se_obj@images))) warning("Warning: slice is not in names(se_obj@images)!, 1st name will be used!")
   if (!is.numeric(scatterpie_alpha)) stop("ERROR: scatterpie_alpha must be numeric between 0 and 1!")
   if (!is.numeric(pie_scale)) stop("ERROR: pie_scale must be numeric between 0 and 1!")
   if (!(is.data.frame(col_df) | is.null(col_df))) stop("ERROR: col_df must be a dataframe or NULL!")
@@ -72,8 +72,9 @@ scatterpie_plot <- function(se_obj,
   }
 
   ## If slice is not selected set it to the first element in the list of slices
-  if (is.null(slice)) {
+  if (is.null(slice) | (!is.null(slice) && !slice %in% names(se_obj@images))) {
     slice <- names(se_obj@images)[1]
+    print(sprintf("Using slice %s", slice))
   }
 
   ## Preprocess data
