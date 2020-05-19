@@ -56,5 +56,5 @@ spotlight_deconvolution <- function(se_sc,
                                           reference_profiles = ct_topic_profiles,
                                           min_cont = min_cont)
 
-  return(decon_mtrx)
+  return(list(nmf_mod_ls, decon_mtrx))
 }
