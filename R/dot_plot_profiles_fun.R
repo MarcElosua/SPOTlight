@@ -49,8 +49,11 @@ dot_plot_profiles_fun <- function(h,
   ct_topic_profiles <- h_ds %>%
     dplyr::group_by(!!! syms(clust_vr)) %>%
     dplyr::summarise_all(list(median)) %>%
-    tibble::column_to_rownames(clust_vr) %>%
-    as.matrix()
+    tibble::column_to_rownames(clust_vr)
+
+  ct_topic_profiles <- ct_topic_profiles / rowSums(ct_topic_profiles)
+  # In case a row is all 0
+  ct_topic_profiles[is.na(ct_topic_profiles)] <- 0
 
   cell_type_plt <- round(ct_topic_profiles, 2) %>%
     data.frame() %>%
