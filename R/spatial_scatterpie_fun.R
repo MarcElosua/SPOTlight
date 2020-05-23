@@ -23,7 +23,7 @@ spatial_scatterpie <- function(se_obj,
                                slice = NULL,
                                img_alpha = 1,
                                scatterpie_alpha = 1,
-                               pie_scale = 0.4,
+                               pie_scale = 1,
                                col_df = NULL) {
 
   # Check variables
@@ -32,7 +32,7 @@ spatial_scatterpie <- function(se_obj,
   if (!is.character(img_path)) stop("ERROR: must be a character string!")
   if (!(is(cell_types_interest, "vector") | is.null(cell_types_interest))) stop("ERROR: cell_types_interest must be a vector/list object or NULL!")
   if (!is(return_legend, "logical")) stop("ERROR: return_legend must be logical!")
-  if (is.character(slice) & !slice %in% names(se_obj@images)) stop("ERROR: slice is not in names(se_obj@images)!")
+  # if (is.character(slice) & !slice %in% names(se_obj@images)) stop("ERROR: slice is not in names(se_obj@images)!")
   if (!is.numeric(img_alpha)) stop("ERROR: img_alpha must be numeric between 0 and 1!")
   if (!is.numeric(scatterpie_alpha)) stop("ERROR: scatterpie_alpha must be numeric between 0 and 1!")
   if (!is.numeric(pie_scale)) stop("ERROR: pie_scale must be numeric between 0 and 1!")

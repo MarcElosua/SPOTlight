@@ -64,19 +64,7 @@ get_spatial_interaction_graph <- function(decon_mtrx) {
 
   network <- igraph::graph_from_data_frame(d = links,
                                            vertices = nodes,
-                                           directed = F)
-  # Set the degree to the number of spots a cell type is found in
-  # deg <- degree(network, mode="all")
-  deg <- colSums(decon_mtrx > 0)
-  deg_scale <- scale(deg, center = FALSE, scale = TRUE)
-
-  plot(network,
-       # Size of the edge
-       edge.width = E(network)$importance * 2,
-       # Size of the buble
-       vertex.size = deg_scale,
-       vertex.color = rgb(0.1, 0.7, 0.8, 0.5),
-       layout = layout.circle)
+                                           directed = FALSE)
 
   return(network)
 }
