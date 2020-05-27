@@ -256,7 +256,7 @@ distributed.
 
 ``` r
 SpatialFeaturePlot(anterior,
-                 features = "L2.3.IT", 
+                 features = "L6b", 
                  pt.size.factor = 1,
                  alpha = c(0, 1)) +
   ggplot2::scale_fill_gradientn(
