@@ -1,15 +1,15 @@
 ---
 title: "SPOTlight"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-output:
-  md_document:
-    variant: markdown_github
-editor_options:
-  chunk_output_type: console
 # output:
-#  rmdformats::readthedown:
-#    toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
-#    highlight: tango  # specifies the syntax highlighting style
+#   md_document:
+#     variant: markdown_github
+# editor_options:
+#   chunk_output_type: console
+output:
+ rmdformats::readthedown:
+   toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+   highlight: tango  # specifies the syntax highlighting style
 ---
 
 ```{r, include = FALSE}
@@ -83,57 +83,43 @@ In this basic tutorial we show how the tool works step by step and some of the u
 library(SPOTlight)
 library(Seurat)
 library(dplyr)
+# devtools::install_github('satijalab/seurat-data')
+library(SeuratData)
 ```
 
 ### Mouse brain Dataset
 For the purpose of this tutorial we are going to use adult mouse brain data. The scRNAseq data can be downloaded [here](), while the spatial data is the one put out publicly by [10X](https://www.10xgenomics.com/resources/datasets/) and the processed object can be downloaded [here](PENDING).
 
 #### scRNAseq
-```{r eval = FALSE}
+```{r}
 # This file loads single cell experiment objects
-cortex_sc <- readRDS("../spatial_deconvolution/data/MusMusculus/allen_cortex.rds")
+cortex_sc <- readRDS("sample_data/allen_cortex_dwn.rds")
 ```
 
-```{r eval = FALSE}
-cortex_sc <- Seurat::SCTransform(cortex_sc)
+```{r}
+cortex_sc <- Seurat::SCTransform(cortex_sc, verbose = FALSE)
 
 cortex_sc <- Seurat::RunPCA(cortex_sc, verbose = FALSE)
 cortex_sc <- Seurat::RunUMAP(cortex_sc, dims = 1:30, verbose = FALSE)
 
 cortex_sc <- Seurat::FindNeighbors(cortex_sc, dims = 1:30, verbose = FALSE)
 cortex_sc <- Seurat::FindClusters(cortex_sc, verbose = FALSE)
-
-saveRDS(object = cortex_sc,
-        file = "sample_data/cortex_scRNAseq_processed.RDS")
-```
-
-Read directly the processed data
-```{r}
-cortex_sc <- readRDS(file = "sample_data/cortex_scRNAseq_processed.RDS")
 ```
 
 ##### Spatial data
-```{r eval = FALSE, echo = FALSE}
-brain_st <- readRDS(sprintf("../spatial_deconvolution/analysis/mouse_brain/2019-11-26/R_objects_2019-11-26/brain1_processed.RDS"))
-anterior <- brain_st[, brain_st$slice == "Anterior"]
+```{r}
+# InstallData("stxBrain")
+anterior <- LoadData("stxBrain", type = "anterior1")
 ```
 
-```{r eval = FALSE, echo = FALSE}
-anterior <- Seurat::SCTransform(anterior, assay = "Spatial")
+```{r}
+anterior <- Seurat::SCTransform(anterior, assay = "Spatial", verbose = FALSE)
 
 anterior <- Seurat::RunPCA(anterior, verbose = FALSE)
 anterior <- Seurat::RunUMAP(anterior, dims = 1:30, verbose = FALSE)
 
 anterior <- Seurat::FindNeighbors(anterior, dims = 1:30, verbose = FALSE)
 anterior <- Seurat::FindClusters(anterior, verbose = FALSE)
-
-saveRDS(object = anterior,
-        file = "sample_data/brain_anterior_ST_processed.RDS")
-```
-
-Read directly the processed data
-```{r}
-anterior <- readRDS(file = "sample_data/brain_anterior_ST_processed.RDS")
 ```
 
 ### Data visualization
@@ -203,7 +189,6 @@ cell_types_all <- colnames(decon_mtrx)[which(colnames(decon_mtrx) != "res_ss")]
 ```
 
 ### Visualization
-
 #### Spatial scatterpie plot
 We can visualize the composition of all the spots on the tissue.
 1st add the spot composition to the metadata matrix:
