@@ -52,13 +52,13 @@ To ensure the environment is compatible we have put out a docker environmnet tha
 To download the R environment image
 ```
 # R environment
-docker pull spotlight_env_r:latest
+docker pull marcelosua/spotlight_env_r:latest
 ```
 
 To download the R studio image
 ```
 # Rstudio environment
-docker pull spotlight_env_rstudio:latest
+docker pull marcelosua/spotlight_env_rstudio:latest
 ```
 Run the following command in the terminal
 ```
@@ -166,6 +166,7 @@ To run the deconvolution, one just needs to run the following function.
 
 For the sake of speed we will 10 cells per cell-type, we found the optimal number to be ~100
 ```{r eval = FALSE}
+set.seed(123)
 spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
                                       counts_spatial = anterior@assays$Spatial@counts,
                                       clust_vr = "subclass",
@@ -183,7 +184,7 @@ saveRDS(object = spotlight_ls,
 
 Load deconvolution matrix directly
 ```{r}
-spotlight_ls <- readRDS(file = "sample_data/decon_mtrx_anterior.RDS")
+spotlight_ls <- readRDS(file = "sample_data/spotlight_ls_anterior.RDS")
 decon_mtrx <- spotlight_ls[[2]]
 cell_types_all <- colnames(decon_mtrx)[which(colnames(decon_mtrx) != "res_ss")]
 ```
@@ -197,12 +198,6 @@ anterior@meta.data <- cbind(anterior@meta.data, decon_mtrx)
 ```
 
 2nd Plot spot composition of all the cell types
-```{r}
-library(RColorBrewer)
-qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
-col_vector  <-  unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-```
-
 ```{r}
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
@@ -279,7 +274,7 @@ plot(graph_ntw,
 #### Look at cell type profiles
 We can take a look at the cell-type specific topic profiles and assess their uniqueness, if two cells have similar profiles they may be confounded.
 ```{r}
-nmf_mod_ls <- decon_mtrx_ls[[1]]
+nmf_mod_ls <- spotlight_ls[[1]]
 nmf_mod <- nmf_mod_ls[[1]]
 ```
 

@@ -1,7 +1,4 @@
-# SPOTlight
-<p align="center">
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
-</p>
 
 The goal of **SPOTlight** is to provide a tool that enables the
 deconvolution of cell types and cell type proportions present within
@@ -188,26 +185,27 @@ For the sake of speed we will 10 cells per cell-type, we found the
 optimal number to be \~100
 
 ``` r
-decon_mtrx_ls <- spotlight_deconvolution(se_sc = cortex_sc,
+set.seed(123)
+spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
                                       counts_spatial = anterior@assays$Spatial@counts,
                                       clust_vr = "subclass",
                                       cluster_markers = cluster_markers_all,
-                                      cl_n = 10, # 100 by default
+                                      cl_n = 50, # 100 by default
                                       hvg = 3000,
                                       ntop = NULL,
                                       transf = "uv",
                                       method = "nsNMF",
                                       min_cont = 0.09)
 
-saveRDS(object = decon_mtrx_ls,
-        file = "sample_data/decon_mtrx_anterior.RDS")
+saveRDS(object = spotlight_ls,
+        file = "sample_data/spotlight_ls_anterior.RDS")
 ```
 
 Load deconvolution matrix directly
 
 ``` r
-decon_mtrx_ls <- readRDS(file = "sample_data/decon_mtrx_anterior.RDS")
-decon_mtrx <- decon_mtrx_ls[[2]]
+spotlight_ls <- readRDS(file = "sample_data/spotlight_ls_anterior.RDS")
+decon_mtrx <- spotlight_ls[[2]]
 cell_types_all <- colnames(decon_mtrx)[which(colnames(decon_mtrx) != "res_ss")]
 ```
 
@@ -225,20 +223,13 @@ anterior@meta.data <- cbind(anterior@meta.data, decon_mtrx)
 2nd Plot spot composition of all the cell types
 
 ``` r
-library(RColorBrewer)
-qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
-col_vector  <-  unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-```
-
-``` r
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              slice = "Anterior")
+                              img_path = "sample_data/spatial/tissue_lowres_image.png")
 #> [1] "Using slice anterior1"
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 3rd show only spots containing cell types of interest
 
@@ -250,7 +241,7 @@ SPOTlight::spatial_scatterpie(se_obj = anterior,
 #> [1] "Using slice anterior1"
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 #### Spatial location
 
@@ -267,7 +258,7 @@ SpatialFeaturePlot(anterior,
       limits = c(0, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 #### Spatial interaction graph
 
@@ -326,7 +317,7 @@ plot(graph_ntw,
      layout = layout.circle)
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
 
 #### Look at cell type profiles
 
@@ -335,7 +326,7 @@ their uniqueness, if two cells have similar profiles they may be
 confounded.
 
 ``` r
-nmf_mod_ls <- decon_mtrx_ls[[1]]
+nmf_mod_ls <- spotlight_ls[[1]]
 nmf_mod <- nmf_mod_ls[[1]]
 ```
 
@@ -351,7 +342,7 @@ topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90),
                                 axis.text = element_text(size = 12))
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
 
 Step-by-Step insight
 --------------------
