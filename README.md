@@ -77,6 +77,7 @@ of the utilities it has.
 library(SPOTlight)
 # devtools::install_github("satijalab/seurat", ref = "spatial")
 library(Seurat)
+library(NMF)
 library(dplyr)
 # devtools::install_github('satijalab/seurat-data')
 library(SeuratData)
