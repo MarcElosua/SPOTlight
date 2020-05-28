@@ -75,6 +75,7 @@ of the utilities it has.
 
 ``` r
 library(SPOTlight)
+# devtools::install_github("satijalab/seurat", ref = "spatial")
 library(Seurat)
 library(dplyr)
 # devtools::install_github('satijalab/seurat-data')
