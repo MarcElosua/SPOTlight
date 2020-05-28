@@ -52,13 +52,13 @@ To ensure the environment is compatible we have put out a docker environmnet tha
 To download the R environment image
 ```
 # R environment
-docker pull marcelosua/spotlight_env_r:latest
+docker pull spotlight_env_r:latest
 ```
 
 To download the R studio image
 ```
 # Rstudio environment
-docker pull marcelosua/spotlight_env_rstudio:latest
+docker pull spotlight_env_rstudio:latest
 ```
 Run the following command in the terminal
 ```
@@ -166,25 +166,25 @@ To run the deconvolution, one just needs to run the following function.
 
 For the sake of speed we will 10 cells per cell-type, we found the optimal number to be ~100
 ```{r eval = FALSE}
-decon_mtrx_ls <- spotlight_deconvolution(se_sc = cortex_sc,
+spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
                                       counts_spatial = anterior@assays$Spatial@counts,
                                       clust_vr = "subclass",
                                       cluster_markers = cluster_markers_all,
-                                      cl_n = 10, # 100 by default
+                                      cl_n = 50, # 100 by default
                                       hvg = 3000,
                                       ntop = NULL,
                                       transf = "uv",
                                       method = "nsNMF",
                                       min_cont = 0.09)
 
-saveRDS(object = decon_mtrx_ls,
-        file = "sample_data/decon_mtrx_anterior.RDS")
+saveRDS(object = spotlight_ls,
+        file = "sample_data/spotlight_ls_anterior.RDS")
 ```
 
 Load deconvolution matrix directly
 ```{r}
-decon_mtrx_ls <- readRDS(file = "sample_data/decon_mtrx_anterior.RDS")
-decon_mtrx <- decon_mtrx_ls[[2]]
+spotlight_ls <- readRDS(file = "sample_data/decon_mtrx_anterior.RDS")
+decon_mtrx <- spotlight_ls[[2]]
 cell_types_all <- colnames(decon_mtrx)[which(colnames(decon_mtrx) != "res_ss")]
 ```
 
@@ -206,8 +206,7 @@ col_vector  <-  unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual
 ```{r}
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              slice = "Anterior")
+                              img_path = "sample_data/spatial/tissue_lowres_image.png")
 ```
 
 3rd show only spots containing cell types of interest

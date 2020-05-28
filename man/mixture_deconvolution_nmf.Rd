@@ -7,6 +7,7 @@
 mixture_deconvolution_nmf(
   nmf_mod,
   mixture_transcriptome,
+  clust_vr,
   transf,
   reference_profiles,
   min_cont = 0.09
@@ -16,6 +17,8 @@ mixture_deconvolution_nmf(
 \item{nmf_mod}{Object of class dataframe obtained from the function Seurat::FindAllMarkers().}
 
 \item{mixture_transcriptome}{Object of class matric of dimensions GENESxSPOTS}
+
+\item{clust_vr}{Object of class character; Name of the variable containing the cell clustering.}
 
 \item{transf}{Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied).}
 

@@ -22,7 +22,7 @@ train_nmf(
 
 \item{mtrx_spatial}{Object of class Matrix of shape GENESxSPOT.}
 
-\item{clust_vr}{Object of class character; Name of the variable containing the cell clustering}
+\item{clust_vr}{Object of class character; Name of the variable containing the cell clustering.}
 
 \item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
 

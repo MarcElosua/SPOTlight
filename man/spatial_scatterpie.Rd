@@ -13,7 +13,7 @@ spatial_scatterpie(
   slice = NULL,
   img_alpha = 1,
   scatterpie_alpha = 1,
-  pie_scale = 0.4,
+  pie_scale = 1,
   col_df = NULL
 )
 }
