@@ -42,7 +42,7 @@ To download the R studio image
 
 Run the following command in the terminal
 
-    docker run -e PASSWORD=pwd -p 8787:8787 spotlight_env_rstudio 
+    docker run -e PASSWORD=pwd -p 8787:8787 marcelosua/spotlight_env_rstudio 
 
 Go to
 **<a href="http://localhost:8787/" class="uri">http://localhost:8787/</a>**
