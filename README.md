@@ -72,7 +72,7 @@ Tutorial
 
 In this basic tutorial we show how the tool works step by step and some
 of the utilities it has.
-
+Note the Seurat version used is the beta development one and not 3.1.4 in the latest CRAN release.
 ``` r
 library(SPOTlight)
 # devtools::install_github("satijalab/seurat", ref = "spatial")
