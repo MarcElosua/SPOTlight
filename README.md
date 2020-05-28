@@ -1,6 +1,8 @@
 # SPOTlight
 <p align="center">
+    
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
+
 <\p>
     
 The goal of **SPOTlight** is to provide a tool that enables the
