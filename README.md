@@ -1,3 +1,4 @@
+# SPOTlight
 <p align="center">
 
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
@@ -355,12 +356,11 @@ Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
 <p align="center">
-    <object data="img/SPOTlight_scheme.pdf" type="application/pdf" width="700px" height="700px">
-        <embed src="img/SPOTlight_scheme.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="img/SPOTlight_scheme.pdf">Download PDF</a>.</p>
-        </embed>
-    </object>
+
+<img src="img/SPOTlight_scheme.png" width="800px" style="display: block; margin: auto;" />
+
 </p>
+
 
 #### Downsample data
 
