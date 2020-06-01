@@ -1,5 +1,9 @@
+<p align="center">
+
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
 
+</p>
+    
 The goal of **SPOTlight** is to provide a tool that enables the
 deconvolution of cell types and cell type proportions present within
 each capture locations comprising mixtures of cells, originally
@@ -350,7 +354,12 @@ Step-by-Step insight
 Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
+<p align="center">
+
 <embed src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" type="application/pdf" />
+
+</p>
+ 
 #### Downsample data
 
 If the dataset is very large we want to downsample it, both in terms of
