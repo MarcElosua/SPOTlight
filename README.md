@@ -355,11 +355,13 @@ Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
 <p align="center">
-
-<embed src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" type="application/pdf" />
-
+    <object data="img/SPOTlight_scheme.pdf" type="application/pdf" width="700px" height="700px">
+        <embed src="img/SPOTlight_scheme.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="img/SPOTlight_scheme.pdf">Download PDF</a>.</p>
+        </embed>
+    </object>
 </p>
- 
+
 #### Downsample data
 
 If the dataset is very large we want to downsample it, both in terms of
