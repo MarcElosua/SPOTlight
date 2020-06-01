@@ -1,9 +1,4 @@
-# SPOTlight
-<p align="center">
-    
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
-
-</p>
 
 The goal of **SPOTlight** is to provide a tool that enables the
 deconvolution of cell types and cell type proportions present within
@@ -72,12 +67,10 @@ Tutorial
 
 In this basic tutorial we show how the tool works step by step and some
 of the utilities it has.
-Note the Seurat version used is the beta development one and not 3.1.4 in the latest CRAN release.
+
 ``` r
 library(SPOTlight)
-# devtools::install_github("satijalab/seurat", ref = "spatial")
 library(Seurat)
-library(NMF)
 library(dplyr)
 # devtools::install_github('satijalab/seurat-data')
 library(SeuratData)
@@ -86,7 +79,10 @@ library(SeuratData)
 ### Mouse brain Dataset
 
 For the purpose of this tutorial we are going to use adult mouse brain
-data. Sample data can be found in the sample_data folder in this repository.
+data. The scRNAseq data can be downloaded [here](), while the spatial
+data is the one put out publicly by
+[10X](https://www.10xgenomics.com/resources/datasets/) and the processed
+object can be downloaded [here](PENDING).
 
 #### scRNAseq
 
@@ -159,7 +155,7 @@ We can set the following parameters for more specific markers:
 -   **only.pos** = TRUE - we are only interested in those genes
     specifically expressed in that cluster.
 
--   **min.pct** = 0.9 - we are interested in genes present in all the
+-   **min.pct = 0.9** - we are interested in genes present in all the
     cells from that cell type.
 
 ``` r
@@ -354,12 +350,7 @@ Step-by-Step insight
 Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
-<p align="center">
-    
-<img src="img/SPOTlight_scheme.png" width="800px" style="display: block; margin: auto;" />
-
-</p>
-
+<embed src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" type="application/pdf" />
 #### Downsample data
 
 If the dataset is very large we want to downsample it, both in terms of

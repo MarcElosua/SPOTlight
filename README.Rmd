@@ -296,6 +296,10 @@ knitr::opts_chunk$set(eval = FALSE)
 ## Step-by-Step insight
 Here we are going to show step by step what is going on and all the different steps involved in the process.
 
+```{r, out.width = "800px", echo = FALSE, fig.align='center'}
+knitr::include_graphics("img/SPOTlight_scheme.pdf")
+```
+
 #### Downsample data
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes. We show that this downsampling doesn't affect the performance of the model and greatly speeds up the model training.
 ```{r eval = FALSE}
