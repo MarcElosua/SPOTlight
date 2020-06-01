@@ -356,7 +356,7 @@ different steps involved in the process.
 
 <p align="center">
     
-<img src="img/SPOTlight_scheme.pdf" width="200px" style="display: block; margin: auto;" />
+<img src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" />
 
 </p>
 
