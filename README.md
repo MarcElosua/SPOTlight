@@ -159,7 +159,7 @@ We can set the following parameters for more specific markers:
 -   **only.pos** = TRUE - we are only interested in those genes
     specifically expressed in that cluster.
 
--   **min.pct = 0.9** - we are interested in genes present in all the
+-   **min.pct** = 0.9 - we are interested in genes present in all the
     cells from that cell type.
 
 ``` r
