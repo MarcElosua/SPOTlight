@@ -354,8 +354,7 @@ Step-by-Step insight
 Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
-![SPOTlight scheme](img/SPOTlight_scheme.pdf)
-
+<embed src="img/SPOTlight_scheme.pdf" width="800px" height="2100px" />
 
 #### Downsample data
 
