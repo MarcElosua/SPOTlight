@@ -354,6 +354,12 @@ Step-by-Step insight
 Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
+<p align="center">
+    
+<img src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" />
+
+</p>
+
 #### Downsample data
 
 If the dataset is very large we want to downsample it, both in terms of
