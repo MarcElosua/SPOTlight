@@ -34,7 +34,7 @@ devtools::install_github("https://github.com/MarcElosua/SPOTlight", ref = "devel
 ```
 
 To ensure the environment is compatible we have put out a docker
-environmnet that can be downloaded from DockerHub.  
+environment that can be downloaded from DockerHub.  
 To download the R environment image
 
     # R environment
