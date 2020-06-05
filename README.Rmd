@@ -1,15 +1,15 @@
 ---
 title: "SPOTlight"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-output:
-  md_document:
-    variant: markdown_github
-editor_options:
-  chunk_output_type: console
 # output:
-#  rmdformats::readthedown:
-#    toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
-#    highlight: tango  # specifies the syntax highlighting style
+#   md_document:
+#     variant: markdown_github
+# editor_options:
+#   chunk_output_type: console
+output:
+ rmdformats::readthedown:
+   toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+   highlight: tango  # specifies the syntax highlighting style
 ---
 
 ```{r, include = FALSE}
