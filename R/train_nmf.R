@@ -26,7 +26,7 @@ train_nmf <- function(cluster_markers,
   if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
   if (is(se_sc) != "Seurat") stop("ERROR: se_obj must be a Seurat object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
-  if (!is(mtrx_spatial, "Matrix")) stop("ERROR: mtrx_spatial must be a matrix object!")
+  # if (!is(mtrx_spatial, "Matrix")) stop("ERROR: mtrx_spatial must be a matrix object!")
   if (!(is.numeric(ntop) | is.null(ntop))) stop("ERROR: ntop must be numeric or NULL!")
   if (!is.character(transf)) stop("ERROR: transf must be a character string!")
   if (!is.character(method)) stop("ERROR: method must be a character string!")

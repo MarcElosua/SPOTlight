@@ -20,7 +20,7 @@ mixture_deconvolution_nmf <- function(nmf_mod,
 
   # Check variables
   if (!is(nmf_mod, "NMF")) stop("ERROR: nmf_mod must be an NMF object!")
-  if (!is(mixture_transcriptome, "Matrix")) stop("ERROR: mixture_transcriptome must be a matrix!")
+  # if (!is(mixture_transcriptome, "Matrix")) stop("ERROR: mixture_transcriptome must be a matrix!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
   if (!is.character(transf)) stop("ERROR: transf must be a character string!")
   if (!is.matrix(reference_profiles)) stop("ERROR: reference_profiles must be a matrix!")
