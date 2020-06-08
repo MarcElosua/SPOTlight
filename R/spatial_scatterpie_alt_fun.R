@@ -2,7 +2,7 @@
 #'
 #' @param se_obj: Object of class Seurat with the spatial data and the cell type proportions in the metadata.
 #' @param cell_types_all: Object of class vector containing the names of all the cell types.
-#' @param img_path: Object of class string pointing to the HE image.
+#' @param img_path: Object of class string pointing to the HE image in jpeg or png format.
 #' @param cell_types_interest: Object of class vector containing the cell types of interest you want to plot. By setting this parameters only spots containing at least one of these cell types will be plotted. By default, NULL, it will be assumed to be the same as cell_types_all.
 #' @param return_legend: Object of class logical. By default (FALSE) it will return the legend along with the plot. If TRUE it will return the plot and the legend separately as grob object, this is a useful option if you want to do image compositions later on.
 #' @param slice: Object of class character, name of the slice image to load as found in se_obj@images, by default it will grab the first one on the list.
@@ -95,7 +95,15 @@ spatial_scatterpie_alt <- function(se_obj,
     dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("ID"), by = "ID")
 
   ### Load histological image into R
-  img <- png::readPNG(imgFile)
+  #### Extract file format, JPEG or PNG
+  img_frmt <- tolower(stringr::str_sub(imgFile, -3, -1))
+
+  if(img_frmt %in% c("jpg", "jpeg")) {
+    img <- jpeg::readJPEG(imgFile)
+  } else if (img_frmt == "png") {
+    img <- png::readPNG(imgFile)
+  }
+
   img_grob <- grid::rasterGrob(img,
                         interpolate = FALSE,
                         width = grid::unit(1, "npc"),
