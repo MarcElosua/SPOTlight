@@ -22,7 +22,7 @@ spatial_scatterpie_alt(
 
 \item{cell_types_all:}{Object of class vector containing the names of all the cell types.}
 
-\item{img_path:}{Object of class string pointing to the HE image.}
+\item{img_path:}{Object of class string pointing to the HE image in jpeg or png format.}
 
 \item{cell_types_interest:}{Object of class vector containing the cell types of interest you want to plot. By setting this parameters only spots containing at least one of these cell types will be plotted. By default, NULL, it will be assumed to be the same as cell_types_all.}
 
