@@ -2,7 +2,7 @@
 #'
 #' @param se_obj: Object of class Seurat with the spatial data and the cell type proportions in the metadata.
 #' @param cell_types_all: Object of class vector containing the names of all the cell types.
-#' @param img_path: Object of class string pointing to the HE image.
+#' @param img_path: Object of class string pointing to the HE image in jpeg or png format.
 #' @param cell_types_interest: Object of class vector containing the cell types of interest you want to plot. By setting this parameters only spots containing at least one of these cell types will be plotted. By default, NULL, it will be assumed to be the same as cell_types_all.
 #' @param return_legend: Object of class logical. By default (FALSE) it will return the legend along with the plot. If TRUE it will return the plot and the legend separately as grob object, this is a useful option if you want to do image compositions later on.
 #' @param slice: Object of class character, name of the slice image to load as found in se_obj@images, by default it will grab the first one on the list.
@@ -16,15 +16,15 @@
 #'
 
 spatial_scatterpie <- function(se_obj,
-                               cell_types_all,
-                               img_path,
-                               cell_types_interest = NULL,
-                               return_legend = FALSE,
-                               slice = NULL,
-                               img_alpha = 1,
-                               scatterpie_alpha = 1,
-                               pie_scale = 1,
-                               col_df = NULL) {
+                                   cell_types_all,
+                                   img_path,
+                                   cell_types_interest = NULL,
+                                   return_legend = FALSE,
+                                   slice = NULL,
+                                   img_alpha = 1,
+                                   scatterpie_alpha = 1,
+                                   pie_scale = 1,
+                                   col_df = NULL) {
 
   # Check variables
   if (!is(se_obj, "Seurat")) stop("ERROR: se_obj must be a Seurat object!")
@@ -44,38 +44,95 @@ spatial_scatterpie <- function(se_obj,
   suppressMessages(require(imager))
   suppressMessages(require(dplyr))
   suppressMessages(require(tibble))
+  suppressMessages(require(Spaniel))
 
-  # Load the image, plot the scatterplot and overlap them:
-  # Load the image + plot the image
-  he_plt <- plot_image(img_path = img_path,
-                       img_alpha = img_alpha)
+  metadata_ds <- data.frame(se_obj@meta.data)
 
-  # Plot the scatterplot
-  scatterpie_plt <- scatterpie_plot(se_obj = se_obj,
-                                    cell_types_all = cell_types_all,
-                                    slice = slice,
-                                    scatterpie_alpha = scatterpie_alpha,
-                                    cell_types_interest = cell_types_interest,
-                                    col_df = col_df) +
-    coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+  ## Change column names for consistency ##
+  # [[:punct:]] - Any punctuation character: ! ' # S % & ' ( ) * + , - . / : ; < = > ? @ [ / ] ^ _ { | } ~
+  colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+                                replacement = ".",
+                                x = colnames(metadata_ds),
+                                perl = TRUE)
 
-  if (return_legend) {
-    legend_grob <- get_legend(scatterpie_plt)
-    # Align and superopose plots
-    scatterpie_plt <- scatterpie_plt + theme(legend.position="none")
-  }
-  # Align and superopose plots
-  aligned_plts <- cowplot::align_plots(he_plt,
-                              scatterpie_plt,
-                              align = "hv",
-                              axis = "tblr")
+  cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+                         replacement = ".",
+                         x = cell_types_all,
+                         perl = TRUE)
 
-  spatial_superposed <- cowplot::ggdraw(aligned_plts[[1]]) + cowplot::draw_plot(aligned_plts[[2]])
-
-  if (return_legend) {
-    return(list(spatial_superposed, legend_grob))
+  if (is.null(cell_types_interest)) {
+    cell_types_interest <- cell_types_all
   } else {
-    return(spatial_superposed)
+    cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+                                replacement = ".",
+                                x = cell_types_interest,
+                                perl = TRUE)
   }
 
+  # If not all cell types are in the cell types of interest we only want to keep those spots which have at least one of the cell types of interest
+  if (!all(cell_types_all %in% cell_types_interest)) {
+
+    metadata_ds <- metadata_ds %>%
+      tibble::rownames_to_column("ID") %>%
+      dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
+      dplyr::filter(rsum != 0) %>%
+      dplyr::select("ID") %>%
+      dplyr::left_join(metadata_ds %>% rownames_to_column("ID"),by = "ID") %>%
+      tibble::column_to_rownames("ID")
+  }
+
+  ## If slice is not selected set it to the first element in the list of slices
+  if (is.null(slice) | (!is.null(slice) && !slice %in% names(se_obj@images))) {
+    slice <- names(se_obj@images)[1]
+    warning(sprintf("Using slice %s", slice))
+  }
+
+  ## Preprocess data
+  spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
+    tibble::rownames_to_column("ID") %>%
+    dplyr::mutate(imagerow_scaled = imagerow * se_obj@images[[slice]]@scale.factors$lowres,
+                  imagecol_scaled = imagecol * se_obj@images[[slice]]@scale.factors$lowres) %>%
+    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("ID"), by = "ID")
+
+  ### Load histological image into R
+  #### Extract file format, JPEG or PNG
+  img_frmt <- tolower(stringr::str_sub(imgFile, -4, -1))
+
+  if(img_frmt %in% c(".jpg", "jpeg")) {
+    img <- jpeg::readJPEG(imgFile)
+  } else if (img_frmt == ".png") {
+    img <- png::readPNG(imgFile)
+  }
+
+   # Convert image to grob object
+  img_grob <- grid::rasterGrob(img,
+                               interpolate = FALSE,
+                               width = grid::unit(1, "npc"),
+                               height = grid::unit(1, "npc"))
+
+  ## Plot spatial scatterpie plot
+  scatterpie_plt <- suppressMessages(ggplot2::ggplot() +
+                                       ggplot2::annotation_custom(grob = img_grob,
+                                                                  xmin = 0,
+                                                                  xmax = 600,
+                                                                  ymin = 0,
+                                                                  ymax = -600) +
+                                       scatterpie::geom_scatterpie(data = spatial_coord,
+                                                                   aes(x = imagecol_scaled,
+                                                                       y = imagerow_scaled),
+                                                                   cols = cell_types_all,
+                                                                   color = NA,
+                                                                   alpha = scatterpie_alpha,
+                                                                   pie_scale = pie_scale) +
+                                       ggplot2::scale_y_reverse() +
+                                       ggplot2::ylim(600, 0) +
+                                       ggplot2::xlim(0, 600) +
+                                       cowplot::theme_half_open(11, rel_small = 1) +
+                                       ggplot2::theme_void() +
+                                       ggplot2::coord_fixed(ratio = 1,
+                                                            xlim = NULL,
+                                                            ylim = NULL,
+                                                            expand = TRUE,
+                                                            clip = "on"))
+  return(scatterpie_plt)
 }
