@@ -81,6 +81,7 @@ For more information check out the [rocker](https://www.rocker-project.org/) pro
 In this basic tutorial we show how the tool works step by step and some of the utilities it has.
 ```{r warning = FALSE, message = FALSE}
 library(SPOTlight)
+# devtools::install_github("satijalab/seurat", ref = "spatial")
 library(Seurat)
 library(dplyr)
 # devtools::install_github('satijalab/seurat-data')
