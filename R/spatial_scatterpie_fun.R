@@ -96,12 +96,12 @@ spatial_scatterpie <- function(se_obj,
 
   ### Load histological image into R
   #### Extract file format, JPEG or PNG
-  img_frmt <- tolower(stringr::str_sub(imgFile, -4, -1))
+  img_frmt <- tolower(stringr::str_sub(img_path, -4, -1))
 
   if(img_frmt %in% c(".jpg", "jpeg")) {
-    img <- jpeg::readJPEG(imgFile)
+    img <- jpeg::readJPEG(img_path)
   } else if (img_frmt == ".png") {
-    img <- png::readPNG(imgFile)
+    img <- png::readPNG(img_path)
   }
 
    # Convert image to grob object

@@ -14,7 +14,7 @@ cut_markers2 <- function(markers,
   if (!is.data.frame(markers)) stop("ERROR: markers must be a data.frame object!")
   if (!is.numeric(ntop)) stop("ERROR: ntop must be a an integer!")
   if (!"cluster" %in% colnames(markers)) stop("ERROR: cluster needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
-  if (!"p_val" %in% colnames(markers)) stop("ERROR: p_val_adj needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
+  if (!"p_val" %in% colnames(markers)) stop("ERROR: p_val needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
   if (!"gene" %in% colnames(markers)) stop("ERROR: gene needs to be a variable in markers. markers must be the output of the FindAllMarkers Seurat function!")
 
   # load required packages

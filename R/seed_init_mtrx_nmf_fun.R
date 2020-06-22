@@ -15,7 +15,7 @@ seed_init_mtrx_nmf <- function(cluster_markers,
                                ntop = NULL) {
 
   #### Get dataset ready ####
-  se_lda_ready <- prep_seobj_topic_fun(se_obj = se_obj)
+  se_nmf_ready <- prep_seobj_topic_fun(se_obj = se_obj)
 
   # Rank of the model equals the number of cell types
   k <- length(unique(se_obj@meta.data[, clust_vr]))
@@ -42,13 +42,14 @@ seed_init_mtrx_nmf <- function(cluster_markers,
   # To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC
 
   # initialize matrix
-  seedgenes <- matrix(nrow = k, ncol = ncol(se_lda_ready), data = 1e-10)
-  colnames(seedgenes) <- colnames(se_lda_ready)
+  seedgenes <- matrix(nrow = k, ncol = ncol(se_nmf_ready), data = 1e-10)
+  colnames(seedgenes) <- colnames(se_nmf_ready)
 
   # Add seeds to model, if a cluster-topic has 0 unique markers its row will be set to all 0
   for (i in seq_len(k)) {
+    # print(i)
     clust_row <- cluster_markers_uniq$cluster == as.character(unique(se_obj@meta.data[, clust_vr])[[i]])
-    seedgenes[i, cluster_markers_uniq[clust_row, "gene"]] = cluster_markers_uniq[clust_row, "weight"]
+    seedgenes[i, as.character(cluster_markers_uniq[clust_row, "gene"])] = cluster_markers_uniq[clust_row, "weight"]
   }
   W <- t(seedgenes)
   ###################
@@ -56,9 +57,9 @@ seed_init_mtrx_nmf <- function(cluster_markers,
   ###################
   H <- matrix(data = 1e-10,
               nrow = k,
-              ncol = nrow(se_lda_ready))
+              ncol = nrow(se_nmf_ready))
 
-  for (i in seq_len(nrow(se_lda_ready))) {
+  for (i in seq_len(nrow(se_nmf_ready))) {
     h_row <- which(unique(se_obj@meta.data[, clust_vr]) == se_obj@meta.data[i, clust_vr])
     H[h_row, i] <- 1
   }
