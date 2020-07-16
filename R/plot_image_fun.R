@@ -21,19 +21,51 @@ plot_image <- function(img_path,
   suppressMessages(require(dplyr))
   suppressMessages(require(tibble))
 
-  spatial_img <- imager::load.image(file = img_path)
+  ### Load histological image into R
+  #### Extract file format, JPEG or PNG
+  img_frmt <- tolower(stringr::str_sub(img_path, -4, -1))
+
+  if(img_frmt %in% c(".jpg", "jpeg")) {
+    img <- jpeg::readJPEG(img_path)
+  } else if (img_frmt == ".png") {
+    img <- png::readPNG(img_path)
+  }
+
+  # Convert image to grob object
+  img_grob <- grid::rasterGrob(img,
+                               interpolate = FALSE,
+                               width = grid::unit(1, "npc"),
+                               height = grid::unit(1, "npc"))
+
+  ## Plot spatial scatterpie plot
+  he_plt <- suppressMessages(ggplot2::ggplot() +
+                                       ggplot2::annotation_custom(grob = img_grob,
+                                                                  xmin = 0,
+                                                                  xmax = 600,
+                                                                  ymin = 0,
+                                                                  ymax = -600) +
+            ggplot2::scale_y_reverse() +
+            ggplot2::ylim(600, 0) +
+            ggplot2::xlim(0, 600) +
+            cowplot::theme_half_open(11, rel_small = 1) +
+            ggplot2::theme_void() +
+            ggplot2::coord_fixed(ratio = 1,
+                                 xlim = NULL,
+                                 ylim = NULL,
+                                 expand = TRUE,
+                                 clip = "on"))
 
   ### Plot image ###
-  he_plt <- spatial_img %>%
-    as.data.frame(wide = "c") %>%
-    mutate(rgb.val = rgb(c.1, c.2, c.3)) %>%
-    ggplot(., aes(x, y)) +
-      geom_raster(aes(fill = rgb.val), alpha = img_alpha) +
-      scale_fill_identity() +
-      scale_y_reverse() +
-      theme_void() +
-      theme(plot.margin = unit(c(0, 0, 0, 0), "line")) +
-      coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+  # he_plt <- spatial_img %>%
+  #   as.data.frame(wide = "c") %>%
+  #   mutate(rgb.val = rgb(c.1, c.2, c.3)) %>%
+  #   ggplot(., aes(x, y)) +
+  #     geom_raster(aes(fill = rgb.val), alpha = img_alpha) +
+  #     scale_fill_identity() +
+  #     scale_y_reverse() +
+  #     theme_void() +
+  #     theme(plot.margin = unit(c(0, 0, 0, 0), "line")) +
+  #     coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
 
   return(he_plt)
 }
