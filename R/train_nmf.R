@@ -61,7 +61,7 @@ train_nmf <- function(cluster_markers,
                                             assay = assay,
                                             slot = slot))
 
-  if (genes_sc %in% genes_spatial < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
+  # if (genes_sc %in% genes_spatial < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
   se_sc <- se_sc[genes_sc %in% genes_spatial, ]
 
   # Update mtrx_sc with the union genes only
