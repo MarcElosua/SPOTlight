@@ -44,7 +44,6 @@ spatial_scatterpie <- function(se_obj,
   suppressMessages(require(imager))
   suppressMessages(require(dplyr))
   suppressMessages(require(tibble))
-  suppressMessages(require(Spaniel))
 
   metadata_ds <- data.frame(se_obj@meta.data)
 
