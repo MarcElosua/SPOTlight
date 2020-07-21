@@ -13,7 +13,7 @@ Suggests:
     testthat,
     spelling
 Language: en-US
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: dplyr (>= 0.8.3)
 biocViews:
 Imports: arrangements (>= 1.1.8),
@@ -29,14 +29,14 @@ Imports: arrangements (>= 1.1.8),
          ggpubr (>= 0.2.5),
          igraph (>= 1.2.4.2),
          imager (>= 0.42.1),
+         jpeg (>= 0.1.8.1),
          Matrix (>= 1.2.18),
          matrixStats (>= 0.55.0),
          multtest (>= 2.42.0),
          NMF (>= 0.22.0),
          nnls (>= 1.4),
+         png (>= 0.1.7),
          purrr (>= 0.3.3),
          Seurat (>= 3.1.0),
          SingleCellExperiment (>= 1.8.0),
-         tibble (>= 2.1.3),
-         topicmodels (>= 0.2.9)
-         
+         tibble (>= 2.1.3)

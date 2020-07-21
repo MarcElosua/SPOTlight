@@ -12,7 +12,9 @@ train_nmf(
   ntop = NULL,
   transf = "cpm",
   method = "nsNMF",
-  hvg = 3000
+  hvg = 3000,
+  assay = "RNA",
+  slot = "counts"
 )
 }
 \arguments{
@@ -26,11 +28,15 @@ train_nmf(
 
 \item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
 
-\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.}
+\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied). By default CPM.}
 
 \item{method}{Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.}
 
 \item{hvg}{Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.}
+
+\item{assay}{Object of class character; From which assay to grab the expression data to train the model, by default "RNA".}
+
+\item{slot}{Object of class character; From which slot to grab the expression data to train the model, by default "counts".}
 }
 \value{
 This function returns a list with the initialized matrices H and W.
