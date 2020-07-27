@@ -55,21 +55,21 @@ train_nmf <- function(cluster_markers,
   genes_0_sp <- which(! rowSums(as.matrix(mtrx_spatial) == 0) == ncol(mtrx_spatial))
   mtrx_spatial <- mtrx_spatial[genes_0_sp, ]
 
-  ## Remove non union genes from the scRNAseq data
+  ## Remove non intersecting genes from the scRNAseq data
   genes_spatial <- rownames(mtrx_spatial)
   genes_sc <- rownames(Seurat::GetAssayData(se_sc,
                                             assay = assay,
                                             slot = slot))
 
-  # if (genes_sc %in% genes_spatial < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
+  if (genes_sc %in% genes_spatial < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
   se_sc <- se_sc[genes_sc %in% genes_spatial, ]
 
-  # Update mtrx_sc with the union genes only
+  # Update mtrx_sc with the intersecting genes only
   mtrx_sc <- as.matrix(Seurat::GetAssayData(se_sc,
                                             assay = assay,
                                             slot = slot))
 
-  ## Remove non union genes from the marker list
+  ## Remove non intersecting genes from the marker list
   cluster_markers <- cluster_markers[cluster_markers$gene %in% rownames(se_sc), ]
 
   # Normalize count matrix
