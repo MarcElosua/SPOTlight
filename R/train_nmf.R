@@ -61,8 +61,8 @@ train_nmf <- function(cluster_markers,
                                             assay = assay,
                                             slot = slot))
 
-  if (genes_sc %in% genes_spatial < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
-  se_sc <- se_sc[genes_sc %in% genes_spatial, ]
+  if (length(intersect(genes_sc, genes_spatial)) < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
+  se_sc <- se_sc[intersect(genes_sc, genes_spatial), ]
 
   # Update mtrx_sc with the intersecting genes only
   mtrx_sc <- as.matrix(Seurat::GetAssayData(se_sc,
