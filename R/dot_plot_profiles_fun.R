@@ -40,7 +40,7 @@ dot_plot_profiles_fun <- function(h,
     ggplot(aes(x = id, y = topics)) +
     geom_point(aes(size = weights, colour = weights)) +
     facet_wrap(as.formula(paste(clust_vr, "~ .")), scales = "free") +
-    scale_color_continuous(low = "grey", high = "Green") +
+    scale_color_continuous(low = "grey", high = "#59b371") +
     theme_classic() +
     labs(title = "NMF: Topic proportion within cell types") +
     theme(
@@ -70,7 +70,7 @@ dot_plot_profiles_fun <- function(h,
     ) %>%
     ggplot(aes(x = `Cell type`, y = Topics)) +
     geom_point(aes(size = value, colour = value)) +
-    scale_color_continuous(low = "grey", high = "Green") +
+    scale_color_continuous(low = "grey", high = "#59b371") +
     theme_classic() +
     labs(title = "NMF: Topic profiles by cell type") +
     theme(

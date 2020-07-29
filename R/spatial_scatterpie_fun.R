@@ -8,7 +8,6 @@
 #' @param slice: Object of class character, name of the slice image to load as found in se_obj@images, by default it will grab the first one on the list.
 #' @param scatterpie_alpha: Object of class numeric between 0-1 indicating the degree of transparency of the scatterpie.
 #' @param pie_scale: Object of class numeric containing the size of the pie charts.
-#' @param col_df: object of class dataframe containing a color for each cell type, the first column is the cell type and the second is the color assigned to it.
 #' @return this function returns a plot composition of class gg
 #' @export
 #' @examples
@@ -21,8 +20,7 @@ spatial_scatterpie <- function(se_obj,
                                return_legend = FALSE,
                                slice = NULL,
                                scatterpie_alpha = 1,
-                               pie_scale = 1,
-                               col_df = NULL) {
+                               pie_scale = 1) {
 
   # Check variables
   if (!is(se_obj, "Seurat")) stop("ERROR: se_obj must be a Seurat object!")
@@ -48,24 +46,26 @@ spatial_scatterpie <- function(se_obj,
 
   ## Change column names for consistency ##
   # [[:punct:]] - Any punctuation character: ! ' # S % & ' ( ) * + , - . / : ; < = > ? @ [ / ] ^ _ { | } ~
-  colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                                replacement = ".",
-                                x = colnames(metadata_ds),
-                                perl = TRUE)
-
-  cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                         replacement = ".",
-                         x = cell_types_all,
-                         perl = TRUE)
+  # colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+  #                               replacement = ".",
+  #                               x = colnames(metadata_ds),
+  #                               perl = TRUE)
+  #
+  # cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+  #                        replacement = ".",
+  #                        x = cell_types_all,
+  #                        perl = TRUE)
+  colnames(metadata_ds) <- colnames(se_obj@meta.data)
 
   if (is.null(cell_types_interest)) {
     cell_types_interest <- cell_types_all
-  } else {
-    cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                                replacement = ".",
-                                x = cell_types_interest,
-                                perl = TRUE)
   }
+  # else {
+  #   cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+  #                               replacement = ".",
+  #                               x = cell_types_interest,
+  #                               perl = TRUE)
+  # }
 
   # If not all cell types are in the cell types of interest we only want to keep those spots which have at least one of the cell types of interest
   if (!all(cell_types_all %in% cell_types_interest)) {

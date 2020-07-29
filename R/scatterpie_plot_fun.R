@@ -6,7 +6,6 @@
 #' @param scatterpie_alpha: Object of class numeric between 0-1 indicating the degree of transparency of the scatterpie
 #' @param cell_types_interest: Object of class vector containing the cell types of interest you want to plot. By setting this parameters only spots containing at least one of these cell types will be plotted. By default, NULL, it will be assumed to be the same as cell_types_all.
 #' @param pie_scale: Object of class numeric containing the size of the pie charts.
-#' @param col_df: object of class dataframe containing a color for each cell type, the first column is the cell type and the second is the color assigned to it.
 #' @return this function returns a plot composition of class gg
 #' @export
 #' @examples
@@ -17,8 +16,7 @@ scatterpie_plot <- function(se_obj,
                             slice = NULL,
                             scatterpie_alpha = 1,
                             cell_types_interest = NULL,
-                            pie_scale = 0.4,
-                            col_df = NULL) {
+                            pie_scale = 0.4) {
 
   # Check variables
   if (!is(se_obj, "Seurat")) stop("ERROR: se_obj must be a Seurat object!")
@@ -27,7 +25,6 @@ scatterpie_plot <- function(se_obj,
   # if (is.null(slice) | (!is.null(slice) && !slice %in% names(se_obj@images))) warning("Warning: slice is not in names(se_obj@images)!, 1st name will be used!")
   if (!is.numeric(scatterpie_alpha)) stop("ERROR: scatterpie_alpha must be numeric between 0 and 1!")
   if (!is.numeric(pie_scale)) stop("ERROR: pie_scale must be numeric between 0 and 1!")
-  if (!(is.data.frame(col_df) | is.null(col_df))) stop("ERROR: col_df must be a dataframe or NULL!")
 
   # Loading libraries
   suppressMessages(require(ggplot2))
@@ -40,24 +37,29 @@ scatterpie_plot <- function(se_obj,
 
   ## Change column names for consistency ##
   # [[:punct:]] - Any punctuation character: ! ' # S % & ' ( ) * + , - . / : ; < = > ? @ [ / ] ^ _ { | } ~
-  colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                                replacement = ".",
-                                x = colnames(metadata_ds),
-                                perl = TRUE)
+  # colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+  #                               replacement = ".",
+  #                               x = colnames(metadata_ds),
+  #                               perl = TRUE)
 
-  cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                         replacement = ".",
-                         x = cell_types_all,
-                         perl = TRUE)
+  colnames(metadata_ds) <- colnames(se_obj@meta.data)
+  # original_df_nm <- data.frame(orig_nm = colnames(se_obj@meta.data),
+  #                              mod_nm = colnames(metadata_ds))
+
+  # cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+  #                        replacement = ".",
+  #                        x = cell_types_all,
+  #                        perl = TRUE)
 
   if (is.null(cell_types_interest)) {
     cell_types_interest <- cell_types_all
-  } else {
-    cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                                replacement = ".",
-                                x = cell_types_interest,
-                                perl = TRUE)
   }
+  # } else {
+    # cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
+    #                             replacement = ".",
+    #                             x = cell_types_interest,
+    #                             perl = TRUE)
+  # }
 
   # If not all cell types are in the cell types of interest we only want to keep those spots which have at least one of the cell types of interest
   if (!all(cell_types_all %in% cell_types_interest)) {
@@ -98,22 +100,6 @@ scatterpie_plot <- function(se_obj,
                      xlim(0, 600) +
                      theme_half_open(11, rel_small = 1) +
                      theme_void())
-
-  if (!is.null(col_df)) {
-    # Select which cell types are going to be plotted
-    ct_keep <- sort(names(which(colSums(spatial_coord[, cell_types_all]) > 0)))
-
-    # Subset colours to use
-    col_df[, 1] <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-                        replacement = ".",
-                        x = col_df[, 1],
-                        perl = TRUE)
-
-    col_vec <- col_df[col_df[, 1] %in% ct_keep, 2]
-
-    # Add colours to plot
-    scatterpie_plt <- scatterpie_plt + scale_fill_manual(values = col_vec)
-  }
 
   return(scatterpie_plt)
 
