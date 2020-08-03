@@ -7,15 +7,15 @@
 downsample_se_obj(se_obj, clust_vr, cluster_markers, cl_n = 10, hvg = 0)
 }
 \arguments{
-\item{se_obj}{Object of class Seurat with the data of interest}
+\item{se_obj}{Object of class Seurat; with the data of interest.}
 
-\item{clust_vr}{Name of the variable containing the cell clustering}
+\item{clust_vr}{Object of calss character; Name of the variable containing the cell clustering.}
 
-\item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
+\item{cluster_markers}{Object of class data.frame; obtained from the function Seurat::FindAllMarkers().}
 
 \item{cl_n}{Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.}
 
-\item{hvg}{Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0}
+\item{hvg}{Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0.}
 }
 \value{
 A downsampled Seurat object from the original

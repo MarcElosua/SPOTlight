@@ -3,11 +3,13 @@
 #' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
 #' @param se_sc Object of class Seurat with the scRNAseq data.
 #' @param mtrx_spatial Object of class Matrix of shape GENESxSPOT.
-#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.
+#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied). By default CPM.
 #' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
 #' @param clust_vr Object of class character; Name of the variable containing the cell clustering.
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.
 #' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
+#' @param assay Object of class character; From which assay to grab the expression data to train the model, by default "RNA".
+#' @param slot Object of class character; From which slot to grab the expression data to train the model, by default "counts".
 #' @return This function returns a list with the initialized matrices H and W.
 #' @export
 #' @examples
@@ -20,7 +22,9 @@ train_nmf <- function(cluster_markers,
                       ntop = NULL,
                       transf = "cpm",
                       method = "nsNMF",
-                      hvg = 3000) {
+                      hvg = 3000,
+                      assay = "RNA",
+                      slot = "counts") {
 
   # Check variables
   if (!is.data.frame(cluster_markers)) stop("ERROR: cluster_markers_all must be a data frame object returned from Seurat::FindAllMarkers()!")
@@ -42,40 +46,46 @@ train_nmf <- function(cluster_markers,
   print("Preparing Gene set")
   # Only train the model with genes shared between the scRNAseq and spatial data
   ## Remove rows with all gene counts 0
-  genes_0_sc <- which(! rowSums(as.matrix(se_sc@assays$RNA@counts) == 0) == ncol(se_sc@assays$RNA@counts))
+  mtrx_sc <- as.matrix(Seurat::GetAssayData(se_sc,
+                                            assay = assay,
+                                            slot = slot))
+  genes_0_sc <- which(! rowSums(mtrx_sc == 0) == ncol(mtrx_sc))
   se_sc <- se_sc[genes_0_sc, ]
 
   genes_0_sp <- which(! rowSums(as.matrix(mtrx_spatial) == 0) == ncol(mtrx_spatial))
   mtrx_spatial <- mtrx_spatial[genes_0_sp, ]
 
-  ## Remove non union genes from the scRNAseq data
+  ## Remove non intersecting genes from the scRNAseq data
   genes_spatial <- rownames(mtrx_spatial)
-  genes_sc <- rownames(se_sc@assays$RNA@counts)
-  se_sc <- se_sc[genes_sc %in% genes_spatial, ]
+  genes_sc <- rownames(Seurat::GetAssayData(se_sc,
+                                            assay = assay,
+                                            slot = slot))
 
-  ## Remove non union genes from the marker list
+  if (length(intersect(genes_sc, genes_spatial)) < 10) stop("Not enough genes in common between the single-cell and mixture dataset.")
+  se_sc <- se_sc[intersect(genes_sc, genes_spatial), ]
+
+  # Update mtrx_sc with the intersecting genes only
+  mtrx_sc <- as.matrix(Seurat::GetAssayData(se_sc,
+                                            assay = assay,
+                                            slot = slot))
+
+  ## Remove non intersecting genes from the marker list
   cluster_markers <- cluster_markers[cluster_markers$gene %in% rownames(se_sc), ]
 
   # Normalize count matrix
   print("Normalizing count matrix")
   if (transf == "cpm") {
-    counts <- as.matrix(se_sc@assays$RNA@counts)
-    count_mtrx <- edgeR::cpm(counts,
+    count_mtrx <- edgeR::cpm(mtrx_sc,
                              normalized.lib.sizes = FALSE)
 
   } else if (transf == "uv") {
-    counts <- as.matrix(se_sc@assays$RNA@counts)
-    count_mtrx_t <- scale(t(counts),
+    count_mtrx_t <- scale(t(mtrx_sc),
                         center = FALSE,
-                        scale = apply(counts, 1, sd, na.rm = TRUE))
+                        scale = apply(mtrx_sc, 1, sd, na.rm = TRUE))
     count_mtrx <- t(count_mtrx_t)
 
-  } else if (transf == "sct") {
-    # Can't use scale.data since it has negative values
-    count_mtrx <- as.matrix(se_sc@assays$SCT@counts)
-
   } else if (transf == "raw") {
-    count_mtrx <- as.matrix(se_sc@assays$RNA@counts)
+    count_mtrx <- mtrx_sc
   }
 
   # Rank of the model equals the number of cell types

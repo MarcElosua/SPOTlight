@@ -1,10 +1,10 @@
 #' This function downsamples the number of cells and genes used to train the model
 #'
-#' @param se_obj Object of class Seurat with the data of interest
-#' @param clust_vr Name of the variable containing the cell clustering
-#' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
+#' @param se_obj Object of class Seurat; with the data of interest.
+#' @param clust_vr Object of calss character; Name of the variable containing the cell clustering.
+#' @param cluster_markers Object of class data.frame; obtained from the function Seurat::FindAllMarkers().
 #' @param cl_n Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
-#' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0
+#' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0.
 #' @return A downsampled Seurat object from the original
 #' @export
 #' @examples

@@ -14,7 +14,9 @@ spotlight_deconvolution(
   ntop = NULL,
   transf = "uv",
   method = "nsNMF",
-  min_cont = 0.09
+  min_cont = 0.09,
+  assay = "RNA",
+  slot = "counts"
 )
 }
 \arguments{

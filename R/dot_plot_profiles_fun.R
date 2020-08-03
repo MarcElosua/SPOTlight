@@ -19,6 +19,10 @@ dot_plot_profiles_fun <- function(h,
   suppressMessages(require(ggplot2))
 
   h_df <- data.frame(t(h))
+
+  # Fix column names after converting to dataframe
+  colnames(h_df) <- gsub(".", " ", colnames(h_df), fixed = TRUE)
+
   # Get proportions for each row
   h_ds <- round(h_df/rowSums(h_df), 4)
   h_ds[, clust_vr] <- train_cell_clust
@@ -36,7 +40,7 @@ dot_plot_profiles_fun <- function(h,
     ggplot(aes(x = id, y = topics)) +
     geom_point(aes(size = weights, colour = weights)) +
     facet_wrap(as.formula(paste(clust_vr, "~ .")), scales = "free") +
-    scale_color_continuous(low = "grey", high = "Green") +
+    scale_color_continuous(low = "grey", high = "#59b371") +
     theme_classic() +
     labs(title = "NMF: Topic proportion within cell types") +
     theme(
@@ -56,7 +60,6 @@ dot_plot_profiles_fun <- function(h,
   ct_topic_profiles[is.na(ct_topic_profiles)] <- 0
 
   cell_type_plt <- round(ct_topic_profiles, 2) %>%
-    data.frame() %>%
     tibble::rownames_to_column('Cell type') %>%
     tidyr::pivot_longer(cols = -`Cell type`, names_to = "Topics") %>%
     mutate(
@@ -67,7 +70,7 @@ dot_plot_profiles_fun <- function(h,
     ) %>%
     ggplot(aes(x = `Cell type`, y = Topics)) +
     geom_point(aes(size = value, colour = value)) +
-    scale_color_continuous(low = "grey", high = "Green") +
+    scale_color_continuous(low = "grey", high = "#59b371") +
     theme_classic() +
     labs(title = "NMF: Topic profiles by cell type") +
     theme(

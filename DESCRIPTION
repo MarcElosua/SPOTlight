@@ -4,7 +4,7 @@ Title: Cell type deconvolution of Visium data
 Version: 0.1.0
 Author: Marc Elosua-Bayes
 Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eu>
-Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures.
+Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures from Spatial Transcriptomics datasets.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -13,7 +13,7 @@ Suggests:
     testthat,
     spelling
 Language: en-US
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: dplyr (>= 0.8.3)
 biocViews:
 Imports: arrangements (>= 1.1.8),
@@ -35,9 +35,9 @@ Imports: arrangements (>= 1.1.8),
          multtest (>= 2.42.0),
          NMF (>= 0.22.0),
          nnls (>= 1.4),
+         png (>= 0.1.7),
          purrr (>= 0.3.3),
          png (>= 0.1.7),
          Seurat (>= 3.1.0),
          SingleCellExperiment (>= 1.8.0),
          tibble (>= 2.1.3)
-         

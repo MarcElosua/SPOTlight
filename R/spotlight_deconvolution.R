@@ -25,7 +25,9 @@ spotlight_deconvolution <- function(se_sc,
                                     ntop = NULL,
                                     transf = "uv",
                                     method = "nsNMF",
-                                    min_cont = 0.09) {
+                                    min_cont = 0.09,
+                                    assay = "RNA",
+                                    slot = "counts") {
 
   # Downsample scRNAseq to select gene set and number of cells to train the model
   se_sc_down <- downsample_se_obj(se_obj = se_sc,
@@ -41,7 +43,9 @@ spotlight_deconvolution <- function(se_sc,
                           ntop = ntop,
                           transf = transf,
                           clust_vr = clust_vr,
-                          method = method)
+                          method = method,
+                          assay = assay,
+                          slot = slot)
 
   # Get cell type specific topif profiles
   ct_topic_profiles <- topic_profile_per_cluster_nmf(h = coef(nmf_mod_ls[[1]]),
