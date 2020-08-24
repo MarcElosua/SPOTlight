@@ -65,7 +65,7 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     # res_ss <- sum((profile_mtrx[, i] - fit_val) ^ 2)
 
     ## Get Total sum of squares
-    fit_null <- mean(profile_mtrx[, i])
+    # fit_null <- mean(profile_mtrx[, i])
     fit_null <- 0
     tot_ss <- sum((profile_mtrx[, i] - fit_null) ^ 2)
 
