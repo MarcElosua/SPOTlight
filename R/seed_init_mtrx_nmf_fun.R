@@ -2,7 +2,7 @@
 #'
 #' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers().
 #' @param se_obj Object of class Seurat with the data of interest.
-#' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.
+#' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL. If NULL it uses all of them.
 #' @return This function returns a list with the initialized matrices H and W.
 #' @export
 #' @examples

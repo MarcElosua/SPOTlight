@@ -4,7 +4,7 @@
 #' @param clust_vr Object of calss character; Name of the variable containing the cell clustering.
 #' @param cluster_markers Object of class data.frame; obtained from the function Seurat::FindAllMarkers().
 #' @param cl_n Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
-#' @param hvg Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0.
+#' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
 #' @return A downsampled Seurat object from the original
 #' @export
 #' @examples
