@@ -49,6 +49,7 @@ train_nmf <- function(cluster_markers,
   mtrx_sc <- as.matrix(Seurat::GetAssayData(se_sc,
                                             assay = assay,
                                             slot = slot))
+
   genes_0_sc <- which(! rowSums(mtrx_sc == 0) == ncol(mtrx_sc))
   se_sc <- se_sc[genes_0_sc, ]
 

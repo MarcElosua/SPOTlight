@@ -36,7 +36,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_sc,
                                 clust_vr = clust_vr,
                                 n = n_syn_mixt)
 
-  test_spot_counts <- test_spot_ls[[1]]
+  test_spot_counts <- as.matrix(test_spot_ls[[1]])
   colnames(test_spot_counts) <- paste("mixt", 1:ncol(test_spot_counts), sep = "_")
   test_spot_metadata <- test_spot_ls[[2]]
 
