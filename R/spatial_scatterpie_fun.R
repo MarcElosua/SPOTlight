@@ -30,7 +30,6 @@ spatial_scatterpie <- function(se_obj,
   if (!is(return_legend, "logical")) stop("ERROR: return_legend must be logical!")
   if (!is.numeric(scatterpie_alpha)) stop("ERROR: scatterpie_alpha must be numeric between 0 and 1!")
   if (!is.numeric(pie_scale)) stop("ERROR: pie_scale must be numeric between 0 and 1!")
-  if (!(is.data.frame(col_df) | is.null(col_df))) stop("ERROR: col_df must be a dataframe or NULL!")
 
   # Loading libraries
   suppressMessages(require(ggplot2))
