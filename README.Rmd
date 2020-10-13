@@ -176,7 +176,7 @@ spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
                                         ntop = NULL,
                                         transf = "uv",
                                         method = "nsNMF",
-                                        min_cont = 0.07)
+                                        min_cont = 0.09)
 
 saveRDS(object = spotlight_ls,
         file = "sample_data/spotlight_ls_anterior.RDS")
