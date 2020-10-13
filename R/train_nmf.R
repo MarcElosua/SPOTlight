@@ -54,7 +54,7 @@ train_nmf <- function(cluster_markers,
   se_sc <- se_sc[genes_0_sc, ]
 
   print(head(mtrx_spatial))
-  genes_0_sp <- which(! rowSums(mtrx_spatial == 0) == ncol(mtrx_spatial))
+  genes_0_sp <- which(! rowSums(as.matrix(mtrx_spatial) == 0) == ncol(mtrx_spatial))
   mtrx_spatial <- mtrx_spatial[genes_0_sp, ]
 
   ## Remove non intersecting genes from the scRNAseq data
