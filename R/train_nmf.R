@@ -53,6 +53,7 @@ train_nmf <- function(cluster_markers,
   genes_0_sc <- which(! rowSums(mtrx_sc == 0) == ncol(mtrx_sc))
   se_sc <- se_sc[genes_0_sc, ]
 
+  print(head(mtrx_spatial))
   genes_0_sp <- which(! rowSums(mtrx_spatial == 0) == ncol(mtrx_spatial))
   mtrx_spatial <- mtrx_spatial[genes_0_sp, ]
 

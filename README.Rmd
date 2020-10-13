@@ -81,7 +81,6 @@ For more information check out the [rocker](https://www.rocker-project.org/) pro
 In this basic tutorial we show how the tool works step by step and some of the utilities it has.
 ```{r warning = FALSE, message = FALSE}
 library(SPOTlight)
-# devtools::install_github("satijalab/seurat", ref = "spatial")
 library(Seurat)
 library(dplyr)
 # devtools::install_github('satijalab/seurat-data')
@@ -169,15 +168,15 @@ For the sake of speed we will 10 cells per cell-type, we found the optimal numbe
 ```{r eval = FALSE}
 set.seed(123)
 spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
-                                      counts_spatial = anterior@assays$Spatial@counts,
-                                      clust_vr = "subclass",
-                                      cluster_markers = cluster_markers_all,
-                                      cl_n = 50, # 100 by default
-                                      hvg = 3000,
-                                      ntop = NULL,
-                                      transf = "uv",
-                                      method = "nsNMF",
-                                      min_cont = 0.09)
+                                        counts_spatial = anterior@assays$Spatial@counts,
+                                        clust_vr = "subclass",
+                                        cluster_markers = cluster_markers_all,
+                                        cl_n = 50, # 100 by default
+                                        hvg = 3000,
+                                        ntop = NULL,
+                                        transf = "uv",
+                                        method = "nsNMF",
+                                        min_cont = 0.07)
 
 saveRDS(object = spotlight_ls,
         file = "sample_data/spotlight_ls_anterior.RDS")
