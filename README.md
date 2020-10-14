@@ -1,10 +1,5 @@
-# SPOTlight
-<p align="center">
-
 <img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
 
-</p>
-    
 The goal of **SPOTlight** is to provide a tool that enables the
 deconvolution of cell types and cell type proportions present within
 each capture locations comprising mixtures of cells, originally
@@ -34,7 +29,7 @@ devtools::install_github("https://github.com/MarcElosua/SPOTlight", ref = "devel
 ```
 
 To ensure the environment is compatible we have put out a docker
-environment that can be downloaded from DockerHub.  
+environmnet that can be downloaded from DockerHub.  
 To download the R environment image
 
     # R environment
@@ -192,18 +187,18 @@ optimal number to be \~100
 ``` r
 set.seed(123)
 spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
-                                      counts_spatial = anterior@assays$Spatial@counts,
-                                      clust_vr = "subclass",
-                                      cluster_markers = cluster_markers_all,
-                                      cl_n = 50, # 100 by default
-                                      hvg = 3000,
-                                      ntop = NULL,
-                                      transf = "uv",
-                                      method = "nsNMF",
-                                      min_cont = 0.09)
+                                        counts_spatial = anterior@assays$Spatial@counts,
+                                        clust_vr = "subclass",
+                                        cluster_markers = cluster_markers_all,
+                                        cl_n = 50,
+                                        hvg = 3000,
+                                        ntop = NULL,
+                                        transf = "uv",
+                                        method = "nsNMF",
+                                        min_cont = 0.09)
 
-saveRDS(object = spotlight_ls,
-        file = "sample_data/spotlight_ls_anterior.RDS")
+# saveRDS(object = spotlight_ls,
+#         file = "sample_data/spotlight_ls_anterior.RDS")
 ```
 
 Load deconvolution matrix directly
@@ -230,8 +225,8 @@ anterior@meta.data <- cbind(anterior@meta.data, decon_mtrx)
 ``` r
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png")
-#> [1] "Using slice anterior1"
+                              img_path = "sample_data/spatial/tissue_lowres_image.png",
+                              pie_scale = 0.4)
 ```
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
@@ -242,8 +237,8 @@ SPOTlight::spatial_scatterpie(se_obj = anterior,
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
                               img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              cell_types_interest = "L6b")
-#> [1] "Using slice anterior1"
+                              cell_types_interest = "L6b",
+                              pie_scale = 0.5)
 ```
 
 <img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
@@ -341,8 +336,7 @@ Plot topic profiles
 h <- NMF::coef(nmf_mod)
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
 topic_profile_plts <- dot_plot_profiles_fun(h = h,
-                      train_cell_clust = nmf_mod_ls[[2]], 
-                      clust_vr = "subclass")
+                      train_cell_clust = nmf_mod_ls[[2]])
 topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90), 
                                 axis.text = element_text(size = 12))
 ```
@@ -355,13 +349,7 @@ Step-by-Step insight
 Here we are going to show step by step what is going on and all the
 different steps involved in the process.
 
-<p align="center">
-
-<img src="img/SPOTlight_scheme.png" width="800px" style="display: block; margin: auto;" />
-
-</p>
-
-
+<embed src="img/SPOTlight_scheme.pdf" width="800px" style="display: block; margin: auto;" type="application/pdf" />
 #### Downsample data
 
 If the dataset is very large we want to downsample it, both in terms of
@@ -389,13 +377,12 @@ shown below.
 start_time <- Sys.time()
 nmf_mod_ls <- train_nmf(cluster_markers = cluster_markers_all, 
                         se_sc = se_sc_down, 
-                        mtrx_spatial = anterior@assays$Spatial@counts, 
+                        mtrx_spatial = anterior@assays$Spatial@counts,
                         clust_vr = "subclass",
                         ntop = NULL,
                         hvg = 3000,
                         transf = "uv",
-                        method = "nsNMF",
-                        min_cont = 0.09)
+                        method = "nsNMF")
 
 nmf_mod <- nmf_mod_ls[[1]]
 ```
@@ -416,9 +403,11 @@ Look at cell-type specific topic profile
 
 ``` r
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
-topic_profile_plts <- dot_plot_profiles_fun(h = h,
-                      train_cell_clust = nmf_mod_ls[[2]], 
-                      clust_vr = clust_vr)
+topic_profile_plts <- dot_plot_profiles_fun(
+  h = h,
+  train_cell_clust = nmf_mod_ls[[2]]
+  )
+
 topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90))
 ```
 
@@ -439,12 +428,11 @@ squares to determine the best coefficient fit.
 
 ``` r
 ct_topic_profiles <- topic_profile_per_cluster_nmf(h = h,
-                              train_cell_clust = nmf_mod_ls[[2]],
-                              clust_vr = clust_vr)
+                              train_cell_clust = nmf_mod_ls[[2]])
 
 decon_mtrx <- mixture_deconvolution_nmf(nmf_mod = nmf_mod,
                           mixture_transcriptome = spot_counts,
-                          transf = transf,
+                          transf = "uv",
                           reference_profiles = ct_topic_profiles, 
                           min_cont = 0.09)
 ```
