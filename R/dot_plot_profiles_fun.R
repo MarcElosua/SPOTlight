@@ -2,15 +2,13 @@
 #'
 #' @param h Object of class matrix; H coeficient matrix from NMF model.
 #' @param train_cell_clust Object of class vector with cluster of the cells used to train the model.
-#' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @return This function returns a list where the first element is a plot with the topic profiles of all the cell types and the 2nd element is a plot with the consensus topic profile per spot.
 #' @export
 #' @examples
 #'
 
 dot_plot_profiles_fun <- function(h,
-                                  train_cell_clust,
-                                  clust_vr) {
+                                  train_cell_clust) {
 
   suppressMessages(require(stringr)) # For the downsampling
   suppressMessages(require(dplyr))
@@ -25,21 +23,19 @@ dot_plot_profiles_fun <- function(h,
 
   # Get proportions for each row
   h_ds <- round(h_df/rowSums(h_df), 4)
-  h_ds[, clust_vr] <- train_cell_clust
+  h_ds[, "clust_vr"] <- train_cell_clust
 
   train_cells_plt <- h_ds %>%
     tibble::rowid_to_column("id") %>%
-    tidyr::pivot_longer(cols = -c(all_of(clust_vr), id),
+    tidyr::pivot_longer(cols = -c(clust_vr, id),
                         names_to = "topics",
                         values_to = "weights") %>%
-    dplyr::group_by(!!! syms(clust_vr)) %>%
     dplyr::mutate(
       weights_txt = if_else(weights > 0.1, round(weights, 2), NULL)
     ) %>%
-    dplyr::ungroup() %>%
     ggplot2::ggplot(aes(x = id, y = topics)) +
     ggplot2::geom_point(aes(size = weights, colour = weights)) +
-    ggplot2::facet_wrap(as.formula(paste(clust_vr, "~ .")), scales = "free") +
+    ggplot2::facet_wrap(clust_vr ~ ., scales = "free") +
     ggplot2::scale_color_continuous(low = "grey", high = "#59b371") +
     ggplot2::theme_classic() +
     ggplot2::labs(title = "NMF: Topic proportion within cell types") +
@@ -52,9 +48,9 @@ dot_plot_profiles_fun <- function(h,
                     size = guide_legend("Proportion"))
 
   ct_topic_profiles <- h_ds %>%
-    dplyr::group_by(!!! syms(clust_vr)) %>%
+    dplyr::group_by(clust_vr) %>%
     dplyr::summarise_all(list(median)) %>%
-    tibble::column_to_rownames(clust_vr)
+    tibble::column_to_rownames("clust_vr")
 
   ct_topic_profiles <- ct_topic_profiles / rowSums(ct_topic_profiles)
   # In case a row is all 0

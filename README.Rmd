@@ -1,15 +1,15 @@
 ---
 title: "SPOTlight"
 date: "Last Updated: `r format(Sys.time(), '%d, %B, %Y at %H:%M')`"
-# output:
-#   md_document:
-#     variant: markdown_github
-# editor_options:
-#   chunk_output_type: console
 output:
- rmdformats::readthedown:
-   toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
-   highlight: tango  # specifies the syntax highlighting style
+  md_document:
+    variant: markdown_github
+editor_options:
+  chunk_output_type: console
+# output:
+#  rmdformats::readthedown:
+#    toc_depth: 4 # upto three depths of headings (specified by #, ## and ###
+#    highlight: tango  # specifies the syntax highlighting style
 ---
 
 ```{r, include = FALSE}
@@ -318,13 +318,12 @@ Once we have the data ready to pass to the model we can train it as shown below.
 start_time <- Sys.time()
 nmf_mod_ls <- train_nmf(cluster_markers = cluster_markers_all, 
                         se_sc = se_sc_down, 
-                        mtrx_spatial = anterior@assays$Spatial@counts, 
+                        mtrx_spatial = anterior@assays$Spatial@counts,
                         clust_vr = "subclass",
                         ntop = NULL,
                         hvg = 3000,
                         transf = "uv",
-                        method = "nsNMF",
-                        min_cont = 0.09)
+                        method = "nsNMF")
 
 nmf_mod <- nmf_mod_ls[[1]]
 ```
@@ -343,9 +342,11 @@ dim(h)
 Look at cell-type specific topic profile
 ```{r eval = FALSE}
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
-topic_profile_plts <- dot_plot_profiles_fun(h = h,
-                      train_cell_clust = nmf_mod_ls[[2]], 
-                      clust_vr = clust_vr)
+topic_profile_plts <- dot_plot_profiles_fun(
+  h = h,
+  train_cell_clust = nmf_mod_ls[[2]]
+  )
+
 topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90))
 ```
 
