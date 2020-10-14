@@ -74,8 +74,7 @@ spatial_decon_syn_assessment_nmf_fun <- function(se_sc,
   # Run test spots through the basis to get the pertinent coefficients. To do this for every spot we are going to set up a system of linear equations where we need to find the coefficient, we will use non-negative least squares to determine the best coefficient fit.
   # Get cell type specific topif profiles
   ct_topic_profiles <- topic_profile_per_cluster_nmf(h = coef(nmf_mod_ls[[1]]),
-                                                     train_cell_clust = nmf_mod_ls[[2]],
-                                                     clust_vr = clust_vr)
+                                                     train_cell_clust = nmf_mod_ls[[2]])
   print("Deconvolute synthetic spots")
   # Perform deconvolution of the capture location mixtures
   pred_comp <- mixture_deconvolution_nmf(nmf_mod = nmf_mod_ls[[1]],

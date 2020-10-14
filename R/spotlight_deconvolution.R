@@ -49,8 +49,7 @@ spotlight_deconvolution <- function(se_sc,
 
   # Get cell type specific topif profiles
   ct_topic_profiles <- topic_profile_per_cluster_nmf(h = coef(nmf_mod_ls[[1]]),
-                                                     train_cell_clust = nmf_mod_ls[[2]],
-                                                     clust_vr = clust_vr)
+                                                     train_cell_clust = nmf_mod_ls[[2]])
 
   # Perform deconvolution of the capture location mixtures
   decon_mtrx <- mixture_deconvolution_nmf(nmf_mod = nmf_mod_ls[[1]],
