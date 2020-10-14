@@ -201,7 +201,8 @@ anterior@meta.data <- cbind(anterior@meta.data, decon_mtrx)
 ```{r}
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png")
+                              img_path = "sample_data/spatial/tissue_lowres_image.png",
+                              pie_scale = 0.4)
 ```
 
 3rd show only spots containing cell types of interest
@@ -209,7 +210,8 @@ SPOTlight::spatial_scatterpie(se_obj = anterior,
 SPOTlight::spatial_scatterpie(se_obj = anterior,
                               cell_types_all = cell_types_all,
                               img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              cell_types_interest = "L6b")
+                              cell_types_interest = "L6b",
+                              pie_scale = 0.5)
 ```
 
 #### Spatial location
@@ -283,8 +285,7 @@ Plot topic profiles
 h <- NMF::coef(nmf_mod)
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
 topic_profile_plts <- dot_plot_profiles_fun(h = h,
-                      train_cell_clust = nmf_mod_ls[[2]], 
-                      clust_vr = "subclass")
+                      train_cell_clust = nmf_mod_ls[[2]])
 topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90), 
                                 axis.text = element_text(size = 12))
 ```
@@ -362,12 +363,11 @@ spot_counts <- spot_counts[rownames(spot_counts) %in% rownames(w), ]
 Run spots through the basis to get the pertinent coefficients. To do this for every spot we are going to set up a system of linear equations where we need to find the coefficient, we will use non-negative least squares to determine the best coefficient fit. 
 ```{r eval = FALSE}
 ct_topic_profiles <- topic_profile_per_cluster_nmf(h = h,
-                              train_cell_clust = nmf_mod_ls[[2]],
-                              clust_vr = clust_vr)
+                              train_cell_clust = nmf_mod_ls[[2]])
 
 decon_mtrx <- mixture_deconvolution_nmf(nmf_mod = nmf_mod,
                           mixture_transcriptome = spot_counts,
-                          transf = transf,
+                          transf = "uv",
                           reference_profiles = ct_topic_profiles, 
                           min_cont = 0.09)
 ````
