@@ -26,7 +26,7 @@ seed_init_mtrx_nmf <- function(cluster_markers,
   cluster_markers_cut <- suppressMessages(cut_markers2(markers = cluster_markers,
                                                        ntop = ntop))
 
-  # Select unique markers from each cluster, if there are common markers between clusters lda model gets confused and classifies very different clusters as belonging to the same topic just because the seeding induced it!
+  # Select unique markers from each cluster, if there are common markers between clusters the model gets confused and could classify different clusters as belonging to the same topic just because the seeding induced it!
   cluster_markers_uniq <- lapply(unique(cluster_markers_cut$cluster), function(clust) {
     ls1 <- cluster_markers_cut[cluster_markers_cut$cluster == clust, "gene"]
     ls2 <- cluster_markers_cut[cluster_markers_cut$cluster != clust, "gene"]
@@ -39,7 +39,7 @@ seed_init_mtrx_nmf <- function(cluster_markers,
   # Set seedwords from top markers. Here we are setting the weights for each topic, the words that are weighted positively are those belonging to the list of top markers for a cluster.
   # In the seedgenes matrix each row represents a topic and each column represents a gene.
 
-  # To the LDA model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC
+  # To the NMF model we need to pass a matrix with k rows and ngene columns, where each cell has the weight of that gene for that topic. The weight we're assigning is the logFC
 
   # initialize matrix
   seedgenes <- matrix(nrow = k, ncol = ncol(se_nmf_ready), data = 1e-10)

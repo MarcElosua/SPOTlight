@@ -1,10 +1,10 @@
 #' This function downsamples the number of cells and genes used to train the model
 #'
 #' @param se_obj Object of class Seurat; with the data of interest.
-#' @param clust_vr Object of calss character; Name of the variable containing the cell clustering.
+#' @param clust_vr Object of class character; Name of the variable containing the cell clustering.
 #' @param cluster_markers Object of class data.frame; obtained from the function Seurat::FindAllMarkers().
 #' @param cl_n Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
-#' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
+#' @param hvg Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if NULL then it is completely unsupervised and use top 3000 HVG.
 #' @return A downsampled Seurat object from the original
 #' @export
 #' @examples

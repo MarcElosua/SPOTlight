@@ -4,10 +4,10 @@
 #' @param counts_spatial Object of class Matrix of shape GENESxSPOT, se_obj\@assays$Spatial@counts.
 #' @param clust_vr Object of class character. Name of the variable containing the cell clustering.
 #' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
-#' @param cl_n Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
-#' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
+#' @param cl_n Object of class integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.
+#' @param hvg Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if NULL then it is completely unsupervised and use top 3000 HVG.
 #' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL. If NULL it uses all of them.
-#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.
+#' @param transf Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.
 #' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 0.09 of the total.
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.

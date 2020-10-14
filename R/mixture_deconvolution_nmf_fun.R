@@ -1,8 +1,8 @@
 #' Run mixtures through the NMF model to get the cell type composition.
 #'
-#' @param nmf_mod Object of class dataframe obtained from the function Seurat::FindAllMarkers().
+#' @param nmf_mod Object of class NMF containing the trained nNMF model.
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
-#' @param transf Object of class string indicatinf the transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied).
+#' @param transf Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.
 #' @param reference_profiles Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.
 #' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 0.09 of the total.
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.
@@ -18,7 +18,6 @@ mixture_deconvolution_nmf <- function(nmf_mod,
 
   # Check variables
   if (!is(nmf_mod, "NMF")) stop("ERROR: nmf_mod must be an NMF object!")
-  # if (!is(mixture_transcriptome, "Matrix")) stop("ERROR: mixture_transcriptome must be a matrix!")
   if (!is.character(transf)) stop("ERROR: transf must be a character string!")
   if (!is.matrix(reference_profiles)) stop("ERROR: reference_profiles must be a matrix!")
   if (!is.numeric(min_cont)) stop("ERROR: min_cont must be numeric!")
@@ -57,12 +56,7 @@ mixture_deconvolution_nmf <- function(nmf_mod,
     comp_prop <- comp / sum(comp)
     comp_prop[is.na(comp_prop)] <- 0
 
-    ## Get residual sum of squares
-    # fit_val <- rowSums(weights * reference_profiles)
-    # res_ss <- sum((profile_mtrx[, i] - fit_val) ^ 2)
-
     ## Get Total sum of squares
-    # fit_null <- mean(profile_mtrx[, i])
     fit_null <- 0
     tot_ss <- sum((profile_mtrx[, i] - fit_null) ^ 2)
 

@@ -13,7 +13,7 @@ topic_profile_per_cluster_nmf <- function(h,
                                           clust_vr) {
 
   # Check variables
-  if (!is(h, "matrix")) stop("ERROR: h must be a matric object!")
+  if (!is(h, "matrix")) stop("ERROR: h must be a matrix object!")
   if (! is(train_cell_clust, "vector")) stop("ERROR: train_cell_clust must be a vector/list object!")
   if (!is.character(clust_vr)) stop("ERROR: clust_vr must be a character string!")
 
@@ -31,7 +31,9 @@ topic_profile_per_cluster_nmf <- function(h,
     as.matrix()
 
   ct_topic_profiles_t <- t(ct_topic_profiles)
-  colnames(ct_topic_profiles_t) <- gsub("[\\+|\\ |\\/]", ".", colnames(ct_topic_profiles_t))
+  colnames(ct_topic_profiles_t) <- gsub("[[:punct:]]|[[:blank:]]",
+                                        ".",
+                                        colnames(ct_topic_profiles_t))
 
   return(ct_topic_profiles_t)
 }

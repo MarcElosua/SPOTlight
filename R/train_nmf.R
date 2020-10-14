@@ -1,13 +1,13 @@
-#' This functions carries out the NMF and returns and NMF object.
+#' This functions carries out the nNMF and returns and NMF object.
 #'
-#' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
 #' @param se_sc Object of class Seurat with the scRNAseq data.
-#' @param mtrx_spatial Object of class Matrix of shape GENESxSPOT.
-#' @param transf Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied). By default CPM.
-#' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL If NULL it uses all of them.
+#' @param mtrx_spatial Object of class matrix of shape GENESxSPOT.
+#' @param cluster_markers Object of class dataframe obtained from the function Seurat::FindAllMarkers()
 #' @param clust_vr Object of class character; Name of the variable containing the cell clustering.
+#' @param ntop Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL If NULL it uses all of them.
+#' @param transf Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.
 #' @param method Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.
-#' @param hvg Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.
+#' @param hvg Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if NULL then it is completely unsupervised and use top 3000 HVG.
 #' @param assay Object of class character; From which assay to grab the expression data to train the model, by default "RNA".
 #' @param slot Object of class character; From which slot to grab the expression data to train the model, by default "counts".
 #' @return This function returns a list with the initialized matrices H and W.
@@ -15,9 +15,9 @@
 #' @examples
 #'
 
-train_nmf <- function(cluster_markers,
-                      se_sc,
+train_nmf <- function(se_sc,
                       mtrx_spatial,
+                      cluster_markers,
                       clust_vr,
                       ntop = NULL,
                       transf = "cpm",
@@ -75,11 +75,7 @@ train_nmf <- function(cluster_markers,
 
   # Normalize count matrix
   print("Normalizing count matrix")
-  if (transf == "cpm") {
-    count_mtrx <- edgeR::cpm(mtrx_sc,
-                             normalized.lib.sizes = FALSE)
-
-  } else if (transf == "uv") {
+  if (transf == "uv") {
     count_mtrx_t <- scale(t(mtrx_sc),
                         center = FALSE,
                         scale = apply(mtrx_sc, 1, sd, na.rm = TRUE))

@@ -1,7 +1,7 @@
 #' If you wanna test the performance of your model on synthetic generated test spots you can use this function to benchmark and get a sense of the model's performance.
 #'
-#' @param test_spots_metadata Object of class matrix with the predicted topic probability distributions for each spot. Output from the lda_prediction function.
-#' @param spot_composition_mtrx list obtained from the function syn_spot_comb_topic_fun.R. The 1st element is a matrix with topic profiles of all the synthetic spots generated, the 2nd element is the composition of each synthetic spot.
+#' @param test_spots_metadata Object of class matrix containing the ground truth composition of each spot as obtained from the function syn_spot_comb_topic_fun.R, 2nd element.
+#' @param spot_composition_mtrx Object of class matrix with the predicted topic probability distributions for each spot.
 #' @return This function returns a list with TP, TN, FP, FN and the Jensen-Shannon Divergence index.
 #' @export
 #' @examples
@@ -11,7 +11,7 @@ test_synthetic_performance <- function(test_spots_metadata_mtrx,
                                        spot_composition_mtrx) {
   # Check variables
   if (!is.matrix(test_spots_metadata_mtrx)) stop("ERROR: test_spots_metadata_mtrx must be a matrix object!")
-  if (!is.matrix(spot_composition_mtrx)) stop("ERROR: syn_spots_ls must be the list obtained from the function syn_spot_comb_topic_fun().")
+  if (!is.matrix(spot_composition_mtrx)) stop("ERROR: spot_composition_mtrx must be a matrix object!")
 
   colnames(spot_composition_mtrx) <- gsub(pattern = "[[:punct:]]|[[:blank:]]", ".",
                                 x = colnames(spot_composition_mtrx),

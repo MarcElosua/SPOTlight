@@ -1,6 +1,6 @@
 #' This function takes in a seurat object, a path to an image and a slice name to load and plot.
 #'
-#' @param img_path: Object of class string pointing to the HE image.
+#' @param img_path: Object of class string containing the path pointing to the HE image.
 #' @param img_alpha: Object of class numeric between 0-1 indicating the degree of transparency of the image
 #' @return this function returns a plot of class gg
 #' @export
@@ -54,18 +54,6 @@ plot_image <- function(img_path,
                                  ylim = NULL,
                                  expand = TRUE,
                                  clip = "on"))
-
-  ### Plot image ###
-  # he_plt <- spatial_img %>%
-  #   as.data.frame(wide = "c") %>%
-  #   mutate(rgb.val = rgb(c.1, c.2, c.3)) %>%
-  #   ggplot(., aes(x, y)) +
-  #     geom_raster(aes(fill = rgb.val), alpha = img_alpha) +
-  #     scale_fill_identity() +
-  #     scale_y_reverse() +
-  #     theme_void() +
-  #     theme(plot.margin = unit(c(0, 0, 0, 0), "line")) +
-  #     coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
 
   return(he_plt)
 }
