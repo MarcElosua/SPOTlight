@@ -33,5 +33,6 @@ Imports: arrangements (>= 1.1.8),
          png (>= 0.1.7),
          philentropy(>= 0.4.0),
          purrr (>= 0.3.3),
+         scatterpie (>= 0.1.5),
          Seurat (>= 3.2.0),
          tibble (>= 2.1.3)
