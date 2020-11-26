@@ -79,10 +79,10 @@ library(SeuratData)
 ### Mouse brain Dataset
 
 For the purpose of this tutorial we are going to use adult mouse brain
-data. The scRNAseq data can be downloaded [here](), while the spatial
-data is the one put out publicly by
+data. The scRNAseq data can be downloaded [here](https://github.com/MarcElosua/SPOTlight/tree/master/sample_data), while the spatial
+data is the one made publicly available by
 [10X](https://www.10xgenomics.com/resources/datasets/) and the processed
-object can be downloaded [here](PENDING).
+object can be accessed through the `SeuratData` package as shown below.
 
 #### scRNAseq
 
