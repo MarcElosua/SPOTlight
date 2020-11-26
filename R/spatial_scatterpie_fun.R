@@ -108,9 +108,9 @@ spatial_scatterpie <- function(se_obj,
   scatterpie_plt <- suppressMessages(ggplot2::ggplot() +
                                        ggplot2::annotation_custom(grob = img_grob,
                                                                   xmin = 0,
-                                                                  xmax = 600,
+                                                                  xmax = ncol(img),
                                                                   ymin = 0,
-                                                                  ymax = -600) +
+                                                                  ymax = -nrow(img)) +
                                        scatterpie::geom_scatterpie(data = spatial_coord,
                                                                    aes(x = imagecol_scaled,
                                                                        y = imagerow_scaled),
@@ -119,8 +119,8 @@ spatial_scatterpie <- function(se_obj,
                                                                    alpha = scatterpie_alpha,
                                                                    pie_scale = pie_scale) +
                                        ggplot2::scale_y_reverse() +
-                                       ggplot2::ylim(600, 0) +
-                                       ggplot2::xlim(0, 600) +
+                                       ggplot2::ylim(nrow(img), 0) +
+                                       ggplot2::xlim(0, ncol(img)) +
                                        cowplot::theme_half_open(11, rel_small = 1) +
                                        ggplot2::theme_void() +
                                        ggplot2::coord_fixed(ratio = 1,
