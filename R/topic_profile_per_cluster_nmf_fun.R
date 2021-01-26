@@ -24,7 +24,8 @@ topic_profile_per_cluster_nmf <- function(h,
   ct_topic_profiles <- h_ds %>%
     dplyr::group_by(clust_vr) %>%
     dplyr::summarise_all(list(median)) %>%
-    tibble::column_to_rownames("clust_vr") %>%
+    tibble::remove_rownames(.) %>%
+    tibble::column_to_rownames(., var = "clust_vr") %>%
     as.matrix()
 
   ct_topic_profiles_t <- t(ct_topic_profiles)
