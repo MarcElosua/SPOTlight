@@ -48,7 +48,7 @@ scatterpie_plot <- function(se_obj,
       dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
       dplyr::select("barcodeID") %>%
-      dplyr::left_join(metadata_ds %>% rownames_to_column("barcodeID"),by = "barcodeID") %>%
+      dplyr::left_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"),by = "barcodeID") %>%
       tibble::column_to_rownames("barcodeID")
   }
 
@@ -68,17 +68,18 @@ scatterpie_plot <- function(se_obj,
   # Plot the scatterplot
   scatterpie_plt <- suppressMessages(ggplot() +
                      scatterpie::geom_scatterpie(data = spatial_coord,
-                                                 aes(x = imagecol_scaled,
-                                                     y = imagerow_scaled),
+                                                 ggplot2::aes(
+                                                   x = imagecol_scaled,
+                                                   y = imagerow_scaled),
                                                  cols = cell_types_all,
                                                  color = NA,
                                                  alpha = scatterpie_alpha,
                                                  pie_scale = pie_scale) +
-                     scale_y_reverse() +
-                     ylim(nrow(img), 0) +
-                     xlim(0, ncol(img)) +
-                     theme_half_open(11, rel_small = 1) +
-                     theme_void())
+                     ggplot2::scale_y_reverse() +
+                     ggplot2::ylim(nrow(img), 0) +
+                     ggplot2::xlim(0, ncol(img)) +
+                     ggplot2::theme_half_open(11, rel_small = 1) +
+                     ggplot2::theme_void())
 
   return(scatterpie_plt)
 

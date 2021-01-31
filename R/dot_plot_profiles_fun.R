@@ -31,7 +31,7 @@ dot_plot_profiles_fun <- function(h,
                         names_to = "topics",
                         values_to = "weights") %>%
     dplyr::mutate(
-      weights_txt = if_else(weights > 0.1, round(weights, 2), NULL)
+      weights_txt = dplyr::if_else(weights > 0.1, round(weights, 2), NULL)
     ) %>%
     ggplot2::ggplot(aes(x = id, y = topics)) +
     ggplot2::geom_point(aes(size = weights, colour = weights)) +
@@ -40,16 +40,17 @@ dot_plot_profiles_fun <- function(h,
     ggplot2::theme_classic() +
     ggplot2::labs(title = "NMF: Topic proportion within cell types") +
     ggplot2::theme(
-      plot.title = element_text(hjust = 0.5, size = 20),
-      axis.text.x = element_text(angle = 90, vjust = 0.5),
-      axis.text = element_text(size = 15)) +
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 20),
+      axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
+      axis.text = ggplot2::element_text(size = 15)) +
     ggplot2::scale_size(range = c(0, 5)) +
-    ggplot2::guides(colour = guide_legend("Proportion"),
-                    size = guide_legend("Proportion"))
+    ggplot2::guides(colour = ggplot2::guide_legend("Proportion"),
+                    size = ggplot2::guide_legend("Proportion"))
 
   ct_topic_profiles <- h_ds %>%
     dplyr::group_by(clust_vr) %>%
     dplyr::summarise_all(list(median)) %>%
+    tibble::remove_rownames(.) %>%
     tibble::column_to_rownames("clust_vr")
 
   ct_topic_profiles <- ct_topic_profiles / rowSums(ct_topic_profiles)
@@ -65,18 +66,18 @@ dot_plot_profiles_fun <- function(h,
                       levels = stringr::str_sort(colnames(ct_topic_profiles),
                                         numeric = TRUE))
     ) %>%
-    ggplot2::ggplot(aes(x = `Cell type`, y = Topics)) +
-    ggplot2::geom_point(aes(size = value, colour = value)) +
+    ggplot2::ggplot(ggplot2::aes(x = `Cell type`, y = Topics)) +
+    ggplot2::geom_point(ggplot2::aes(size = value, colour = value)) +
     ggplot2::scale_color_continuous(low = "grey", high = "#59b371") +
     ggplot2::theme_classic() +
     ggplot2::labs(title = "NMF: Topic profiles by cell type") +
     ggplot2::theme(
-      plot.title = element_text(hjust = 0.5, size = 20),
-      axis.text.x = element_text(angle = 90, vjust = 0.5),
-      axis.text = element_text(size = 15)) +
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 20),
+      axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
+      axis.text = ggplot2::element_text(size = 15)) +
     ggplot2::scale_size(range = c(0, 10)) +
-    ggplot2::guides(colour = guide_legend("Proportion"),
-                    size = guide_legend("Proportion"))
+    ggplot2::guides(colour = ggplot2::guide_legend("Proportion"),
+                    size = ggplot2::guide_legend("Proportion"))
 
   return(list(train_cells_plt, cell_type_plt))
 }
