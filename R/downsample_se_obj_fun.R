@@ -53,8 +53,8 @@ downsample_se_obj <- function(se_obj,
     n_sample <- if_else(nrow(subdf) < cl_n, as.numeric(nrow(subdf)), as.numeric(cl_n))
     # Subset a random selection of that group and get the identifiers
     tmp_ds <- subdf[sample(seq_len(nrow(subdf)), n_sample), ] %>%
-      tibble::rownames_to_column("ID") %>%
-      dplyr::pull(ID)
+      tibble::rownames_to_column("barcodeID") %>%
+      dplyr::pull(barcodeID)
     return(tmp_ds)
   }) %>%
     purrr::flatten_chr() # flatten the list into a vector

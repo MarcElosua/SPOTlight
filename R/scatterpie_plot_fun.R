@@ -44,12 +44,12 @@ scatterpie_plot <- function(se_obj,
   if (!all(cell_types_all %in% cell_types_interest)) {
 
     metadata_ds <- metadata_ds %>%
-      tibble::rownames_to_column("ID") %>%
+      tibble::rownames_to_column("barcodeID") %>%
       dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
-      dplyr::select("ID") %>%
-      dplyr::left_join(metadata_ds %>% rownames_to_column("ID"),by = "ID") %>%
-      tibble::column_to_rownames("ID")
+      dplyr::select("barcodeID") %>%
+      dplyr::left_join(metadata_ds %>% rownames_to_column("barcodeID"),by = "barcodeID") %>%
+      tibble::column_to_rownames("barcodeID")
   }
 
   ## If slice is not selected set it to the first element in the list of slices
@@ -60,10 +60,10 @@ scatterpie_plot <- function(se_obj,
 
   ## Preprocess data
   spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
-    tibble::rownames_to_column("ID") %>%
+    tibble::rownames_to_column("barcodeID") %>%
     dplyr::mutate(imagerow_scaled = imagerow * se_obj@images[[slice]]@scale.factors$lowres,
                   imagecol_scaled = imagecol * se_obj@images[[slice]]@scale.factors$lowres) %>%
-    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("ID"), by = "ID")
+    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID")
 
   # Plot the scatterplot
   scatterpie_plt <- suppressMessages(ggplot() +
@@ -75,8 +75,8 @@ scatterpie_plot <- function(se_obj,
                                                  alpha = scatterpie_alpha,
                                                  pie_scale = pie_scale) +
                      scale_y_reverse() +
-                     ylim(600, 0) +
-                     xlim(0, 600) +
+                     ylim(nrow(img), 0) +
+                     xlim(0, ncol(img)) +
                      theme_half_open(11, rel_small = 1) +
                      theme_void())
 

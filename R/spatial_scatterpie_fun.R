@@ -67,12 +67,12 @@ spatial_scatterpie <- function(se_obj,
   if (!all(cell_types_all %in% cell_types_interest)) {
 
     metadata_ds <- metadata_ds %>%
-      tibble::rownames_to_column("ID") %>%
+      tibble::rownames_to_column("barcodeID") %>%
       dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
-      dplyr::select("ID") %>%
-      dplyr::left_join(metadata_ds %>% rownames_to_column("ID"),by = "ID") %>%
-      tibble::column_to_rownames("ID")
+      dplyr::select("barcodeID") %>%
+      dplyr::left_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID") %>%
+      tibble::column_to_rownames("barcodeID")
   }
 
   ## If slice is not selected set it to the first element in the list of slices
@@ -83,10 +83,10 @@ spatial_scatterpie <- function(se_obj,
 
   ## Preprocess data
   spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
-    tibble::rownames_to_column("ID") %>%
+    tibble::rownames_to_column("barcodeID") %>%
     dplyr::mutate(imagerow_scaled = imagerow * se_obj@images[[slice]]@scale.factors$lowres,
                   imagecol_scaled = imagecol * se_obj@images[[slice]]@scale.factors$lowres) %>%
-    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("ID"), by = "ID")
+    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID")
 
   ### Load histological image into R
   #### Extract file format, JPEG or PNG
