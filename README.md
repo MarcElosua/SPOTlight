@@ -64,4 +64,4 @@ For more information check out the
 [rocker](https://www.rocker-project.org/) project guidelines
 <a href="https://hub.docker.com/r/rocker/rstudio/" class="uri">https://hub.docker.com/r/rocker/rstudio/</a>
 
-A vignette on how to run the basic SPOTlight workflow can be found [here](https://marcelosua.github.io/)
+A vignette on how to run the basic SPOTlight workflow can be found [here](https://marcelosua.github.io/SPOTlight/)
