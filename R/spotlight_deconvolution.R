@@ -27,7 +27,7 @@ spotlight_deconvolution <- function(se_sc,
                                     ntop = NULL,
                                     transf = "uv",
                                     method = "nsNMF",
-                                    min_cont = 0.03,
+                                    min_cont = 0.01,
                                     assay = "RNA",
                                     slot = "counts") {
 
