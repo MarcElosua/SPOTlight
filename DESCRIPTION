@@ -1,10 +1,10 @@
 Package: SPOTlight
 Type: Package
 Title: Cell type deconvolution of Visium data
-Version: 0.1.4
+Version: 0.1.5
 Author: Marc Elosua-Bayes
 Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eu>
-Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures.
+Description: This package is aimed at decomposing the cell types and proportions of single-cell mixtures.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
