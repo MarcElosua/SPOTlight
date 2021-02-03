@@ -88,7 +88,7 @@ library(SeuratData)
 ```
 
 ### Mouse brain Dataset
-For the purpose of this tutorial we are going to use adult mouse brain data. The scRNAseq data can be downloaded [here](), while the spatial data is the one put out publicly by [10X](https://www.10xgenomics.com/resources/datasets/) and the processed object can be downloaded [here](PENDING).
+For the purpose of this tutorial we are going to use adult mouse brain data. The scRNAseq data can be downloaded [here](https://github.com/MarcElosua/SPOTlight/blob/master/inst/allen_cortex_dwn.rds) while the spatial data is the one put out publicly by [10X](https://www.10xgenomics.com/resources/datasets/) and the processed object can be downloaded using [SeuratData](https://github.com/satijalab/seurat-data).
 
 #### scRNAseq
 ```{r}
@@ -109,7 +109,7 @@ cortex_sc <- Seurat::FindClusters(cortex_sc, verbose = FALSE)
 ##### Spatial data
 ```{r}
 # InstallData("stxBrain")
-anterior <- LoadData("stxBrain", type = "anterior1")
+anterior <- SeuratData::LoadData("stxBrain", type = "anterior1")
 ```
 
 ```{r}
@@ -154,11 +154,11 @@ cluster_markers_all <- Seurat::FindAllMarkers(object = cortex_sc,
                                               min.pct = 0.9)
 
 saveRDS(object = cluster_markers_all,
-        file = "sample_data/markers_anterior.RDS")
+        file = "sample_data/markers_sc.RDS")
 ```
 
 ```{r}
-cluster_markers_all <- readRDS("sample_data/markers_anterior.RDS")
+cluster_markers_all <- readRDS("sample_data/markers_sc.RDS")
 ```
 
 #### Run deconvolution

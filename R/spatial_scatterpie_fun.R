@@ -68,7 +68,7 @@ spatial_scatterpie <- function(se_obj,
 
     metadata_ds <- metadata_ds %>%
       tibble::rownames_to_column("barcodeID") %>%
-      dplyr::mutate(rsum = rowSums(.[, cell_types_interest, drop = FALSE])) %>%
+      dplyr::mutate(rsum = base::rowSums(.[, cell_types_interest, drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
       dplyr::select("barcodeID") %>%
       dplyr::left_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID") %>%
@@ -90,7 +90,7 @@ spatial_scatterpie <- function(se_obj,
 
   ### Load histological image into R
   #### Extract file format, JPEG or PNG
-  img_frmt <- tolower(stringr::str_sub(img_path, -4, -1))
+  img_frmt <- base::tolower(stringr::str_sub(img_path, -4, -1))
 
   if(img_frmt %in% c(".jpg", "jpeg")) {
     img <- jpeg::readJPEG(img_path)
@@ -112,7 +112,7 @@ spatial_scatterpie <- function(se_obj,
                                                                   ymin = 0,
                                                                   ymax = -nrow(img)) +
                                        scatterpie::geom_scatterpie(data = spatial_coord,
-                                                                   aes(x = imagecol_scaled,
+                                                                   ggplot2::aes(x = imagecol_scaled,
                                                                        y = imagerow_scaled),
                                                                    cols = cell_types_all,
                                                                    color = NA,
