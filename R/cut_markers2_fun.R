@@ -21,9 +21,9 @@ cut_markers2 <- function(markers,
   suppressMessages(require(dplyr))
 
   # Check if we have logFC or avg_diff, if we have avg_diff assign it to avg_logFC to use it instead
-  if ("avg_diff" %in% colnames(markers) & ! "avg_logFC" %in% colnames(markers)) {
-    markers$avg_logFC <- markers$avg_diff
-  }
+  # if ("avg_diff" %in% colnames(markers) & ! "avg_logFC" %in% colnames(markers)) {
+  #   markers$avg_logFC <- markers$avg_diff
+  # }
 
   tmp_markers <- markers %>%
     dplyr::arrange(cluster, p_val) %>%

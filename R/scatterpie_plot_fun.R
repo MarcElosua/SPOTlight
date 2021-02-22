@@ -76,9 +76,6 @@ scatterpie_plot <- function(se_obj,
                                                  alpha = scatterpie_alpha,
                                                  pie_scale = pie_scale) +
                      ggplot2::scale_y_reverse() +
-                     ggplot2::ylim(nrow(img), 0) +
-                     ggplot2::xlim(0, ncol(img)) +
-                     ggplot2::theme_half_open(11, rel_small = 1) +
                      ggplot2::theme_void())
 
   return(scatterpie_plt)
