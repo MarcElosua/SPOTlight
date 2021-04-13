@@ -10,7 +10,7 @@ prep_seobj_topic_fun(se_obj)
 \item{se_obj}{Object of class Seurat with the data of interest}
 }
 \value{
-This function returns a sparse matrix object ready to pass to LDA function
+This function returns a sparse matrix object.
 }
 \description{
 This functions takes in a seurat object and returns the transposed count matrix with the highly variable genes selected

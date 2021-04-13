@@ -40,38 +40,23 @@ spatial_scatterpie <- function(se_obj,
 
   metadata_ds <- data.frame(se_obj@meta.data)
 
-  ## Change column names for consistency ##
-  # [[:punct:]] - Any punctuation character: ! ' # S % & ' ( ) * + , - . / : ; < = > ? @ [ / ] ^ _ { | } ~
-  # colnames(metadata_ds) <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-  #                               replacement = ".",
-  #                               x = colnames(metadata_ds),
-  #                               perl = TRUE)
-  #
-  # cell_types_all <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-  #                        replacement = ".",
-  #                        x = cell_types_all,
-  #                        perl = TRUE)
   colnames(metadata_ds) <- colnames(se_obj@meta.data)
 
   if (is.null(cell_types_interest)) {
     cell_types_interest <- cell_types_all
   }
-  # else {
-  #   cell_types_interest <- gsub(pattern = "[[:punct:]]|[[:blank:]]",
-  #                               replacement = ".",
-  #                               x = cell_types_interest,
-  #                               perl = TRUE)
-  # }
 
   # If not all cell types are in the cell types of interest we only want to keep those spots which have at least one of the cell types of interest
   if (!all(cell_types_all %in% cell_types_interest)) {
 
     metadata_ds <- metadata_ds %>%
       tibble::rownames_to_column("barcodeID") %>%
-      dplyr::mutate(rsum = base::rowSums(.[, cell_types_interest, drop = FALSE])) %>%
+      dplyr::mutate(rsum = base::rowSums(.[, cell_types_interest,
+                                           drop = FALSE])) %>%
       dplyr::filter(rsum != 0) %>%
       dplyr::select("barcodeID") %>%
-      dplyr::left_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID") %>%
+      dplyr::left_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"),
+                       by = "barcodeID") %>%
       tibble::column_to_rownames("barcodeID")
   }
 
@@ -84,9 +69,8 @@ spatial_scatterpie <- function(se_obj,
   ## Preprocess data
   spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
     tibble::rownames_to_column("barcodeID") %>%
-    dplyr::mutate(imagerow_scaled = imagerow * se_obj@images[[slice]]@scale.factors$lowres,
-                  imagecol_scaled = imagecol * se_obj@images[[slice]]@scale.factors$lowres) %>%
-    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"), by = "barcodeID")
+    dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"),
+                      by = "barcodeID")
 
   ### Load histological image into R
   #### Extract file format, JPEG or PNG
@@ -105,28 +89,31 @@ spatial_scatterpie <- function(se_obj,
                                height = grid::unit(1, "npc"))
 
   ## Plot spatial scatterpie plot
-  scatterpie_plt <- suppressMessages(ggplot2::ggplot() +
-                                       ggplot2::annotation_custom(grob = img_grob,
-                                                                  xmin = 0,
-                                                                  xmax = ncol(img),
-                                                                  ymin = 0,
-                                                                  ymax = -nrow(img)) +
-                                       scatterpie::geom_scatterpie(data = spatial_coord,
-                                                                   ggplot2::aes(x = imagecol_scaled,
-                                                                       y = imagerow_scaled),
-                                                                   cols = cell_types_all,
-                                                                   color = NA,
-                                                                   alpha = scatterpie_alpha,
-                                                                   pie_scale = pie_scale) +
-                                       ggplot2::scale_y_reverse() +
-                                       ggplot2::ylim(nrow(img), 0) +
-                                       ggplot2::xlim(0, ncol(img)) +
-                                       cowplot::theme_half_open(11, rel_small = 1) +
-                                       ggplot2::theme_void() +
-                                       ggplot2::coord_fixed(ratio = 1,
-                                                            xlim = NULL,
-                                                            ylim = NULL,
-                                                            expand = TRUE,
-                                                            clip = "on"))
+  scatterpie_plt <- suppressMessages(
+    ggplot2::ggplot() +
+      ggplot2::annotation_custom(
+        grob = img_grob,
+        xmin = 0,
+        xmax = ncol(img),
+        ymin = 0,
+        ymax = -nrow(img)) +
+      scatterpie::geom_scatterpie(
+        data = spatial_coord,
+        ggplot2::aes(x = imagecol,
+                     y = imagerow),
+                     cols = cell_types_all,
+                     color = NA,
+                     alpha = scatterpie_alpha,
+                     pie_scale = pie_scale) +
+      ggplot2::scale_y_reverse() +
+      ggplot2::ylim(nrow(img), 0) +
+      ggplot2::xlim(0, ncol(img)) +
+      cowplot::theme_half_open(11, rel_small = 1) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed(ratio = 1,
+                           xlim = NULL,
+                           ylim = NULL,
+                           expand = TRUE,
+                           clip = "on"))
   return(scatterpie_plt)
 }

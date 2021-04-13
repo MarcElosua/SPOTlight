@@ -45,5 +45,4 @@ RUN R -e "options(repos = \
  list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2020-09-15'), \
       BiocManager::repositories()); \
  install.packages(c('git2r', 'usethis' , 'devtools', 'testthat', 'roxygen2')); \
- devtools::install_github('https://github.com/MarcElosua/SPOTlight', \
- upgrade = 'never')"
+ devtools::install_github('https://github.com/MarcElosua/SPOTlight')"

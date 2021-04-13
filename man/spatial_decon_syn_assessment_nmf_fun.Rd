@@ -5,41 +5,43 @@
 \title{This function takes in a seurat object with several tuning parameters and it assesses its performance on synthetic test spots}
 \usage{
 spatial_decon_syn_assessment_nmf_fun(
-  se_obj,
+  se_sc,
   clust_vr,
-  verbose = TRUE,
-  cl_n = 10,
-  hvg = 0,
-  ntop = 100,
+  cluster_markers,
+  n_syn_mixt = 1000,
+  cl_n = 100,
+  hvg = 3000,
+  ntop = NULL,
   transf = "uv",
   method = "nsNMF",
-  logFC = 1,
-  pct1 = 0.9
+  min_cont = 0.01,
+  assay = "RNA",
+  slot = "counts"
 )
 }
 \arguments{
-\item{se_obj}{Object of class Seurat.}
+\item{se_sc}{Object of class Seurat with the scRNAseq data.}
 
 \item{clust_vr}{Object of class character. Name of the variable containing the cell clustering.}
 
-\item{verbose}{Object of class Logical determining if progress should be reported or not (TRUE by default).}
+\item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers().}
 
-\item{cl_n}{Object of class integer, how many cells to grab from each cluster, by default 10.}
+\item{n_syn_mixt}{Object of class integer specifying how many synthetic mixtures to generate.}
 
-\item{hvg}{Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0}
+\item{cl_n}{Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.}
 
-\item{ntop}{Object of class "numeric"; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
+\item{hvg}{Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.}
 
-\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), NULL (no transformation applied). By default CPM.}
+\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL. If NULL it uses all of them.}
+
+\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.}
 
 \item{method}{Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.}
 
-\item{logFC}{Object of class numeric; logFC to filter marker genes by, by default 1.}
-
-\item{pct1}{Object of class numeric; pct1 to filter marker genes by, by default 0.9.}
+\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1% of the total.}
 }
 \value{
-This function returns a list where the first element is the lda model trained, the second is a list with test spot counts + metadata and the third element are the raw_statistics.
+This function returns a list where the first element is a list with the NMF model trained and the cell labels, the second is a list with the raw_statistics.
 }
 \description{
 This function takes in a seurat object with several tuning parameters and it assesses its performance on synthetic test spots

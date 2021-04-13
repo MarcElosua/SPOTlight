@@ -11,7 +11,7 @@ seed_init_mtrx_nmf(cluster_markers, se_obj, clust_vr, ntop = NULL)
 
 \item{se_obj}{Object of class Seurat with the data of interest.}
 
-\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
+\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL. If NULL it uses all of them.}
 }
 \value{
 This function returns a list with the initialized matrices H and W.

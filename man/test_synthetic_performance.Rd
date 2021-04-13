@@ -7,9 +7,9 @@
 test_synthetic_performance(test_spots_metadata_mtrx, spot_composition_mtrx)
 }
 \arguments{
-\item{spot_composition_mtrx}{list obtained from the function syn_spot_comb_topic_fun.R. The 1st element is a matrix with topic profiles of all the synthetic spots generated, the 2nd element is the composition of each synthetic spot.}
+\item{spot_composition_mtrx}{Object of class matrix with the predicted topic probability distributions for each spot.}
 
-\item{test_spots_metadata}{Object of class matrix with the predicted topic probability distributions for each spot. Output from the lda_prediction function.}
+\item{test_spots_metadata}{Object of class matrix containing the ground truth composition of each spot as obtained from the function syn_spot_comb_topic_fun.R, 2nd element.}
 }
 \value{
 This function returns a list with TP, TN, FP, FN and the Jensen-Shannon Divergence index.

@@ -9,12 +9,9 @@ spatial_scatterpie(
   cell_types_all,
   img_path,
   cell_types_interest = NULL,
-  return_legend = FALSE,
   slice = NULL,
-  img_alpha = 1,
   scatterpie_alpha = 1,
-  pie_scale = 1,
-  col_df = NULL
+  pie_scale = 1
 )
 }
 \arguments{
@@ -26,17 +23,11 @@ spatial_scatterpie(
 
 \item{cell_types_interest:}{Object of class vector containing the cell types of interest you want to plot. By setting this parameters only spots containing at least one of these cell types will be plotted. By default, NULL, it will be assumed to be the same as cell_types_all.}
 
-\item{return_legend:}{Object of class logical. By default (FALSE) it will return the legend along with the plot. If TRUE it will return the plot and the legend separately as grob object, this is a useful option if you want to do image compositions later on.}
-
 \item{slice:}{Object of class character, name of the slice image to load as found in se_obj@images, by default it will grab the first one on the list.}
-
-\item{img_alpha:}{Object of class numeric between 0-1 indicating the degree of transparency of the image.}
 
 \item{scatterpie_alpha:}{Object of class numeric between 0-1 indicating the degree of transparency of the scatterpie.}
 
 \item{pie_scale:}{Object of class numeric containing the size of the pie charts.}
-
-\item{col_df:}{object of class dataframe containing a color for each cell type, the first column is the cell type and the second is the color assigned to it.}
 }
 \value{
 this function returns a plot composition of class gg

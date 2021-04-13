@@ -4,17 +4,15 @@
 \alias{dot_plot_profiles_fun}
 \title{This function takes in the H coefficient matrix object from and NMF object and returns plots to visualize the topic profiles between and within cell types}
 \usage{
-dot_plot_profiles_fun(h, train_cell_clust, clust_vr)
+dot_plot_profiles_fun(h, train_cell_clust)
 }
 \arguments{
 \item{h}{Object of class matrix; H coeficient matrix from NMF model.}
 
 \item{train_cell_clust}{Object of class vector with cluster of the cells used to train the model.}
-
-\item{clust_vr}{Object of class character. Name of the variable containing the cell clustering.}
 }
 \value{
-This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.
+This function returns a list where the first element is a plot with the topic profiles of all the cell types and the 2nd element is a plot with the consensus topic profile per spot.
 }
 \description{
 This function takes in the H coefficient matrix object from and NMF object and returns plots to visualize the topic profiles between and within cell types

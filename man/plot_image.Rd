@@ -7,7 +7,7 @@
 plot_image(img_path, img_alpha = 1)
 }
 \arguments{
-\item{img_path:}{Object of class string pointing to the HE image.}
+\item{img_path:}{Object of class string containing the path pointing to the HE image.}
 
 \item{img_alpha:}{Object of class numeric between 0-1 indicating the degree of transparency of the image}
 }

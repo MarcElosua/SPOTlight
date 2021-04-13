@@ -4,14 +4,12 @@
 \alias{topic_profile_per_cluster_nmf}
 \title{This function takes in the H coefficient matrix object from and NMF object and returns a matrix object with the topic profile for each cell type}
 \usage{
-topic_profile_per_cluster_nmf(h, train_cell_clust, clust_vr)
+topic_profile_per_cluster_nmf(h, train_cell_clust)
 }
 \arguments{
 \item{h}{Object of class matrix, coefficient matrix from NMF model.}
 
 \item{train_cell_clust}{Object of class vector with cluster of the cells used to train the model.}
-
-\item{clust_vr}{Object of class character. Name of the variable containing the cell clustering.}
 }
 \value{
 This function returns a list where the first element is a matrix with the topic profiles of all possible combinations and the 2nd element is the cell composition of each spot.

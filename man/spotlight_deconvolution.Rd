@@ -14,7 +14,7 @@ spotlight_deconvolution(
   ntop = NULL,
   transf = "uv",
   method = "nsNMF",
-  min_cont = 0.09,
+  min_cont = 0.01,
   assay = "RNA",
   slot = "counts"
 )
@@ -28,17 +28,21 @@ spotlight_deconvolution(
 
 \item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
 
-\item{cl_n}{Object of integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.}
+\item{cl_n}{Object of class integer indicating how many cells to keep from each cluster. If a cluster has n < cl_n then all cells will be selected, if it has more then cl_n will be sampled randomly, 100 by default.}
 
-\item{hvg}{Object of class integer, how many HVG to pass to the LDA model besides the cluster markers, by default 0}
+\item{hvg}{Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if NULL then it is completely unsupervised and use top 3000 HVG.}
 
-\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
+\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL. If NULL it uses all of them.}
 
-\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), sct (Seurat::SCTransform), raw (no transformation applied). By default CPM.}
+\item{transf}{Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.}
 
 \item{method}{Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.}
 
-\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.09, by default, means that we will accept those cell types whose weight coefficient is at least 0.09 of the total.}
+\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1% of the total.}
+
+\item{assay}{Object of class character; From which assay to grab the expression data to train the model, by default "RNA".}
+
+\item{slot}{Object of class character; From which slot to grab the expression data to train the model, by default "counts".}
 }
 \value{
 This function returns a matrix with the coefficients of the spatial mixtures.

@@ -2,12 +2,12 @@
 % Please edit documentation in R/train_nmf.R
 \name{train_nmf}
 \alias{train_nmf}
-\title{This functions carries out the NMF and returns and NMF object.}
+\title{This functions carries out the nNMF and returns and NMF object.}
 \usage{
 train_nmf(
-  cluster_markers,
   se_sc,
   mtrx_spatial,
+  cluster_markers,
   clust_vr,
   ntop = NULL,
   transf = "cpm",
@@ -18,21 +18,21 @@ train_nmf(
 )
 }
 \arguments{
-\item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
-
 \item{se_sc}{Object of class Seurat with the scRNAseq data.}
 
-\item{mtrx_spatial}{Object of class Matrix of shape GENESxSPOT.}
+\item{mtrx_spatial}{Object of class matrix of shape GENESxSPOT.}
+
+\item{cluster_markers}{Object of class dataframe obtained from the function Seurat::FindAllMarkers()}
 
 \item{clust_vr}{Object of class character; Name of the variable containing the cell clustering.}
 
-\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default 100. If NULL it uses all of them.}
+\item{ntop}{Object of class "numeric" or NULL; number of unique markers per cluster used to seed the model, by default NULL If NULL it uses all of them.}
 
-\item{transf}{Transformation to normalize the count matrix: cpm (Counts per million), uv (unit variance), raw (no transformation applied). By default CPM.}
+\item{transf}{Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.}
 
 \item{method}{Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.}
 
-\item{hvg}{Object of class numeric or "uns"; Number of highly variable genes to use on top of the marker genes, if "uns" then it is completely unsupervised and use top 3000 HVG.}
+\item{hvg}{Object of class numeric or NULL; Number of highly variable genes to use on top of the marker genes, if NULL then it is completely unsupervised and use top 3000 HVG.}
 
 \item{assay}{Object of class character; From which assay to grab the expression data to train the model, by default "RNA".}
 
@@ -42,7 +42,7 @@ train_nmf(
 This function returns a list with the initialized matrices H and W.
 }
 \description{
-This functions carries out the NMF and returns and NMF object.
+This functions carries out the nNMF and returns and NMF object.
 }
 \examples{
 
