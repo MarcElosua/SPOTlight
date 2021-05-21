@@ -69,6 +69,11 @@ spatial_scatterpie <- function(se_obj,
   ## Preprocess data
   spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
     tibble::rownames_to_column("barcodeID") %>%
+    dplyr::mutate(
+      imagerow_scaled = imagerow *
+        se_obj@images[[slice]]@scale.factors$lowres,
+      imagecol_scaled = imagecol *
+        se_obj@images[[slice]]@scale.factors$lowres) %>%
     dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"),
                       by = "barcodeID")
 
@@ -99,8 +104,8 @@ spatial_scatterpie <- function(se_obj,
         ymax = -nrow(img)) +
       scatterpie::geom_scatterpie(
         data = spatial_coord,
-        ggplot2::aes(x = imagecol,
-                     y = imagerow),
+        ggplot2::aes(x = imagecol_scaled,
+                     y = imagerow_scaled),
                      cols = cell_types_all,
                      color = NA,
                      alpha = scatterpie_alpha,
