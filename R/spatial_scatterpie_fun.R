@@ -70,10 +70,10 @@ spatial_scatterpie <- function(se_obj,
   spatial_coord <- data.frame(se_obj@images[[slice]]@coordinates) %>%
     tibble::rownames_to_column("barcodeID") %>%
     dplyr::mutate(
-      imagerow_scaled = imagerow *
-        se_obj@images[[slice]]@scale.factors$lowres,
-      imagecol_scaled = imagecol *
-        se_obj@images[[slice]]@scale.factors$lowres) %>%
+      imagerow_scaled =
+        imagerow * se_obj@images[[slice]]@scale.factors$lowres,
+      imagecol_scaled =
+        imagecol * se_obj@images[[slice]]@scale.factors$lowres) %>%
     dplyr::inner_join(metadata_ds %>% tibble::rownames_to_column("barcodeID"),
                       by = "barcodeID")
 
