@@ -21,7 +21,7 @@ mixture_deconvolution_nmf(
 
 \item{reference_profiles}{Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.}
 
-\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1% of the total.}
+\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1\% of the total.}
 }
 \value{
 This function returns a matrix with the coefficients of the spatial mixtures.

@@ -4,7 +4,7 @@
 #' @param mixture_transcriptome Object of class matric of dimensions GENESxSPOTS
 #' @param transf Transformation to normalize the count matrix: uv (unit variance), raw (no transformation applied). By default UV.
 #' @param reference_profiles Object of class matrix containing the TOPICSxCELLS Coefficient matrix from where want to get the weights. It can be cell type profiles or cell specific profiles.
-#' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1% of the total.
+#' @param min_cont Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1\% of the total.
 #' @return This function returns a matrix with the coefficients of the spatial mixtures.
 #' @export
 #' @examples

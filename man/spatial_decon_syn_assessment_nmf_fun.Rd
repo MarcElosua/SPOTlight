@@ -38,7 +38,7 @@ spatial_decon_syn_assessment_nmf_fun(
 
 \item{method}{Object of class character; Type of method to us to find W and H. Look at NMF package for the options and specifications, by default nsNMF.}
 
-\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1% of the total.}
+\item{min_cont}{Object of class numeric; Indicates the minimum contribution we expect from a cell in that spot. Since we're working with proportions by setting 0.01, by default, means that we will accept those cell types whose weight coefficient is at least 1\% of the total.}
 }
 \value{
 This function returns a list where the first element is a list with the NMF model trained and the cell labels, the second is a list with the raw_statistics.
