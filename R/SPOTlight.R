@@ -20,16 +20,22 @@ SPOTlight <- function(
     sce,
     spe,
     groups = colLabels(sce, onAbsence = "error"),
+    # filtering
     n_cells = 100,
     n_genes = 3e3,
+    # markers
     mgs,
     n_top = NULL,
     gene_id = "gene",
     group_id = "cluster",
     weight_id = "weight",
+    # NMF
     scale = TRUE,
-    model = c("ns", "std"),
+    seed_model = c("ns", "std"),
+    NMF_model
+    # deconvolution
     min_prop = 0.01,
+    # general
     assay = "counts",
     verbose = TRUE)
 {
@@ -67,4 +73,3 @@ SPOTlight <- function(
     # perform deconvolution
     res <- .deconvolute(mod, spe, scale, ref, min_prop)
 }
-    

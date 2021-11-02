@@ -117,6 +117,8 @@
         hw <- .init_nmf(sce, mgs, n_top, gene_id, group_id, weight_id)
         nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
     }
+    # TODO: figure out if these models can be
+    # different / if it matters if they are
     
     # train NMF model
     if (verbose)
@@ -135,8 +137,12 @@
     return(mod)
 }
 
-.init_nmf <- function(sce, mgs, n_top = NULL, 
-    gene_id = "gene", group_id = "cluster", weight_id = "weight")
+.init_nmf <- function(sce, 
+    mgs, 
+    n_top = NULL, 
+    gene_id = "gene", 
+    group_id = "cluster", 
+    weight_id = "weight")
 {
     # check validity of input arguments
     if (is.null(n_top)) 
