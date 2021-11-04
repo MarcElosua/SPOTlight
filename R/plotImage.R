@@ -46,8 +46,8 @@ setMethod("plotImage", "character",
 #' @rdname plotImage
 #' @importFrom Seurat GetImage Images
 #' @export
-setMethod("plotImage", "Seurat", ..., slice = Images(x)[1],
-          function(x) {
+setMethod("plotImage", "Seurat",
+          function(x, ..., slice = Images(x)[1]) {
             # Stop if there are no images or the name selected doesn't exist
             stopifnot(
               !is.null(Images(x)),
@@ -59,9 +59,8 @@ setMethod("plotImage", "Seurat", ..., slice = Images(x)[1],
 #' @rdname plotImage
 #' @importFrom SpatialExperiment imgRaster getImg imgData
 #' @export
-setMethod("plotImage", "SpatialExperiment", ...,
-          slice = imgData(spe)[1, "sample_id"],
-          function(x) {
+setMethod("plotImage", "SpatialExperiment",
+          function(x, ..., slice = imgData(spe)[1, "sample_id"]) {
             # Stop if there are no images or the name selected doesn't exist
             stopifnot(
               !is.null(getImg(x)),
@@ -86,7 +85,7 @@ setMethod("plotImage", "array",
 #' @rdname plotImage
 #' @import ggplot2
 #' @export
-setMethod("plotImage", "rastergrob", ..., alpha = 1,
+setMethod("plotImage", "rastergrob",
           function(x) {
             ggplot() +
               annotation_custom(x) +
