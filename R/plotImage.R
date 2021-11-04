@@ -59,7 +59,8 @@ setMethod("plotImage", "Seurat", ..., slice = Images(x)[1],
 #' @rdname plotImage
 #' @importFrom SpatialExperiment imgRaster getImg imgData
 #' @export
-setMethod("plotImage", "SpatialExperiment",  slice = imgData(spe)[1, "sample_id"],
+setMethod("plotImage", "SpatialExperiment", ...,
+          slice = imgData(spe)[1, "sample_id"],
           function(x) {
             # Stop if there are no images or the name selected doesn't exist
             stopifnot(
@@ -85,7 +86,7 @@ setMethod("plotImage", "array",
 #' @rdname plotImage
 #' @import ggplot2
 #' @export
-setMethod("plotImage", "rastergrob",
+setMethod("plotImage", "rastergrob", ..., alpha = 1,
           function(x) {
             ggplot() +
               annotation_custom(x) +
