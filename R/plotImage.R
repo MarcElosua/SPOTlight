@@ -46,21 +46,27 @@ setMethod("plotImage", "character",
 #' @rdname plotImage
 #' @importFrom Seurat GetImage Images
 #' @export
-setMethod("plotImage", "Seurat",
+setMethod("plotImage", "Seurat", ..., slice = Images(x)[1],
           function(x) {
-            stopifnot(is.null(Images(x)))
-            print("Seurat")
-            x <- GetImage(x)
+            # Stop if there are no images or the name selected doesn't exist
+            stopifnot(
+              !is.null(Images(x)),
+              slice %in% Images(x))
+            x <- GetImage(x, image = slice)
             plotImage(x)
           })
 
 #' @rdname plotImage
-#' @importFrom SpatialExperiment imgRaster
+#' @importFrom SpatialExperiment imgRaster getImg imgData
 #' @export
-setMethod("plotImage", "SpatialExperiment",
+setMethod("plotImage", "SpatialExperiment",  slice = imgData(spe)[1, "sample_id"],
           function(x) {
-            print("SpatialExperiment")
-            x <- imgRaster(spe)
+            # Stop if there are no images or the name selected doesn't exist
+            stopifnot(
+              !is.null(getImg(x)),
+              slice %in% imgData(spe)[1, "sample_id"])
+
+            x <- imgRaster(spe, sample_id = slice)
             plotImage(x)
           })
 
@@ -69,7 +75,6 @@ setMethod("plotImage", "SpatialExperiment",
 #' @export
 setMethod("plotImage", "array",
           function(x) {
-            print("array")
             x <- rasterGrob(x,
                             interpolate = FALSE,
                             width = unit(1, "npc"),
@@ -82,7 +87,6 @@ setMethod("plotImage", "array",
 #' @export
 setMethod("plotImage", "rastergrob",
           function(x) {
-            print("rastergrob")
             ggplot() +
               annotation_custom(x) +
               coord_fixed(
@@ -91,4 +95,9 @@ setMethod("plotImage", "rastergrob",
               theme_void()
           })
 
-plotImage(paste0(system.file(package = "SPOTlight"), "/allen_cortex_dwn.rds"))
+#' @rdname plotImage
+#' @export
+setMethod("plotImage", "ANY",
+          function(x) {
+            stop("See ?plotImage for valid image inputs")
+          })
