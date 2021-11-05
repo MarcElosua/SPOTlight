@@ -1,51 +1,3 @@
-#' @importFrom methods is
-#' @importFrom scuttle logNormCounts
-#' @importFrom scran getTopHVGs modelGeneVar
-#' @importFrom SummarizedExperiment assayNames rowData
-.downsample_sce <- function(sce, cells = 100, genes = 3e3) {
-    # check validity of input arguments
-    stopifnot(
-        is(sce, "SingleCellExperiment"),
-        is.numeric(cells), 
-        length(cells) == 1, 
-        round(cells) == cells)
-    
-    if (is.numeric(genes)) {
-        stopifnot(
-            genes > 0, 
-            round(genes) == genes)
-        if (length(genes) == 1) {
-            # single numeric
-            if (!"logcounts" %in% assayNames(sce))
-                sce <- logNormCounts(sce)
-            mat <- modelGeneVar(sce)
-            genes <- getTopHVGs(mat, n = genes)
-        } else {
-            # numeric vector
-            stopifnot(max(genes) <= nrow(sce))
-        }
-    } else if (is.logical(genes)) {
-        # logical vector
-        stopifnot(
-            !isFALSE(genes), 
-            length(genes) %in% c(1, nrow(sce)))
-    } else if (is.character(genes)) {
-        stopifnot(genes %in% rownames(sce))
-    }
-    
-    cs <- seq_len(ncol(sce))
-    cs <- split(cs, colLabels(sce))
-    cs <- lapply(cs, \(.) {
-        n <- length(.)
-        if (cells < n)
-            n <- cells
-        sample(., n)
-    })
-    cs <- unlist(cs)
-    
-    return(sce[genes, cs])
-}
-    
 #' @importFrom matrixStats rowSds
 .scale_uv <- function(x)
 {
@@ -194,6 +146,7 @@
 }
 
 #' @importFrom matrixStats colMedians
+#' @importFrom NMF coef
 .topic_profiles <- function(mod, groups)
 {
     df <- data.frame(t(coef(mod)))
@@ -205,6 +158,7 @@
     return(t(res))
 }
 
+#' @importFrom NMF basis
 #' @importFrom nnls nnls
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE)
 {

@@ -1,4 +1,7 @@
+#' @rdname plotTopicProfiles
+#' @name plotTopicProfiles
 #' @title Plot NMF topic profiles
+#' 
 #' @description ...
 #'
 #' @param x \code{\link{NMFfit}} object
@@ -15,14 +18,33 @@
 #' x <- .mock_sc()
 #' y <- .mock_sp(x)
 #' z <- .get_mgs(x)
-#' res <- SPOTlight(x, y, groups = x$type, mgs = z, group_id = "type")
+#' res <- SPOTlight(x, y, 
+#'   groups = x$type, 
+#'   mgs = z, 
+#'   group_id = "type",
+#'   verbose = FALSE)
 #' 
+#' plotTopicProfiles(res[[1]], x$type, facet = TRUE)
+#' plotTopicProfiles(res[[1]], x$type, facet = FALSE)
+NULL
+
+#' @rdname plotTopicProfiles
+#' @export
+setMethod(
+    "plotTopicProfiles", 
+    c("NMF", "factor"),
+    function(x, y, ...) 
+    {
+        plotTopicProfiles(x, as.character(y), ...)
+    })
+   
+
+#' @rdname plotTopicProfiles
 #' @importFrom methods is
 #' @importFrom NMF coef
+#' @importFrom stats aggregate
 #' @import ggplot2
-#' 
-#' @export
-
+#' @export     
 setMethod(
     "plotTopicProfiles", 
     c("NMF", "character"),
@@ -35,13 +57,12 @@ setMethod(
         stopifnot(
             is(x, "NMF"), length(y) == ncol(coef(x)),
             is.logical(facet), length(facet) == 1,
-            is.numeric(min_prop), length(min_prop) == 1, 
-            min_prop >= 0, min_prop <= 1)
+            is.numeric(min_prop), length(min_prop) == 1)
         
         # get group proportions
         mat <- prop.table(t(coef(x)), 1)
         
-        if (TRUE) {
+        if (facet) {
             # stretch for plotting
             df <- data.frame(
                 id = seq_len(nrow(mat)),
@@ -54,7 +75,7 @@ setMethod(
             
             # set aesthetics
             x <- "id"
-            f <- facet_wrap(~ group, ncol = "a", scales = "free_x")
+            f <- facet_wrap(~ group, ncol, scales = "free_x")
         } else {
             # get topic medians
             df <- aggregate(mat, list(y), median)[, -1]
@@ -79,7 +100,7 @@ setMethod(
             guides(col = guide_legend()) +
             scale_size_continuous(range = c(0, 3)) +
             scale_color_continuous(low = "lightgrey", high = "blue") +
-            xlab(ifelse(facet), "", x) + 
+            xlab(if (facet) x) + 
             theme_bw() + theme(
                 panel.grid = element_blank(),
                 plot.title = element_text(hjust = 0.5),
