@@ -1,0 +1,118 @@
+---
+title: "Deconvolution with `SPOTlight`"
+date: "`r BiocStyle::doc_date()`"
+author:
+- name: Marc Elosua-Bayes
+  email: marc.elosua@cnag.crg.eu
+- name: Helena L. Crowell
+  affiliation:
+  - &IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
+  - &SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
+  email: helena.crowell@uzh.ch
+abstract: >
+    Text...
+package: "`r BiocStyle::pkg_ver('SPOTlight')`"
+bibliography: "`r file.path(system.file('extdata', package = 'SPOTlight'), 'refs.bib')`"
+vignette: >
+  %\VignetteIndexEntry{"SPOTlight"}
+  %\VignettePackage{SPOTlight}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output: 
+  BiocStyle::html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The goal of `SPOTlight`is to provide a tool that enables the deconvolution of 
+cell types and cell type proportions present within each capture locations comprising 
+mixtures of cells, originally developed for 10X's Visium - spatial transcriptomics - 
+technology, it can be used for all technologies returning mixtures of cells. 
+`SPOTlight` is based on finding topic profile signatures, by means of an NMFreg model, 
+for each cell type and finding which combination fits best the spot we want to deconvolute.
+
+![](../inst/extdata/schematic.png)
+
+# Workflow
+
+![](../inst/extdata/workflow.png)
+
+```{r}
+library(SPOTlight)
+x <- .mock_sc()
+y <- .mock_sp(x)
+```
+
+## Preprocessing
+
+If the dataset is very large we want to downsample it to train the model, 
+both in of number of cells and number of genes. To do this, we want to keep
+a representative amount of cells per cluster and the most important genes. 
+We show that this doesn't affect the performance of the model and greatly 
+speeds up the model training.
+
+### Downsampling
+
+```{r}
+
+```
+
+### Feature selection
+
+```{r}
+z <- .get_mgs(x)
+```
+
+## Deconvolution
+
+```{r}
+res <- SPOTlight(x, y, 
+    groups = x$type,
+    mgs = z, 
+    group_id = "type")
+```
+
+```{r}
+head(mat <- res[[2]])
+err <- mat[,  ncol(mat)]
+mat <- mat[, -ncol(mat)]
+```
+
+# Visualization
+
+## Topic profiles
+
+```{r}
+
+```
+
+## Co-localization
+
+Now that we know which cell types are found within each spot we can make a graph 
+representing spatial interactions where cell types will have stronger edges 
+between them the more often we find them within the same spot. 
+
+See [here](https://www.r-graph-gallery.com/network.html) for additional graphical parameters.
+
+```{r}
+plotInteractions(mat, "heatmap")
+plotInteractions(mat, "network")
+```
+
+## Scatterpie
+
+```{r}
+
+```
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References
