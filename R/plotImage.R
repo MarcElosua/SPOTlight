@@ -1,5 +1,5 @@
 #' @rdname plotImage
-#' @name test
+#' @name plotImage
 #' @title Plot JP(E)G/PNG/Raster/RGB images
 #'
 #' @description This function takes in an image-related object - path to
