@@ -22,7 +22,7 @@ dot_plot_profiles_fun <- function(h,
   colnames(h_df) <- gsub(".", " ", colnames(h_df), fixed = TRUE)
 
   # Get proportions for each row
-  h_ds <- round(h_df/rowSums(h_df), 4)
+  h_ds <- round(h_df / rowSums(h_df), 4)
   h_ds[, "clust_vr"] <- train_cell_clust
 
   train_cells_plt <- h_ds %>%

@@ -1,24 +1,29 @@
-# suppressPackageStartupMessages({
-#     library(NMF)
-#     library(scran)
-#     library(Seurat)
-#     library(SeuratData)
-#     library(SingleCellExperiment)
-# })
-# 
-# sce0 <- as.SingleCellExperiment(readRDS("~/packages/SPOTlight/sample_data/allen_cortex_dwn.rds"))
-# spe0 <- as.SingleCellExperiment(LoadData("stxBrain", type = "anterior1"))
-# 
-# colLabels(sce0) <- sce0$subclass
-# mgs0 <- scoreMarkers(sce0)
-# mgs0 <- lapply(seq_along(mgs0), \(i) {
-#     df <- mgs0[[i]]
-#     df$gene <- rownames(df)
-#     df$weight <- df$mean.AUC
-#     df$cluster <- names(mgs0)[i]
-#     return(df)
-# })
-# mgs0 <- do.call(rbind, mgs0)
+suppressPackageStartupMessages({
+    library(NMF)
+    library(scran)
+    library(Seurat)
+    library(SeuratData)
+    library(SingleCellExperiment)
+    library(png)
+    library(jpeg)
+    library(ggplot2)
+})
+
+sce0 <- as.SingleCellExperiment(readRDS("~/packages/SPOTlight/sample_data/allen_cortex_dwn.rds"))
+# sce0 <- as.SingleCellExperiment(readRDS(paste0(system.file(package="SPOTlight"), "/allen_cortex_dwn.rds")))
+spe0 <- as.SingleCellExperiment(LoadData("stxBrain", type = "anterior1"))
+spo <- LoadData("stxBrain", type = "anterior1")
+colLabels(sce0) <- sce0$subclass
+# mgs0 <- scran::scoreMarkers(sce0)
+mgs0 <- scran::findMarkers(sce0, groups = sce0$subclass, test.type="wilcox")
+mgs0 <- lapply(seq_along(mgs0), \(i) {
+    df <- mgs0[[i]]
+    df$gene <- rownames(df)
+    df$weight <- df$mean.AUC
+    df$cluster <- names(mgs0)[i]
+    return(df)
+})
+mgs0 <- do.call(rbind, mgs0)
 
 mgs <- mgs0
 n_top <- NULL
@@ -36,3 +41,4 @@ verbose <- TRUE
 
 scale <- TRUE
 model <- "ns"
+
