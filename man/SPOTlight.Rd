@@ -61,8 +61,11 @@ expected from a cell type in \code{x} to observations in \code{y}.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 }
+\value{
+a numeric matrix with rows corresponding to samples and columns to groups
+}
 \description{
-...
+text
 }
 \examples{
 print("todo")

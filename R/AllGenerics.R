@@ -8,4 +8,4 @@ setGeneric("plotImage", function(x, ...) standardGeneric("plotImage"))
 setGeneric("plotTopicProfiles", function(x, y, ...) standardGeneric("plotTopicProfiles"))
 
 #' @export
-setGeneric("plotScatterPie", function(x, ...) standardGeneric("plotScatterPie"))
+setGeneric("plotSpatialScatterpie", function(x, y, ...) standardGeneric("plotSpatialScatterpie"))
