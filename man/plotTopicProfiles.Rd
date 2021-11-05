@@ -2,11 +2,11 @@
 % Please edit documentation in R/plotTopicProfiles.R
 \name{plotTopicProfiles}
 \alias{plotTopicProfiles}
-\alias{plotTopicProfiles,NMF,factor-method}
+\alias{plotTopicProfiles,NMF,ANY-method}
 \alias{plotTopicProfiles,NMF,character-method}
 \title{Plot NMF topic profiles}
 \usage{
-\S4method{plotTopicProfiles}{NMF,factor}(x, y, ...)
+\S4method{plotTopicProfiles}{NMF,ANY}(x, y, ...)
 
 \S4method{plotTopicProfiles}{NMF,character}(x, y, facet = FALSE, min_prop = 0.1, ncol = NULL)
 }
@@ -39,5 +39,6 @@ res <- SPOTlight(x, y,
   group_id = "type",
   verbose = FALSE)
 
-plotTopicProfiles(res[[1]], x$type)
+plotTopicProfiles(res[[1]], x$type, facet = TRUE)
+plotTopicProfiles(res[[1]], x$type, facet = FALSE)
 }

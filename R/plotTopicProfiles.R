@@ -28,16 +28,12 @@
 #' plotTopicProfiles(res[[1]], x$type, facet = FALSE)
 NULL
 
+# try to convert anything to character
+# (e.g., factor or numeric labels as input)
 #' @rdname plotTopicProfiles
 #' @export
-setMethod(
-    "plotTopicProfiles", 
-    c("NMF", "factor"),
-    function(x, y, ...) 
-    {
-        plotTopicProfiles(x, as.character(y), ...)
-    })
-   
+setMethod("plotTopicProfiles", c("NMF", "ANY"),
+    function(x, y, ...) plotTopicProfiles(x, as.character(y), ...))
 
 #' @rdname plotTopicProfiles
 #' @importFrom methods is

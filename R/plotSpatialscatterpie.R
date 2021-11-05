@@ -43,119 +43,118 @@ NULL
 #' @import ggplot2
 #' @importFrom scatterpie geom_scatterpie
 #' @export
-setMethod("plotSpatialScatterpie", c("matrix", "matrix"),
-          function(x, y, ...,
-                   cell_types = colnames(y),
-                   img = FALSE,
-                   scatterpie_alpha = 1,
-                   pie_scale = 0.4) {
-            # Stop if x and y don't have the same number of columns or if the
-            # rownames are not common between them
-            # TODO add checks for image - NULL
-            stopifnot(
-              nrow(x) == nrow(y),
-              rownames(x) %in% rownames(y)
-            )
-            # If image is passed add it as the base layer, if not, no image
-            # Need to use isFALSE bc img can have many different inputs
-            # Set ymax to overlap image and piecharts
-            if (isFALSE(img)) {
-              p <- ggplot()
-              ymax <- 0
-            } else {
-              p <- plotImage(x = img) + scale_y_reverse()
-              ymax <- max(p$coordinates$limits$y)
-            }
-
-            # TODO Step below, in the new implementation instead of cbind use merge
-            # We need to make sure the obtained matrices have col and rownames
-            # df <- data.frame(merge(x, y, by = "row.names"))
-            df <- data.frame(cbind(x, y))
-
-            # Plot
-            p + geom_scatterpie(
-              data = df,
-              aes(x = imagecol,
-                  y = abs(imagerow - ymax)),
-              cols = cell_types,
-              color = NA,
-              alpha = scatterpie_alpha,
-              pie_scale = pie_scale) +
-              coord_fixed() +
-              theme_void()
-          })
+setMethod(
+    "plotSpatialScatterpie", 
+    c("matrix", "matrix"),
+    function(x, y, ...,
+        cell_types = colnames(y),
+        img = FALSE,
+        scatterpie_alpha = 1,
+        pie_scale = 0.4)
+    {
+        # Stop if x and y don't have the same number of columns or if the
+        # rownames are not common between them
+        # TODO add checks for image - NULL
+        stopifnot(
+            nrow(x) == nrow(y),
+            rownames(x) %in% rownames(y))
+        
+        # If image is passed add it as the base layer, if not, no image
+        # Need to use isFALSE bc img can have many different inputs
+        # Set ymax to overlap image and piecharts
+        if (isFALSE(img)) {
+            p <- ggplot()
+            ymax <- 0
+        } else {
+            p <- plotImage(x = img) + scale_y_reverse()
+            ymax <- max(p$coordinates$limits$y)
+        }
+        
+        # TODO Step below, in the new implementation instead of cbind use merge
+        # We need to make sure the obtained matrices have col and rownames
+        # df <- data.frame(merge(x, y, by = "row.names"))
+        df <- data.frame(cbind(x, y))
+        
+        # Plot
+        p + geom_scatterpie(
+            data = df,
+            aes(x = imagecol,
+                y = abs(imagerow-ymax)),
+            cols = cell_types,
+            color = NA,
+            alpha = scatterpie_alpha,
+            pie_scale = pie_scale) +
+            coord_fixed() +
+            theme_void()
+    })
 
 #' @rdname plotSpatialScatterpie
-#' @importFrom Seurat GetTissueCoordinates Images GetImage
+#' @importFrom SeuratObject GetTissueCoordinates GetImage Images
 #' @export
-setMethod("plotSpatialScatterpie", c("Seurat", "ANY"),
-          function(x, y, ..., slice = Images(x)[1], img = FALSE) {
-            # Stop if there image is to be extracted from Seurat object but
-            # no images present or slice selected doesn't exist
-            if (isTRUE(img)) {
-              stopifnot(
+setMethod(
+    "plotSpatialScatterpie", 
+    c("Seurat", "ANY"),
+    function(x, y, ..., 
+        slice = Images(x)[1], 
+        img = FALSE) 
+    {
+        # Stop if there image is to be extracted from Seurat object but
+        # no images present or slice selected doesn't exist
+        if (isTRUE(img)) 
+            stopifnot(
                 !is.null(Images(x)),
                 slice %in% Images(x))
-            }
-
-            # If img is NULL extract image from Seurat object
-            if (img) img <- GetImage(x, image = slice)
-
-            ## Extract spatial coordinates
-            x <- as.matrix(GetTissueCoordinates(x, image = slice))
-
-            plotSpatialScatterpie(x, y, img = img)
-          })
+        
+        # If 'img = TRUE' extract image from Seurat object
+        if (img) img <- GetImage(x, image = slice)
+        
+        # Extract spatial coordinates
+        x <- as.matrix(GetTissueCoordinates(x, image = slice))
+    
+        plotSpatialScatterpie(x, y, img = img)
+    })
 
 #' @rdname plotSpatialScatterpie
 #' @importFrom SpatialExperiment spatialCoords imgData
 #' @export
-setMethod("plotSpatialScatterpie", c("SpatialExperiment", "ANY"),
-          function(x, y, ..., slice = imgData(x)[1, "sample_id"], img = FALSE) {
-
-            # TODO Stop if there are no images or the name selected doesn't exist
+setMethod(
+    "plotSpatialScatterpie", 
+    c("SpatialExperiment", "ANY"),
+    function(x, y, ..., 
+        slice = imgData(x)[1, "sample_id"], 
+        img = FALSE) 
+    {
+        # TODO Stop if there are no images or the name selected doesn't exist
+        if (isTRUE(img))
             stopifnot(
-              isTRUE(img) & !is.null(getImg(x)),
-              isTRUE(img) & slice %in% imgData(spe)[1, "sample_id"])
-
-            # If img is NULL extract image from Seurat object
-            if (img) img <- imgRaster(spe, sample_id = slice)
-
-            ## Extract spot barcodes
-            barcodes <- colnames(x)
-            ## Extract spatial coordinates
-            x <- as.matrix(spatialCoords(x)[, c("x", "y")])
-            ## Add barcodes to coord matrix
-            rownames(x) <- barcodes
-            colnames(x) <- c("imagecol", "imagerow")
-
-            plotSpatialScatterpie(x, y)
-          })
+                !is.null(getImg(x)),
+                slice %in% imgData(spe)[1, "sample_id"])
+        
+        # If 'img = TRUE' extract image from Seurat object
+        if (img) img <- imgRaster(spe, sample_id = slice)
+        
+        ## Extract spot barcodes
+        barcodes <- colnames(x)
+        ## Extract spatial coordinates
+        x <- as.matrix(spatialCoords(x)[, c("x", "y")])
+        ## Add barcodes to coord matrix
+        rownames(x) <- barcodes
+        colnames(x) <- c("imagecol", "imagerow")
+        
+        plotSpatialScatterpie(x, y)
+    })
 
 #' @rdname plotSpatialScatterpie
 #' @export
 setMethod("plotSpatialScatterpie", c("data.frame", "ANY"),
-          function(x, y, ...) {
-
-            # Convert data.frame to matrix
-            x <- as.matrix(x)
-
-            plotSpatialScatterpie(x, y)
-          })
+    function(x, y, ...) plotSpatialScatterpie(as.matrix(x), y))
 
 #' @rdname plotSpatialScatterpie
 #' @export
 setMethod("plotSpatialScatterpie", c("ANY", "data.frame"),
-          function(x, y, ...) {
-            # Convert data.frame to matrix
-            y <- as.matrix(y)
-
-            plotSpatialScatterpie(x, y)
-          })
+    function(x, y, ...) plotSpatialScatterpie(x, as.matrix(y)))
 
 #' @rdname plotSpatialScatterpie
 #' @export
 setMethod("plotSpatialScatterpie", c("ANY", "ANY"),
-          function(x) {
-            stop("See ?plotSpatialScatterpie for valid inputs")
-          })
+    function(x, y, ...) stop("See ?plotSpatialScatterpie for valid inputs"))

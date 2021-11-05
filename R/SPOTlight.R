@@ -52,7 +52,7 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Seurat Idents GetAssayData
+#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("Seurat", "ANY"),
@@ -65,7 +65,7 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Seurat Idents GetAssayData
+#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("ANY", "Seurat"),

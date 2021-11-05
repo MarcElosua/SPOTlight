@@ -66,25 +66,8 @@
     return(list("W" = W, "H" = H))
 }
 
-#' @importFrom Matrix rowSums
-#' @importFrom NMF nmf nmfModel
-.train_nmf <- function(x, y,
-    groups,
-    # markers
-    mgs,
-    n_top = NULL,
-    gene_id = "gene",
-    group_id = "cluster",
-    weight_id = "weight",
-    # NMF
-    model = c("ns", "std"),
-    # other
-    scale = TRUE,
-    verbose = TRUE)
+.filter <- function(x, y) 
 {
-    # check validity of input arguments
-    model <- match.arg(model)
-    
     # remove undetected features
     .fil <- \(.) {
         i <- rowSums(.) > 0
@@ -94,21 +77,39 @@
     y <- .fil(y)
     
     # keep only shared features
-    gs <- intersect(
+    i <- intersect(
         rownames(x), 
         rownames(y))
-    if (length(gs) < 10)
+    if (length(i) < 10)
         stop("Insufficient number of features shared",
             " between single-cell and mixture dataset.")
+    return(x[i, ])
+}
+
+#' @importFrom Matrix rowSums
+#' @importFrom NMF nmf nmfModel
+.train_nmf <- function(x, y,
+    groups,
+    mgs,
+    n_top = NULL,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "weight",
+    model = c("ns", "std"),
+    scale = TRUE,
+    verbose = TRUE)
+{
+    # check validity of input arguments
+    model <- match.arg(model)
     
-    # subset single-cell data & markers
-    x <- x[gs, ]
-    mgs <- mgs[mgs[[gene_id]] %in% gs, ]
+    # drop features that are undetected 
+    # in single-cell and/or mixture data
+    x <- .filter(x, y)
+    mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
     
     # scale to unit variance (optional)
     if (scale) {
-        if (verbose) 
-            message("Scaling count matrix")
+        if (verbose) message("Scaling count matrix")
         x <- .scale_uv(x)
     }
     
@@ -120,8 +121,7 @@
     
     # get seeding matrices (optional)
     seed <- if (TRUE) {
-        if (verbose) 
-            message("Seeding initial matrices")
+        if (verbose) message("Seeding initial matrices")
         hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
         nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
     }
@@ -129,8 +129,7 @@
     # different / if it matters if they are
     
     # train NMF model
-    if (verbose)
-        message("Training NMF model")
+    if (verbose) message("Training NMF model")
     mod <- nmf(x, rank, paste0(model, "NMF"), seed) 
 
     # capture top time
@@ -141,7 +140,6 @@
         dt <- round(difftime(t1, t0, units = "mins"), 2)
         message("Time for training: ", dt, "min")
     }
-
     return(mod)
 }
 
