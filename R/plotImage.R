@@ -1,12 +1,19 @@
 #' @rdname plotImage
 #' @name test
-#' @title Plot JP(E)G/PNG image
+#' @title Plot JP(E)G/PNG/Raster/RGB images
 #'
-#' @description ...
+#' @description This function takes in an image-related object - path to
+#'   JP(E)G/PNG file, raster object, RGBarray. It returns a ggplot object with
+#'   the selected image.
 #'
-#' @param x character string corresponding to an image file path.
-#'   Valid file types are JPG, JPEG and PNG.
-#' @param alpha single numeric in between 0 and 1 determining the
+#' @param x A variety of objects can be passed: character string corresponding
+#'   to an image file path, valid file types are JPG, JPEG and PNG. It can also
+#'   take as input objects of class raster and RGB arrays. It can also take
+#'   a SpatialExperiment or Seurat object from which the image will be extracted.
+#' @param slice Character string indicating which image slice to use when
+#'   SpatialExperiment or Seurat objects are passed. By default uses the first
+#'   slice available.
+#' @param alpha NOT IMPLEMENTED - single numeric between 0 and 1 determining the
 #'   image opacity. Lower values correspond to more transparency. \TODO
 #'
 #' @return \code{ggplot} object
@@ -86,7 +93,7 @@ setMethod("plotImage", "array",
 #' @import ggplot2
 #' @export
 setMethod("plotImage", "rastergrob",
-          function(x) {
+          function(x, ..., slice = NULL) {
             ggplot() +
               annotation_custom(
                 grob = x,

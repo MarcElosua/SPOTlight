@@ -2,24 +2,26 @@
 #' @name test
 #' @title Spatial scatterpie
 #'
-#' @description ...
+#' @description This function takes in the coordinates of the spots and the
+#'   proportions of the cell types within each spot. It returns a plot with
+#'   each spot as a piechart of the proportions of the cell type composition.
 #'
 #' @param x Object containig the spots coordinates, it can be an object of class
-#'     SpatialExperiment, Seurat, dataframe or matrix. For the latter two
-#'     rownames should have the spot barcodes to match x.
+#'   SpatialExperiment, Seurat, dataframe or matrix. For the latter two
+#'   rownames should have the spot barcodes to match x.
 #' @param y Matrix or dataframe containing the deconvoluted spots. rownames
-#'    should have the spot barcodes to match x.
+#'   hould have the spot barcodes to match x.
 #' @param img Logical TRUE or FALSE indicating whether to plot the image or not.
-#'    Objects of classes accepted by \code{plotImage} can also be passed and
-#'    that image will be used. By default FALSE.
+#'   Objects of classes accepted by \code{plotImage} can also be passed and
+#'   that image will be used. By default FALSE.
 #' @param slice Character string indicating which slice to plot if img is TRUE.
-#'    By default uses the first image.
+#'   By default uses the first image.
 #' @param cell_types Vector of cell type names to plot. By default uses the
-#'    column names of y.
+#'   column names of y.
 #' @param scatterpie_alpha Numeric scalar to set the alpha of the pie charts.
-#'    By default 1.
+#'   By default 1.
 #' @param pie_scaleNumeric scalar to set the size of the pie charts.
-#'    By default 0.4.
+#'   By default 0.4.
 #' @return \code{ggplot} object
 #'
 #' @examples
@@ -27,12 +29,15 @@
 #' plotSpatialscatterpie("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
 #' path <- paste0(system.file(package="SPOTlight"), "/spotlight_ls_anterior.RDS")
 #' y <- readRDS(path)[[2]]
-#' x <- LoadData("stxBrain", type = "anterior1")
-#' plotSpatialscatterpie(x, y)
 #'
 #' # array
 #' # Seurat Object
+#' x <- LoadData("stxBrain", type = "anterior1")
+#' plotSpatialscatterpie(x, y)
 #' # SpatialExperiment
+#' example(read10xVisium, echo = FALSE)
+#' plotSpatialscatterpie(spe, y)
+
 NULL
 
 #' @rdname plotSpatialscatterpie
@@ -65,6 +70,8 @@ setMethod("plotSpatialscatterpie", c("matrix", "matrix"),
 
             # Get ymax to overlap image and piecharts
             ymax <- ifelse(is.null(img), 0, max(p$coordinates$limits$y))
+
+            # Plot
             p + geom_scatterpie(
               data = df,
               aes(x = imagecol,
