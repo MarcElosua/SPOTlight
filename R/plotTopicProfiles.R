@@ -12,7 +12,10 @@
 #' @return \code{ggplot} object
 #' 
 #' @examples
-#' print("todo")
+#' x <- .mock_sc()
+#' y <- .mock_sp(x)
+#' z <- .get_mgs(x)
+#' res <- SPOTlight(x, y, groups = x$type, mgs = z, group_id = "type")
 #' 
 #' @importFrom methods is
 #' @importFrom NMF coef
