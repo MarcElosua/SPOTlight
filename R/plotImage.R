@@ -17,6 +17,8 @@
 #'   image opacity. Lower values correspond to more transparency.
 #'
 #' @return \code{ggplot} object
+#' 
+#' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
 #' # Filename

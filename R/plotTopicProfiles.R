@@ -2,17 +2,24 @@
 #' @name plotTopicProfiles
 #' @title Plot NMF topic profiles
 #' 
-#' @description ...
+#' @description This function takes in the fitted NMF model and returns the
+#'   topic profiles learned for each cell \code{facet = FALSE} or cell type
+#'   \code{facet = TRUE}. Ideal training will return all the cell from the same
+#'   cell type to share a unique topic profile.
 #'
 #' @param x \code{\link{NMFfit}} object
+#TODO should we pass to Y a named vector of barcode with cell type (names)
 #' @param y vector of group labels. Should be of length \code{ncol(coef(x))}.
 #' @param facet logical indicating whether to stratify by group. 
 #'   If \code{FALSE}, weights will be averaged across cells for each group.
+#'TODO check this when running example
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE}, 
 #'   only cells with a weight > \code{min_prop} will be included.
 #' @param ncol integer scalar specifying the number of facet columns.
 #'
 #' @return \code{ggplot} object
+#' 
+#' @author Marc Elosua Bayes & Helena L Crowell
 #' 
 #' @examples
 #' x <- .mock_sc()

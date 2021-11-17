@@ -3,8 +3,8 @@
 #' @title Spatial scatterpie
 #'
 #' @description This function takes in the coordinates of the spots and the
-#'   proportions of the cell types within each spot. It returns a plot with
-#'   each spot as a piechart of the proportions of the cell type composition.
+#'   proportions of the cell types within each spot. It returns a plot where
+#'   each spot is a piechart showing proportions of the cell type composition.
 #'
 #' @param x Object containig the spots coordinates, it can be an object of class
 #'   SpatialExperiment, Seurat, dataframe or matrix. For the latter two
@@ -23,8 +23,11 @@
 #' @param pie_scaleNumeric scalar to set the size of the pie charts.
 #'   By default 0.4.
 #' @return \code{ggplot} object
+#' 
+#' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
+# TODO create mock proportion data for the example
 #' # Filename
 #' plotSpatialScatterpie("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
 #' path <- paste0(system.file(package="SPOTlight"), "/spotlight_ls_anterior.RDS")
