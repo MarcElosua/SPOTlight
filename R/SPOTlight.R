@@ -1,7 +1,8 @@
 #' @name SPOTlight
 #' @title Deconvolution of mixture using single-cell data
 #' 
-#' @description text
+#' @description This is the backbone function which takes in single cell
+#'   expression data to deconvolute spatial transcriptomics spots.
 #' 
 #' @param x,y single-cell and mixture dataset, respectively. Can be a 
 #'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
@@ -21,7 +22,7 @@
 #' 
 #' @return a numeric matrix with rows corresponding to samples and columns to groups
 #' 
-#' @author Marc Elosua Bayes
+#' @author Marc Elosua-Bayes & Helena L. Crowell
 #' 
 #' @examples 
 #' print("todo")
