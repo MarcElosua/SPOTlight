@@ -30,7 +30,7 @@ SpatialExperiment or Seurat objects are passed. By default uses the first
 slice available.}
 
 \item{alpha}{NOT IMPLEMENTED - single numeric between 0 and 1 determining the
-image opacity. Lower values correspond to more transparency. \TODO}
+image opacity. Lower values correspond to more transparency.}
 }
 \value{
 \code{ggplot} object

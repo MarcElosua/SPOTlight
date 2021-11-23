@@ -14,16 +14,35 @@
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group. 
 #' @param gene_id,group_id,weight_id character specifying the column in \code{mgs}
 #'   containing gene identifiers, group labels and weights, respectively.
-#' @param scale logical specifying whether to
-#'   scale single-cell counts to unit variance.
+#' @param scale logical specifying whether to scale single-cell counts to unit
+#'   variance. This gives the user the option to normalize the data beforehand
+#'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
+#'   slot from where to extract the count data.
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
+#'   By default 0.
 #' @param verbose logical. Should information on progress be reported?
 #' 
 #' @return a numeric matrix with rows corresponding to samples and columns to groups
 #' 
+<<<<<<< HEAD
 #' @author Marc Elosua-Bayes & Helena L. Crowell
+=======
+#' @author Marc Elosua Bayes & Helena L Crowell
+>>>>>>> 5aa0ffb39e8ad4077750048926475d7fe98bb164
 #' 
+#' @details SPOTlight uses a Non-Negative Matrix Factorization approach to learn
+#'   which genes are important for each cell type. In order to drive the
+#'   factorization and give more importance to cell type marker genes we
+#'   previously compute them and use them to initialize the basis matrix. This
+#'   initialized matrices will then be used to carry out the factorization with 
+#'   the single cell expression data. Once the model has learn the topic
+#'   profiles for each cell type we use non-negative least squares (NNLS) to
+#'   obtain the topic contributions to each spot. Lastly, NNLS is again used to 
+#'   obtain the proportion of each cell type for each spot by finding the
+#'   fitting the single-cell topic profiles to the spots topic contributions.
+#' 
+# TODO grab ideas from vignette/unit tests
 #' @examples 
 #' print("todo")
 NULL
@@ -53,7 +72,7 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Seurat Idents GetAssayData
+#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("Seurat", "ANY"),
@@ -66,7 +85,7 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Seurat Idents GetAssayData
+#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("ANY", "Seurat"),

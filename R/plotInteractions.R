@@ -3,7 +3,10 @@
 #' 
 #' @aliases plotHeatmap plotNetwork
 #' 
-#' @description ...
+#' @description This function takes in a matrix with the predicted proportions
+#'   for each spot and returns a heatmap \code{which = plotHeatmap} or a network
+#'    graph \code{which = plotNetwork} to show which cells are interacting
+#'    spatially.
 #'
 #' @param x numeric matrix with rows = samples and columns = groups.
 #'   Must have at least one row and column, and at least two columns.
@@ -19,6 +22,8 @@
 #'
 #' @return base R plot
 #' 
+#' @author Marc Elosua Bayes & Helena L Crowell
+#' 
 #' @examples
 #' mat <- replicate(10, rnorm(100, runif(1, -1, 1)))
 #' plotNetwork(mat)
@@ -31,7 +36,7 @@
 #' colnames(mat) <- nms
 #' plotNetwork(mat)
 #' 
-#' # pass additional graphical parameters
+#' # pass additional graphical parameters for aesthetics
 #' plotNetwork(mat, 
 #'   edge.color = "black",
 #'   vertex.color = "pink",
@@ -61,6 +66,7 @@ plotInteractions <- function(x,
         network = .plot_network(x, df, ...))
 }
 
+# TODO why do we need these 2 functions?
 #' @rdname plotInteractions
 #' @export
 plotHeatmap<- function(x, min_prop = 0, ...) 
@@ -68,7 +74,7 @@ plotHeatmap<- function(x, min_prop = 0, ...)
 
 #' @rdname plotInteractions
 #' @export
-plotNetwork <- function(x, min_prop = 0, ...) 
+plotNetwork <- function(x, min_prop = 0, ...)
     plotInteractions(x, "network", min_prop, ...)
 
 #' @importFrom matrixStats rowAlls
@@ -104,7 +110,9 @@ plotNetwork <- function(x, min_prop = 0, ...)
         geom_tile() +
         coord_fixed(expand = FALSE) +
         scale_fill_viridis_c(limits = c(0, NA)) +
-        theme_linedraw() + theme(panel.grid = element_blank(),
+        theme_linedraw() +
+        theme(
+            panel.grid = element_blank(),
             axis.text.x = element_text(angle = 45, hjust = 1))
 }
 

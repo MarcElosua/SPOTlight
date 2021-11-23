@@ -1,19 +1,39 @@
 Package: SPOTlight
+Version: 0.99.0
 Type: Package
-Title: Cell type deconvolution of Visium data
-Version: 0.1.7
-Author: Marc Elosua-Bayes
-Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eu>
-Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures.
-License: MIT + file LICENSE
+Title: text
+Description: text
+Authors@R: c(
+  person("Marc", "Elosua-Bayes", email="marc.elosua@cnag.crg.eu", role=c("aut", "cre")),
+  person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))
+Depends: R (>= 4.1)
+Imports:
+  ggplot2,
+  grid,
+  igraph,
+  jpeg,
+  NMF,
+  Matrix,
+  matrixStats,
+  methods,
+  nnls,
+  png,
+  S4Vectors,
+  scatterpie,
+  SeuratObject,
+  SummarizedExperiment,
+  SingleCellExperiment,
+  SpatialExperiment
+Suggests:
+  BiocStyle,
+  knitr
+biocViews: 
+  SingleCell, 
+  Spatial,
+  StatisticalMethod
+License: GPL (>=2)
 Encoding: UTF-8
-LazyData: true
-Suggests: 
-    covr,
-    testthat,
-    spelling
-Language: en-US
 RoxygenNote: 7.1.2
-Depends: dplyr (>= 0.8.3)
-biocViews:
-Imports: nnls
+VignetteBuilder: knitr
+URL: https://github.com/MarcElosua/SPOTlight
+BugReports: https://github.com/MarcElosua/SPOTlight/issues

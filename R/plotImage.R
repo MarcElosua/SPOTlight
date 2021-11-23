@@ -14,9 +14,11 @@
 #'   SpatialExperiment or Seurat objects are passed. By default uses the first
 #'   slice available.
 #' @param alpha NOT IMPLEMENTED - single numeric between 0 and 1 determining the
-#'   image opacity. Lower values correspond to more transparency. \TODO
+#'   image opacity. Lower values correspond to more transparency.
 #'
 #' @return \code{ggplot} object
+#' 
+#' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
 #' # Filename
@@ -38,56 +40,60 @@ NULL
 #' @importFrom jpeg readJPEG
 #' @importFrom png readPNG
 #' @export
-setMethod("plotImage", "character",
-          function(x) {
-            stopifnot(file.exists(x))
-            typ <- c("jpg", "jpeg", "png")
-            pat <- paste0(".", typ, "$")
-            idx <- vapply(pat, grepl, x = x, logical(1))
-            if (!any(idx)) stop("'x' should be JPG, JPEG or PNG")
-            # If typ[idx] returns png readPNG if not readJPEG
-            x <- switch(typ[idx], png = readPNG(x), readJPEG(x))
-            plotImage(x)
-          })
+setMethod("plotImage", "character", 
+    function(x) 
+    {
+        stopifnot(file.exists(x))
+        typ <- c("jpg", "jpeg", "png")
+        pat <- paste0(".", typ, "$")
+        idx <- vapply(pat, grepl, x = x, logical(1))
+        if (!any(idx)) 
+            stop("'x' should be of file type JPG, JPEG or PNG")
+        x <- switch(typ[idx], png = readPNG(x), readJPEG(x))
+        plotImage(x)
+    })
 
 #' @rdname plotImage
-#' @importFrom Seurat GetImage Images
+#' @importFrom SeuratObject GetImage Images
 #' @export
 setMethod("plotImage", "Seurat",
-          function(x, ..., slice = Images(x)[1]) {
-            # Stop if there are no images or the name selected doesn't exist
-            stopifnot(
-              !is.null(Images(x)),
-              slice %in% Images(x))
-            x <- GetImage(x, image = slice)
-            plotImage(x)
-          })
+    function(x, ..., slice = Images(x)[1]) 
+    {
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(!is.null(Images(x)),
+            slice %in% Images(x))
+        x <- GetImage(x, image = slice)
+        plotImage(x)
+    })
 
 #' @rdname plotImage
 #' @importFrom SpatialExperiment imgRaster getImg imgData
 #' @export
 setMethod("plotImage", "SpatialExperiment",
-          function(x, ..., slice = imgData(x)[1, "sample_id"]) {
-            # Stop if there are no images or the name selected doesn't exist
-            stopifnot(
-              !is.null(getImg(x)),
-              slice %in% imgData(spe)[1, "sample_id"])
-
-            x <- imgRaster(spe, sample_id = slice)
-            plotImage(x)
-          })
+    function(x, ..., 
+        slice = imgData(x)[1, "sample_id"]) 
+    {
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(
+            !is.null(getImg(x)),
+            slice %in% imgData(spe)[1, "sample_id"])
+        
+        x <- imgRaster(spe, sample_id = slice)
+        plotImage(x)
+    })
 
 #' @rdname plotImage
 #' @importFrom grid unit rasterGrob
 #' @export
-setMethod("plotImage", "array",
-          function(x) {
-            x <- rasterGrob(x,
-                            interpolate = FALSE,
-                            width = unit(1, "npc"),
-                            height = unit(1, "npc"))
-            plotImage(x)
-          })
+setMethod("plotImage", "array", 
+    function(x) 
+    {
+        x <- rasterGrob(x,
+            interpolate = FALSE,
+            width = unit(1, "npc"),
+            height = unit(1, "npc"))
+        plotImage(x)
+    })
 
 #' #' @rdname plotImage
 #' #' @import ggplot2
@@ -113,6 +119,4 @@ setMethod("plotImage", "array",
 #' @rdname plotImage
 #' @export
 setMethod("plotImage", "ANY",
-          function(x) {
-            stop("See ?plotImage for valid image inputs")
-          })
+    function(x) stop("See ?plotImage for valid image inputs"))
