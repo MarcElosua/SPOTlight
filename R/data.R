@@ -105,6 +105,7 @@ NULL
     # compute sum of counts by group
     y <- aggregate(t(counts(x)), list(x$type), sum)
     rownames(y) <- y[, 1]
+    # Remove group column
     y <- t(y[, -1])
     # get proportion of counts by group
     z <- lapply(rownames(y), \(gene) {
@@ -118,9 +119,12 @@ NULL
     rownames(z) <- NULL
     # select 'top_n' in each group
     z <- split(z, z$type)
+    # Iterate over groups and sort within them
     z <- lapply(z, \(.) {
+        # Get indexes of the positions in the sorted order
         o <- order(.$weight, decreasing = TRUE)
-        .[o, ][seq_len(n_top), ]
+        # order the markers
+        .[o, ][seq_len(ifelse(n_top > nrow(.), nrow(.), n_top)), ]
     })
     z <- do.call(rbind, z)
     rownames(z) <- NULL

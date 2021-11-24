@@ -39,6 +39,19 @@
 #' 
 # TODO grab ideas from vignette/unit tests
 #' @examples 
+#' # Get sc Brain data from 
+#' # TENxBrainData
+#' # http://127.0.0.1:25293/library/TENxBrainData/doc/TENxBrainData.html
+#' # ExperimentHub
+#' # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst/doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+#' library(TENxBrainData)
+#' library(ExperimentHub)
+#' sc <- TENxBrainData20k()
+#' 
+#' # Get Visium data from TENxVisiumData
+#' # https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
+#' library(TENxVisiumData)
+#' 
 #' print("todo")
 NULL
 
@@ -80,7 +93,7 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom SeuratObject Idents GetAssayData
+#' @importFrom SeuratObject GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("ANY", "Seurat"),
