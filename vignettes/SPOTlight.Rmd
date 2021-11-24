@@ -3,6 +3,9 @@ title: "Deconvolution with `SPOTlight`"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: Marc Elosua-Bayes
+  affilitation:
+  - &CNAG-CRG National Center for Genomic Analysis - Center for Genomic Regulation
+  - &UPF University Pompeu Fabra
   email: marc.elosua@cnag.crg.eu
 - name: Helena L. Crowell
   affiliation:
