@@ -25,11 +25,7 @@
 #' 
 #' @return a numeric matrix with rows corresponding to samples and columns to groups
 #' 
-<<<<<<< HEAD
 #' @author Marc Elosua-Bayes & Helena L. Crowell
-=======
-#' @author Marc Elosua Bayes & Helena L Crowell
->>>>>>> 5aa0ffb39e8ad4077750048926475d7fe98bb164
 #' 
 #' @details SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 #'   which genes are important for each cell type. In order to drive the
