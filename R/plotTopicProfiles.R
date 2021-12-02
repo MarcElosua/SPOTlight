@@ -15,7 +15,7 @@
 #'TODO check this when running example
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE}, 
 #'   only cells with a weight > \code{min_prop} will be included.
-#' @param ncol integer scalar specifying the number of facet columns.
+#' @param nrow integer scalar specifying the number of facet columns.
 #'
 #' @return \code{ggplot} object
 #' 
@@ -78,7 +78,7 @@ setMethod(
             
             # set aesthetics
             x <- "id"
-            f <- facet_wrap(~ group, ncol, scales = "free_x")
+            f <- facet_wrap(~ group, ncol = ncol, scales = "free_x")
         } else {
             # get topic medians
             df <- aggregate(mat, list(y), median)[, -1]
