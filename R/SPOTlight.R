@@ -52,7 +52,7 @@
 #' # Get Visium data from TENxVisiumData
 #' # https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
 #' library(TENxVisiumData)
-#' 
+#'TODO 
 #' print("todo")
 NULL
 
@@ -64,7 +64,7 @@ setMethod("SPOTlight",
     c("SingleCellExperiment", "ANY"),
     function(x, y, ..., 
         assay = "counts", 
-        groups = colLabels(x, onAbsence = "error")) 
+        groups = colLabels(x, onAbsence = "error"))
     {
         SPOTlight(as.matrix(assay(x, assay)), y, groups, ...)
     })
@@ -104,6 +104,28 @@ setMethod("SPOTlight",
     {
         SPOTlight(x, GetAssayData(y, slot, assay), ...)
     })
+
+#' @rdname SPOTlight
+#' @export
+setMethod("SPOTlight",
+  c("ANY", "dgCMatrix"),
+  function(x, y, ..., 
+    slot = "counts", 
+    assay = "RNA") 
+  {
+    SPOTlight(x, as.matrix(y), ...)
+  })
+
+#' @rdname SPOTlight
+#' @export
+setMethod("SPOTlight",
+  c("dgCMatrix", "ANY"),
+  function(x, y, ..., 
+    slot = "counts", 
+    assay = "RNA") 
+  {
+    SPOTlight(as.matrix(x), y, ...)
+  })
 
 setMethod("SPOTlight", 
     c("ANY", "ANY"), 
