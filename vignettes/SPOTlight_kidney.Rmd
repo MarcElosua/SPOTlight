@@ -243,8 +243,8 @@ mgs_vec <- mgs_df$mean.AUC
 names(mgs_vec) <- mgs_df$group_name
 res <- SPOTlight(
   x = sce,
-  y = spe, 
-  groups = sce$free_annotation,
+  y = as.matrix(counts(spe)), 
+  groups = as.character(sce$free_annotation),
   mgs = mgs_df,
   weight_id = "mean.AUC",
   group_id = "cluster",
@@ -262,7 +262,28 @@ mat <- mat[, -ncol(mat)]
 ## Topic profiles
 
 ```{r}
+mod <- res[[1]]
 
+plotTopicProfiles(
+  x = mod,
+  y = as.character(sce$free_annotation),
+  facet = FALSE,
+  min_prop = 0.01,
+  ncol = 1)
+```
+
+```{r}
+plotTopicProfiles(
+  x = mod,
+  y = as.character(sce$free_annotation),
+  facet = TRUE,
+  min_prop = 0.01,
+  ncol = 4)
+```
+
+```{r}
+library(DT)
+datatable(basis(mod), fillContainer = TRUE)
 ```
 
 ## Co-localization
@@ -281,7 +302,13 @@ plotInteractions(mat, "network")
 ## Scatterpie
 
 ```{r}
-
+plotSpatialScatterpie(
+  x = spe,
+  y = mat,
+  cell_types = colnames(y),
+  img = FALSE,
+  scatterpie_alpha = 1,
+  pie_scale = 0.4)
 ```
 
 # Session information
