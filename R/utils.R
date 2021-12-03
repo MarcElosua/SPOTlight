@@ -190,9 +190,9 @@
         # compute residual sum of squares
         ss <- sum(mat[, i]^2)
         # compute percentage of unexplained residuals
-        err <- pred$deviance/ss
+        err <- pred$deviance / ss
         c(prop, err)
-    }, numeric(ncol(ref)+1))
+    }, numeric(ncol(ref) + 1))
     # set dimension names
     rownames(res) <- c(dimnames(mod)[[3]], "res_ss")
     colnames(res) <- colnames(mat)
