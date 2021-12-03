@@ -60,7 +60,7 @@ setMethod(
         # TODO add checks for image - NULL
         stopifnot(
             nrow(x) == nrow(y),
-            rownames(x) %in% rownames(y))
+            all(rownames(x) %in% rownames(y)))
         
         # If image is passed add it as the base layer, if not, no image
         # Need to use isFALSE bc img can have many different inputs
@@ -73,16 +73,14 @@ setMethod(
             ymax <- max(p$coordinates$limits$y)
         }
         
-        # TODO Step below, in the new implementation instead of cbind use merge
-        # We need to make sure the obtained matrices have col and rownames
-        # df <- data.frame(merge(x, y, by = "row.names"))
-        df <- data.frame(cbind(x, y))
+        # merge by row names (by=0 or by="row.names")
+        df <- merge(x, y, by = 0, all = TRUE)
         
         # Plot
         p + geom_scatterpie(
             data = df,
             aes(x = imagecol,
-                y = abs(imagerow-ymax)),
+                y = abs(imagerow - ymax)),
             cols = cell_types,
             color = NA,
             alpha = scatterpie_alpha,
@@ -138,9 +136,11 @@ setMethod(
         
         ## Extract spot barcodes
         barcodes <- colnames(x)
+        
         ## Extract spatial coordinates
-        x <- as.matrix(spatialCoords(x)[, c("x", "y")])
-        ## Add barcodes to coord matrix
+        x <- as.matrix(spatialCoords(x)[, 1:2])
+        
+        ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
         colnames(x) <- c("imagecol", "imagerow")
         
