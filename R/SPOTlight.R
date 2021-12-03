@@ -167,11 +167,7 @@ setMethod("SPOTlight",
             min_prop >= 0, min_prop <= 1,
             is.logical(scale), length(scale) == 1,
             is.logical(verbose), length(verbose) == 1)
-
-        # # downsample scRNA-seq to select gene set 
-        # # and number of cells to train the model  
-        # sub <- .downsample_sce(sce, cells, genes)
-
+        
         # train NMF model
         mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id, weight_id, model, scale, verbose)
         
