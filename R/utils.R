@@ -163,13 +163,21 @@
     # TODO: 
     # if 'scale = TRUE' in 'SPOTlight()', this is already 
     # done by '.train_nmf()'. could be removed here?
+    # TODO:
+    # There is a bug here when running the function but not 
+    # when running line by line
     W <- basis(mod)
     x <- x[rownames(W), ]
     if (scale) 
         x <- .scale_uv(x)
+    
     y <- vapply(
-        seq_len(ncol(x)), 
-        \(i) nnls(W, x[, i])$x,
+        seq_len(ncol(x)), \(i) {
+            # TODO
+            # bug in the line below
+            # Error in nnls(W, x[, i]) : NA/NaN/Inf in foreign function call (arg 5)
+            nnls(W, x[, i])$x
+        },
         numeric(ncol(W)))
     rownames(y) <- dimnames(mod)[[3]]
     colnames(y) <- colnames(x)
@@ -182,7 +190,7 @@
     mat <- .pred_prop(x, mod, scale)
     if (verbose) message("Deconvoluting mixture data")
     res <- vapply(seq_len(ncol(mat)), \(i) {
-        pred <- nnls(ref, mat[, i])
+        pred <- nnls::nnls(ref, mat[, i])
         prop <- prop.table(pred$x)
         # drop groups that fall below 'min_prop' & update
         prop[prop < min_prop] <- 0
