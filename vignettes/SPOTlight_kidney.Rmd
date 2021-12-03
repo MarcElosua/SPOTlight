@@ -242,7 +242,7 @@ You can visualize the above explanation in the following workflow scheme:
 mgs_vec <- mgs_df$mean.AUC
 names(mgs_vec) <- mgs_df$group_name
 res <- SPOTlight(
-  x = sce,
+  x = as.matrix(counts(sce)),
   y = as.matrix(counts(spe)), 
   groups = as.character(sce$free_annotation),
   mgs = mgs_df,
