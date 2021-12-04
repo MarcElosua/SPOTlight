@@ -85,7 +85,8 @@ setMethod(
             color = NA,
             alpha = scatterpie_alpha,
             pie_scale = pie_scale) +
-            coord_fixed() +
+            # Below not needed bc comes from plotImage
+            # coord_fixed() +
             theme_void()
     })
 
