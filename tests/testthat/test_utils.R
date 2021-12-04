@@ -10,7 +10,7 @@ test_that(".scale_uv()", {
     expect_is(y, "matrix")
     expect_identical(dim(y), dim(x))
     expect_identical(dimnames(y), dimnames(x))
-    expect_true(all(abs(1-rowVars(y)) < 1e-12))
+    expect_true(all(abs(1 - matrixStats::rowVars(y)) < 1e-12))
 })
 
 # default parameters
@@ -78,6 +78,7 @@ test_that("NMF", {
     expect_identical(dimnames(mat), list(colnames(y), group_ids))
     # actually check the estimates are legit 
     # (MSE < 0.1 compared to simulated truth)
+    # TODO metadata function?
     sim <- metadata(spe)[[1]]
     mse <- mean((mat-sim)^2)
     expect_true(mse < 0.1)
