@@ -77,8 +77,10 @@ setMethod("plotImage", "SpatialExperiment",
         stopifnot(
             !is.null(getImg(x)),
             slice %in% imgData(spe)[1, "sample_id"])
-        
+        # Convert to raster
         x <- imgRaster(spe, sample_id = slice)
+        # Convert to rasterGrob
+        x <- rasterGrob(x)
         plotImage(x)
     })
 
@@ -98,23 +100,24 @@ setMethod("plotImage", "array",
 #' #' @rdname plotImage
 #' #' @import ggplot2
 #' #' @export
-#' setMethod("plotImage", "rastergrob",
-#'           function(x, ..., slice = NULL) {
-#'             ggplot() +
-#'               annotation_custom(
-#'                 grob = x,
-#'                 xmin = 0,
-#'                 xmax = ncol(x$raster),
-#'                 ymin = 0,
-#'                 ymax = nrow(x$raster)
-#'                 ) +
-#'               coord_fixed(
-#'                 # ratio = 1
-#'                 xlim = c(0, ncol(x$raster)),
-#'                 ylim = c(0, nrow(x$raster))
-#'                 ) +
-#'               theme_void()
-#'           })
+#' TODO Solve warning - in method for ‘plotImage’ with signature ‘"rastergrob"’: no definition for class “rastergrob”
+setMethod("plotImage", "rastergrob",
+          function(x, ..., slice = NULL) {
+            ggplot() +
+              annotation_custom(
+                grob = x,
+                xmin = 0,
+                xmax = ncol(x$raster),
+                ymin = 0,
+                ymax = nrow(x$raster)
+                ) +
+              coord_fixed(
+                # ratio = 1
+                xlim = c(0, ncol(x$raster)),
+                ylim = c(0, nrow(x$raster))
+                ) +
+              theme_void()
+          })
 
 #' @rdname plotImage
 #' @export
