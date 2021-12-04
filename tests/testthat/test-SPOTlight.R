@@ -107,3 +107,4 @@ test_that("SPOTlight x sparse SP", {
   expect_is(mod, "NMFfit")
   expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
 })
+
