@@ -13,3 +13,11 @@ setGeneric("plotTopicProfiles",
 #' @export
 setGeneric("plotSpatialScatterpie", 
     function(x, y, ...) standardGeneric("plotSpatialScatterpie"))
+
+#' @export
+setGeneric("plotInteractions", 
+    function(x, y, ...) standardGeneric("plotInteractions"))
+
+#' @export
+setGeneric("plotCorrelationMatrix", 
+    function(x, y, ...) standardGeneric("plotCorrelationMatrix"))
