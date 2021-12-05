@@ -9,6 +9,7 @@ Authors@R: c(
 Depends: R (>= 4.1)
 Imports:
   ggplot2,
+  ggcorrplot,
   grid,
   igraph,
   jpeg,
