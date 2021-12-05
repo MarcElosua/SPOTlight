@@ -6,6 +6,8 @@
 \alias{SPOTlight,ANY,SingleCellExperiment-method}
 \alias{SPOTlight,Seurat,ANY-method}
 \alias{SPOTlight,ANY,Seurat-method}
+\alias{SPOTlight,ANY,dgCMatrix-method}
+\alias{SPOTlight,dgCMatrix,ANY-method}
 \alias{SPOTlight,matrix,matrix-method}
 \title{Deconvolution of mixture using single-cell data}
 \usage{
@@ -23,6 +25,10 @@
 
 \S4method{SPOTlight}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
 
+\S4method{SPOTlight}{ANY,dgCMatrix}(x, y, ..., slot = "counts", assay = "RNA")
+
+\S4method{SPOTlight}{dgCMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+
 \S4method{SPOTlight}{matrix,matrix}(
   x,
   y,
@@ -32,6 +38,7 @@
   gene_id = "gene",
   group_id = "cluster",
   weight_id = "weight",
+  hvg = NULL,
   scale = TRUE,
   model = c("ns", "std"),
   min_prop = 0.01,
@@ -53,11 +60,17 @@ the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 \item{gene_id, group_id, weight_id}{character specifying the column in \code{mgs}
 containing gene identifiers, group labels and weights, respectively.}
 
-\item{scale}{logical specifying whether to
-scale single-cell counts to unit variance.}
+\item{hvg}{character vector containing hvg to include in the model. 
+By default NULL.}
+
+\item{scale}{logical specifying whether to scale single-cell counts to unit
+variance. This gives the user the option to normalize the data beforehand
+as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
+slot from where to extract the count data.}
 
 \item{min_prop}{scalar in [0,1] setting the minimum contribution
-expected from a cell type in \code{x} to observations in \code{y}.}
+expected from a cell type in \code{x} to observations in \code{y}.
+By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 }
@@ -65,11 +78,37 @@ expected from a cell type in \code{x} to observations in \code{y}.}
 a numeric matrix with rows corresponding to samples and columns to groups
 }
 \description{
-text
+This is the backbone function which takes in single cell
+  expression data to deconvolute spatial transcriptomics spots.
+}
+\details{
+SPOTlight uses a Non-Negative Matrix Factorization approach to learn
+  which genes are important for each cell type. In order to drive the
+  factorization and give more importance to cell type marker genes we
+  previously compute them and use them to initialize the basis matrix. This
+  initialized matrices will then be used to carry out the factorization with 
+  the single cell expression data. Once the model has learn the topic
+  profiles for each cell type we use non-negative least squares (NNLS) to
+  obtain the topic contributions to each spot. Lastly, NNLS is again used to 
+  obtain the proportion of each cell type for each spot by finding the
+  fitting the single-cell topic profiles to the spots topic contributions.
 }
 \examples{
+# Get sc Brain data from 
+# TENxBrainData
+# http://127.0.0.1:25293/library/TENxBrainData/doc/TENxBrainData.html
+# ExperimentHub
+# https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst/doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+library(TENxBrainData)
+library(ExperimentHub)
+sc <- TENxBrainData20k()
+
+# Get Visium data from TENxVisiumData
+# https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
+library(TENxVisiumData)
+TODO 
 print("todo")
 }
 \author{
-Marc Elosua Bayes
+Marc Elosua-Bayes & Helena L. Crowell
 }

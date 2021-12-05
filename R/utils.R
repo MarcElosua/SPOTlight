@@ -95,6 +95,7 @@
     gene_id = "gene",
     group_id = "cluster",
     weight_id = "weight",
+    hvg = NULL,
     model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE)
@@ -102,9 +103,19 @@
     # check validity of input arguments
     model <- match.arg(model)
     
+    # TODO
+    # select genes in mgs or hvg
+    if (!is.null(hvg)) {
+        # Select union of genes between markers and HVG
+        mod_genes <- union(unique(mgs[, gene_id]), hvg)
+        # Select intersection between interest and present in x & y
+        mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y))) 
+        
+    }
+    
     # drop features that are undetected 
     # in single-cell and/or mixture data
-    x <- .filter(x, y)
+    x <- .filter(x[mod_genes, ], y[mod_genes, ])
     mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
     
     # scale to unit variance (optional)
@@ -164,7 +175,7 @@
     # if 'scale = TRUE' in 'SPOTlight()', this is already 
     # done by '.train_nmf()'. could be removed here?
     # TODO:
-    # There is a bug here when running the function but not 
+    # There is a bug in the function when running the function but not 
     # when running line by line
     W <- basis(mod)
     x <- x[rownames(W), ]
@@ -176,6 +187,7 @@
             # TODO
             # bug in the line below
             # Error in nnls(W, x[, i]) : NA/NaN/Inf in foreign function call (arg 5)
+            # Figure out why there are NAs in x!
             nnls(W, x[, i])$x
         },
         numeric(ncol(W)))

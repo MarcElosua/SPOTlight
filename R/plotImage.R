@@ -100,9 +100,9 @@ setMethod("plotImage", "array",
 #' #' @rdname plotImage
 #' #' @import ggplot2
 #' #' @export
-#' TODO Solve warning - in method for ‘plotImage’ with signature ‘"rastergrob"’: no definition for class “rastergrob”
 setMethod("plotImage", "rastergrob",
           function(x, ..., slice = NULL) {
+            #' TODO Solve warning - in method for ‘plotImage’ with signature ‘"rastergrob"’: no definition for class “rastergrob”
             ggplot() +
               annotation_custom(
                 grob = x,

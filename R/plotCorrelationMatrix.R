@@ -45,8 +45,7 @@
 #'    method = "circle",
 #'    colors = c("#64ccc9", "#b860bd", "#e3345d"))
 #' @export
-
-#' @rdname plotCorrelationMatrix
+#' 
 #' @import ggcorrplot
 #' @export
 setMethod(
@@ -84,7 +83,7 @@ setMethod(
             p.mat <- cor_pmat(
                 x = x,
                 conf_int = 0.95,
-                method = method)
+                method = cor.method)
         } else p.mat <- NULL
         
         # Plot correlation matrix as a heatmap
@@ -98,6 +97,6 @@ setMethod(
             ...) +
             ggplot2::theme(
                 plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"),
-                axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.5),
+                axis.text.x = ggplot2::element_text(angle = 60, vjust = 1),
                 axis.text = ggplot2::element_text(vjust = 0.5))
     })

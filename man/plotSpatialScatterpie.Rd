@@ -65,8 +65,8 @@ By default 0.4.}
 }
 \description{
 This function takes in the coordinates of the spots and the
-  proportions of the cell types within each spot. It returns a plot with
-  each spot as a piechart of the proportions of the cell type composition.
+  proportions of the cell types within each spot. It returns a plot where
+  each spot is a piechart showing proportions of the cell type composition.
 }
 \examples{
 # Filename
@@ -81,4 +81,7 @@ plotSpatialScatterpie(x, y)
 # SpatialExperiment
 example(read10xVisium, echo = FALSE)
 plotSpatialScatterpie(spe, y)
+}
+\author{
+Marc Elosua Bayes & Helena L Crowell
 }

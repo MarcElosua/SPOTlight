@@ -66,7 +66,7 @@ setMethod(
         # Need to use isFALSE bc img can have many different inputs
         # Set ymax to overlap image and piecharts
         if (isFALSE(img)) {
-            p <- ggplot()
+            p <- ggplot() + coord_fixed()
             ymax <- 0
         } else {
             p <- plotImage(x = img) + scale_y_reverse()

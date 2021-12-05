@@ -55,3 +55,6 @@ plotImage(so)
 spe0 <- as.SingleCellExperiment(LoadData("stxBrain", type = "anterior1"))
 plotImage(spe0)
 }
+\author{
+Marc Elosua Bayes & Helena L Crowell
+}

@@ -11,7 +11,9 @@
 #'   defaults to \code{colLabels} and \code{Idents(x)}, respectively.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes. 
 #'   Must contain columns holding gene identifiers, group labels and
-#'   the weight (e.g., logFC, -log(p-value) a feature has in a given group. 
+#'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
+#' @param hvg character vector containing hvg to include in the model. 
+#'   By default NULL.
 #' @param gene_id,group_id,weight_id character specifying the column in \code{mgs}
 #'   containing gene identifiers, group labels and weights, respectively.
 #' @param scale logical specifying whether to scale single-cell counts to unit
@@ -146,6 +148,7 @@ setMethod("SPOTlight",
         gene_id = "gene",
         group_id = "cluster",
         weight_id = "weight",
+        hvg = NULL,
         # NMF
         scale = TRUE,
         model = c("ns", "std"),
@@ -169,7 +172,7 @@ setMethod("SPOTlight",
             is.logical(verbose), length(verbose) == 1)
         
         # train NMF model
-        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id, weight_id, model, scale, verbose)
+        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id, weight_id, hvg, model, scale, verbose)
         
         # get topic profiles
         ref <- .topic_profiles(mod, groups)

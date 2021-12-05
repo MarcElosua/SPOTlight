@@ -32,7 +32,10 @@ to \code{plot.igraph} when \code{which = "network"}
 base R plot
 }
 \description{
-...
+This function takes in a matrix with the predicted proportions
+  for each spot and returns a heatmap \code{which = plotHeatmap} or a network
+   graph \code{which = plotNetwork} to show which cells are interacting
+   spatially.
 }
 \examples{
 mat <- replicate(10, rnorm(100, runif(1, -1, 1)))
@@ -46,11 +49,14 @@ plotNetwork(mat, vertex.label = nms)
 colnames(mat) <- nms
 plotNetwork(mat)
 
-# pass additional graphical parameters
+# pass additional graphical parameters for aesthetics
 plotNetwork(mat, 
   edge.color = "black",
   vertex.color = "pink",
   vertex.label.font = 2,
   vertex.label.color = "maroon")
   
+}
+\author{
+Marc Elosua Bayes & Helena L Crowell
 }
