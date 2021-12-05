@@ -69,7 +69,7 @@ plotInteractions <- function(x,
 # TODO why do we need these 2 functions?
 #' @rdname plotInteractions
 #' @export
-plotHeatmap<- function(x, min_prop = 0, ...) 
+plotHeatmap <- function(x, min_prop = 0, ...) 
     plotInteractions(x, "heatmap", min_prop, ...)
 
 #' @rdname plotInteractions
@@ -78,7 +78,6 @@ plotNetwork <- function(x, min_prop = 0, ...)
     plotInteractions(x, "network", min_prop, ...)
 
 #' @importFrom matrixStats rowAlls
-#' @importFrom utils combn
 .count_interactions <- function(x, min_prop)
 {
     # for each pair of groups count how many 
