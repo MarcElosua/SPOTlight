@@ -108,10 +108,14 @@
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
         mod_genes <- union(unique(mgs[, gene_id]), hvg)
-        # Select intersection between interest and present in x & y
-        mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y))) 
         
+    } else {
+        # Select union of genes between markers and HVG
+        mod_genes <- unique(mgs[, gene_id])
     }
+    
+    # Select intersection between interest and present in x (sce) & y (spe)
+    mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y))) 
     
     # drop features that are undetected 
     # in single-cell and/or mixture data
@@ -216,5 +220,12 @@
     # set dimension names
     rownames(res) <- c(dimnames(mod)[[3]], "res_ss")
     colnames(res) <- colnames(mat)
-    return(t(res))
+    
+    # Separate residuals from proportions
+    # Extract residuals
+    err <- res["res_ss", ]
+    # Extract only deconvolution matrices
+    res <- res[-nrow(res), ]
+    
+    return(list("mat" = t(res), "res_ss" = err))
 }

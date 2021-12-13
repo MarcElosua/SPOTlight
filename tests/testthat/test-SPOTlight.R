@@ -11,100 +11,138 @@ mgs <- .get_mgs(sce)
 # .SPOTlight with SCE ----
 test_that("SPOTlight x SCE", {
   
-  res <- SPOTlight(
-    x = sce,
-    y = as.matrix(counts(spe)),
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
-    gene_id = "gene")
+    res <- SPOTlight(
+        x = sce,
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
   
-  mtrx <- res[[1]]
-  mod <- res[[2]]
-  expect_is(res, "list")
-  expect_is(mtrx, "matrix")
-  expect_is(mod, "NMFfit")
-  expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
 })
 
 # .SPOTlight with SPE ----
 test_that("SPOTlight x SPE", {
   
-  res <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = spe,
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
-    gene_id = "gene")
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = spe,
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
   
-  mtrx <- res[[1]]
-  mod <- res[[2]]
-  expect_is(res, "list")
-  expect_is(mtrx, "matrix")
-  expect_is(mod, "NMFfit")
-  expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
-})
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
+    })
+
 
 # .SPOTlight with sparse matrix sc ----
 test_that("SPOTlight x sparse SC", {
   
-  res <- SPOTlight(
-    x = counts(sce),
-    y = as.matrix(counts(spe)),
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
-    gene_id = "gene")
+    res <- SPOTlight(
+        x = counts(sce),
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
   
-  mtrx <- res[[1]]
-  mod <- res[[2]]
-  expect_is(res, "list")
-  expect_is(mtrx, "matrix")
-  expect_is(mod, "NMFfit")
-  expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
-})
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
+    })
 
 # .SPOTlight with sparse matrix sp ----
 test_that("SPOTlight x sparse SP", {
   
-  res <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = counts(spe),
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
-    gene_id = "gene")
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = counts(spe),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
   
-  mtrx <- res[[1]]
-  mod <- res[[2]]
-  expect_is(res, "list")
-  expect_is(mtrx, "matrix")
-  expect_is(mod, "NMFfit")
-  expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
+  
 })
 
 # .SPOTlight with matrices in both ----
 test_that("SPOTlight x sparse SP", {
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
   
-  res <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = as.matrix(counts(spe)),
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
-    gene_id = "gene")
-  
-  mtrx <- res[[1]]
-  mod <- res[[2]]
-  expect_is(res, "list")
-  expect_is(mtrx, "matrix")
-  expect_is(mod, "NMFfit")
-  expect_identical(ncol(mtrx), as.integer(length(unique(sce$type)) + 1))
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
 })
 
+# .SPOTlight with matrices in both and HVG----
+test_that("SPOTlight x sparse SP", {
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene",
+        hvg = row.names(sce)[1:50])
+    
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
+})

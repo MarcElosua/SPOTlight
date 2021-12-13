@@ -27,7 +27,12 @@ Imports:
   SpatialExperiment
 Suggests:
   BiocStyle,
-  knitr
+  knitr,
+  scater,
+  scran,
+  ExperimentHub,
+  TENxVisiumData,
+  TabulaMurisSenisData
 biocViews: 
   SingleCell, 
   Spatial,

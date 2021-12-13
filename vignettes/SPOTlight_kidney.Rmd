@@ -114,25 +114,21 @@ eh <- ExperimentHub()
 
 # retrieve any records that match our keyword(s) of interest
 query(eh, "Tabula Muris Senis droplet Kidney")
+query(eh, "MouseKidneyCoronal")
 ```
 
 Load the spatial data
 
 ```{r load-sp}
-q <- query(eh, "MouseKidneyCoronal")  # retrieve 10X Kidney records
-id <- q$ah_id[1]                            # specify dataset ID to load
-spe <- eh[[id]]                             # load specified dataset
-rownames(spe) <- rowData(spe)$symbol        # Change ensemblid to symbol
+library(TENxVisiumData)
+spe <- MouseKidneyCoronal()
+# Change ensemblid to symbol
+rownames(spe) <- rowData(spe)$symbol
 ```
 
-Load the single cell data
-
-```{r}
-q <- query(eh, "Tabula Muris Senis droplet Kidney")   # retrieve 10X Kidney records
-q
-```
-
-Since we see that the data comes from the Tabula Muris Sensis dataset we can directly load the SCE object as follows:
+Load the single cell data. Since we see that the data comes from the 
+[Tabula Muris Sensis](https://www.nature.com/articles/s41586-020-2496-1) 
+dataset we can directly load the SCE object as follows:
 
 ```{r load-sc}
 library(TabulaMurisSenisData)
@@ -141,7 +137,7 @@ sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 
 Quick data exploration
 
-```{r}
+```{r explo}
 table(colData(sce)$age, colData(sce)$free_annotation)
 ```
 
@@ -150,7 +146,7 @@ except at 24m. In order to reduce the potential noise introduced by age and
 batch effects we are going to select cells all coming from the same age.
 
 ```{r sub-18m}
- # Keep cells from 18m mice
+# Keep cells from 18m mice
 sce <- subset(sce, , age == "18m")
 # Keep cells with clear cell type annotations
 sce <- subset(sce, , ! free_annotation %in% c("nan", "CD45"))
@@ -181,7 +177,7 @@ Normalization procedure as described in
 [OSCA](http://bioconductor.org/books/3.14/OSCA.basic/normalization.html). We
 first carry out library size normalization to correct for cell-specific biases:
 
-```{r}
+```{r size-factor}
 lib_sce <- librarySizeFactors(sce)
 sizeFactors(sce) <- lib_sce
 ```
@@ -189,19 +185,19 @@ sizeFactors(sce) <- lib_sce
 Once we have the size factor for each cell we scale and log transform the data
 to get get normalized expression values for each cell.
 
-```{r}
+```{r lognorm}
 sce <- logNormCounts(sce)
 ```
 
 ### Variance modelling
 We aim to identify highly variable genes that drive biological heterogeneity. 
 By feeding these genes to the model we improve the resolution of the biological structure and reduce the technical noise
-```{r}
+```{r variance}
 dec <- modelGeneVar(sce)
 plot(dec$mean, dec$total, xlab = "Mean log-expression", ylab = "Variance")
 curve(metadata(dec)$trend(x), col = "blue", add = TRUE)
 
-# Get the top 2000 genes.
+# Get the top 3000 genes.
 hvg <- getTopHVGs(dec, n = 3000)
 ```
 
@@ -210,7 +206,7 @@ method you want as long as it returns a weight indicating the importance of that
 gene for that cell type. Examples can be `avgLogFC`, `AUC`, `pct.expressed`,
 `p-value`...
 
-```{r}
+```{r mgs}
 colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector  indicating which genes are neither ribosomal or mitochondrial
@@ -224,7 +220,7 @@ mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
 
 Then we want to keep only those genes that are relevant for each cell identity
 
-```{r}
+```{r mgs-df}
 mgs_ls <- lapply(names(mgs), \(i){
   x <- mgs[[i]]
   # Filter and keep relevant marker genes, those with AUC > 0.8
@@ -258,7 +254,7 @@ batch as possible and actually learns the biological signal.
 For the purpose of this vignette and to speed up the analysis we are going to
 use 20 cells per cell identity
 
-```{r}
+```{r downsample}
 n_cell <- 20
 sce_ls <- split(colData(sce), sce$free_annotation)
 id_keep <- lapply(sce_ls, function(.) {
@@ -307,16 +303,15 @@ You can visualize the above explanation in the following workflow scheme:
 ![](../inst/extdata/workflow.png)
 
 ```{r}
-mgs_vec <- mgs_df$mean.AUC
-names(mgs_vec) <- mgs_df$group_name
 res <- SPOTlight(
-  x = as.matrix(counts(sce)),
-  y = as.matrix(counts(spe)),
-  groups = as.character(sce$free_annotation),
-  mgs = mgs_df,
-  weight_id = "mean.AUC",
-  group_id = "cluster",
-  gene_id = "gene")
+    x = as.matrix(counts(sce)),
+    y = as.matrix(counts(spe)),
+    groups = as.character(sce$free_annotation),
+    mgs = mgs_df,
+    hvg = hvg,
+    weight_id = "mean.AUC",
+    group_id = "cluster",
+    gene_id = "gene")
 ```
 
 Extract data from SPOTlight
@@ -324,15 +319,11 @@ Extract data from SPOTlight
 # saveRDS(object = res, file = "inst/extdata/res.rds")
 # Extract deconvolution matrix
 head(mat <- res[[1]])
-# Extract only deconvolution matrices
-mat <- mat[, -ncol(mat)]
-# Extract error
-err <- mat[,  ncol(mat)]
 ```
 
 # Visualization
-In the next section we show how to visualize the data and interpret `SPOTlight`'s
-performance.
+In the next section we show how to visualize the data and interpret
+`SPOTlight`'s performance.
 
 ## Topic profiles
 
@@ -340,8 +331,8 @@ We first take a look at the Topic profiles. By setting facet = FALSE we want to
 evaluate how specific each topic signature is for each cell identity.
 Ideally each cell identity will have a unique topic profile associated to it as 
 seen below.
-```{r}
-mod <- res[[2]]
+```{r plotTopicProfiles1, fig.width=9, fig.height=9}
+mod <- res[[3]]
 
 plotTopicProfiles(
   x = mod,
@@ -354,7 +345,7 @@ plotTopicProfiles(
 Next we also want to ensure that all the cells from the same cell identity share 
 a similar topic profile since this will mean that `SPOTlight` has learnt a
 consistent signature for all the cells from the same cell identity.
-```{r}
+```{r plotTopicProfiles2, fig.width=9, fig.height=9}
 plotTopicProfiles(
   x = mod,
   y = as.character(sce$free_annotation),
@@ -367,18 +358,19 @@ Lastly we can take a look at which genes the model learned for each topic.
 Higher values indicate that the gene is more relevant for that topic. 
 In the below table we can see how the top genes for topic 1 are characteristic
 for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
-```{r}
+```{r basis-dt}
 library(DT)
+library(NMF)
 sign <- basis(mod)
 colnames(sign) <- paste0("Topic",1:ncol(sign))
-datatable(sign, fillContainer = TRUE)
+datatable(sign, fillContainer = TRUE, filter = "top")
 ```
 
 ## Spatial Correlation Matrix
 
 See [here](http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2) 
 for additional graphical parameters.
-```{r}
+```{r plotCorrelationMatrix, fig.width=9, fig.height=9}
 plotCorrelationMatrix(x = mat)
 ```
 
@@ -391,7 +383,7 @@ between them the more often we find them within the same spot.
 See [here](https://www.r-graph-gallery.com/network.html) for additional
 graphical parameters.
 
-```{r fig.width=9, fig.height=9}
+```{r plotInteractions, fig.width=9, fig.height=9}
 plotInteractions(mat, "heatmap")
 plotInteractions(mat, "network")
 ```
@@ -400,8 +392,9 @@ plotInteractions(mat, "network")
 
 We can also visualize the cell type proportions as sections of a piechart for 
 each spot. You can modify the colors as you would a standard `r CRANpkg("ggplot2")`.
-```{r fig.width=12, fig.height=9}
+```{r Scatterpie, fig.width=12, fig.height=9}
 ct <- colnames(mat)
+mat[mat < 0.1] <- 0
 library(colorBlindness)
 paletteMartin
 # Define the number of colors you want
@@ -419,6 +412,19 @@ plotSpatialScatterpie(
         values = mycolors,
         breaks = names(mycolors))
 ```
+
+## Residuals
+Lastly we can also take a look at how well the model predicted the proportions
+for each spot. We do this by looking at the residuals of the sum of squares for
+each spot which indicates the amount of biological signal not explained by the model.
+```{r}
+?merge
+meta <- merge(colData(spe), data.frame(res[[2]]), by = 0)
+row.names(meta) <- meta$Row.names
+colData(spe) <- meta
+
+```
+
 
 # Session information
 
