@@ -139,9 +139,7 @@
         hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
         nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
     }
-    # TODO: figure out if these models can be
-    # different / if it matters if they are
-    
+
     # train NMF model
     if (verbose) message("Training NMF model")
     mod <- nmf(x, rank, paste0(model, "NMF"), seed) 
@@ -177,9 +175,7 @@
     # TODO: 
     # if 'scale = TRUE' in 'SPOTlight()', this is already 
     # done by '.train_nmf()'. could be removed here?
-    # TODO:
-    # There is a bug in the function when running the function but not 
-    # when running line by line
+    # this is a different matrix...
     W <- basis(mod)
     x <- x[rownames(W), ]
     if (scale) 
@@ -187,10 +183,6 @@
     
     y <- vapply(
         seq_len(ncol(x)), \(i) {
-            # TODO
-            # bug in the line below
-            # Error in nnls(W, x[, i]) : NA/NaN/Inf in foreign function call (arg 5)
-            # Figure out why there are NAs in x!
             nnls(W, x[, i])$x
         },
         numeric(ncol(W)))

@@ -99,15 +99,74 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 # http://127.0.0.1:25293/library/TENxBrainData/doc/TENxBrainData.html
 # ExperimentHub
 # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst/doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
-library(TENxBrainData)
 library(ExperimentHub)
 sc <- TENxBrainData20k()
 
 # Get Visium data from TENxVisiumData
 # https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
 library(TENxVisiumData)
-TODO 
-print("todo")
+# initialize a Hub instance which stores a complete set of recordd
+eh <- ExperimentHub()
+# retrieve any records that match our keyword(s) of interest
+query(eh, "Tabula Muris Senis droplet Kidney")
+query(eh, "MouseKidneyCoronal")
+spe <- MouseKidneyCoronal()
+# Change ensemblid to symbol
+rownames(spe) <- rowData(spe)$symbol
+# Load SCE data
+library(TabulaMurisSenisData)
+sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
+# Keep cells from 18m mice
+sce <- subset(sce, , age == "18m")
+# Keep cells with clear cell type annotations
+sce <- subset(sce, , ! free_annotation \%in\% c("nan", "CD45"))
+# Get marker genes
+lib_sce <- librarySizeFactors(sce)
+sizeFactors(sce) <- lib_sce
+sce <- logNormCounts(sce)
+dec <- modelGeneVar(sce)
+# Get the top 3000 genes.
+hvg <- getTopHVGs(dec, n = 3000)
+colLabels(sce) <- colData(sce)$free_annotation
+# Get vector  indicating which genes are neither ribosomal or mitochondrial
+genes <- ! base::grepl(
+   x = rownames(sce),
+   pattern = "^Rp[l|s]|Mt")
+# Compute marker genes
+mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
+mgs_ls <- lapply(names(mgs), \(i){
+   x <- mgs[[i]]
+   # Filter and keep relevant marker genes, those with AUC > 0.8
+   x <- x[x$mean.AUC > 0.8, ]
+   # Sort the genes from highest to lowest weight
+   x <- x[order(x$mean.AUC, decreasing = TRUE), 
+   # Add gene and cluster id to the dataframe
+   x$gene <- rownames(x)
+   x$cluster <- i
+   data.frame(x)
+   })
+
+mgs_df <- dplyr::bind_rows(mgs_ls)
+
+n_cell <- 20
+sce_ls <- split(colData(sce), sce$free_annotation)
+id_keep <- lapply(sce_ls, function(.) {
+   sample(
+       x = rownames(.),
+       size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
+       replace = FALSE)
+})
+
+sce <- sce[, unlist(id_keep)]
+res <- SPOTlight(
+    x = as.matrix(counts(sce)),
+    y = as.matrix(counts(spe)),
+    groups = as.character(sce$free_annotation),
+    mgs = mgs_df,
+    hvg = hvg,
+    weight_id = "mean.AUC",
+    group_id = "cluster",
+    gene_id = "gene")
 }
 \author{
 Marc Elosua-Bayes & Helena L. Crowell

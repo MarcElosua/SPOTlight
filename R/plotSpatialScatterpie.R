@@ -27,19 +27,18 @@
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
-# TODO create mock proportion data for the example
-#' # Filename
-#' plotSpatialScatterpie("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
-#' path <- paste0(system.file(package="SPOTlight"), "/spotlight_ls_anterior.RDS")
-#' y <- readRDS(path)[[2]]
-#'
-#' # array
-#' # Seurat Object
-#' x <- LoadData("stxBrain", type = "anterior1")
-#' plotSpatialScatterpie(x, y)
-#' # SpatialExperiment
-#' example(read10xVisium, echo = FALSE)
-#' plotSpatialScatterpie(spe, y)
+#' TODO mock data too simple?
+#' set.seed(321)
+#' # Coordinates
+#' x <- matrix(nrow = 10, data = c(1:10, 10:1))
+#' rownames(x) <- paste0("spot", 1:nrow(x))
+#' colnames(x) <- c("imagecol", "imagerow")
+#' # Proportions
+#' y <- replicate(m <- 5, runif(10, 0, 1))
+#' y <- y / rowSums(y)
+#' rownames(y) <- paste0("spot", 1:nrow(y))
+#' colnames(y) <- paste0("type", 1:ncol(y))
+#' plt <- plotSpatialScatterpie(x = x, y = y)
 NULL
 
 #' @rdname plotSpatialScatterpie

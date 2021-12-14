@@ -418,11 +418,10 @@ Lastly we can also take a look at how well the model predicted the proportions
 for each spot. We do this by looking at the residuals of the sum of squares for
 each spot which indicates the amount of biological signal not explained by the model.
 ```{r}
-?merge
 meta <- merge(colData(spe), data.frame(res[[2]]), by = 0)
 row.names(meta) <- meta$Row.names
 colData(spe) <- meta
-
+# TODO ask Helena if we can plot spatial residuals
 ```
 
 

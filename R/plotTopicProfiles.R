@@ -11,7 +11,7 @@
 #TODO should we pass to Y a named vector of barcode with cell type (names)
 #' @param y vector of group labels. Should be of length \code{ncol(coef(x))}.
 #' @param facet logical indicating whether to stratify by group. 
-#'   If \code{FALSE}, weights will be averaged across cells for each group.
+#'   If \code{FALSE}, weights will be the median across cells for each group.
 #'TODO check this when running example
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE}, 
 #'   only cells with a weight > \code{min_prop} will be included.
