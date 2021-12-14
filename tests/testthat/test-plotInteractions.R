@@ -1,3 +1,4 @@
+set.seed(321)
 x <- replicate(m <- 10, rnorm(n <- 100, runif(1, -1, 1)))
 y <- replicate(m <- 10, rnorm(n <- 100, runif(1, -1, 1)))
 

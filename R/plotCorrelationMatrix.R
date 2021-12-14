@@ -26,6 +26,7 @@
 #' @author Marc Elosua Bayes & Helena L Crowell
 #' 
 #' @examples
+#' set.seed(321)
 #' x <- replicate(m <- 25, runif(10, 0, 1))
 #' rownames(x) <- paste0("spot", 1:nrow(x))
 #' colnames(x) <- paste0("type", 1:ncol(x))

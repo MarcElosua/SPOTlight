@@ -1,3 +1,4 @@
+set.seed(321)
 # mock up some single-cell, mixture & marker data
 sce <- .mock_sc()
 spe <- .mock_sp(sce)

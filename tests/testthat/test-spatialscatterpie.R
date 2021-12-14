@@ -1,3 +1,4 @@
+set.seed(321)
 # Coordinates
 x <- matrix(nrow = 10, data = c(1:10, 10:1))
 rownames(x) <- paste0("spot", 1:nrow(x))

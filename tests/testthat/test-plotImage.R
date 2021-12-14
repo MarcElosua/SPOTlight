@@ -1,4 +1,6 @@
-x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
+set.seed(321)
+# x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
+x_path <- "inst/extdata/SPOTlight.png"
 # plotImage() ----
 test_that("plotImage path", {
     # image
@@ -19,12 +21,14 @@ test_that("plotImage array", {
 })
 
 test_that("plotImage Seurat", {
+    if (! "SeuratData" %in% installed.packages()) 
+        devtools::install_github('satijalab/seurat-data')
     # image
-    if (! "stxBrain.SeuratData" %in% SeuratData::InstalledData()$Dataset) {
-        SeuratData::InstallData("stxBrain.SeuratData")
+    if (! "stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset)) {
+        suppressWarnings(SeuratData::InstallData("stxBrain.SeuratData"))
     }
-    
-    x <- SeuratData::LoadData("stxBrain.SeuratData")
+
+    x <- suppressWarnings(data("stxBrain"))
     
     plt <- plotImage(x = x)
     

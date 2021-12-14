@@ -1,7 +1,21 @@
+set.seed(321)
 # mock up some single-cell, mixture & marker data
 sce <- .mock_sc(ng = 200, nc = 10, nt = 3)
 spe <- .mock_sp(sce)
 mgs <- .get_mgs(sce)
+
+# Function to run the checks
+.checks <- function(res, sce) {
+    mtr <- res[[1]]
+    rss <- res[[2]]
+    mod <- res[[3]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(rss, "numeric")
+    expect_is(mod, "NMFfit")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), length(rss))
+}
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -20,15 +34,7 @@ test_that("SPOTlight x SCE", {
         group_id = "type",
         gene_id = "gene")
   
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
+    .checks(res, sce)
 })
 
 # .SPOTlight with SPE ----
@@ -43,15 +49,7 @@ test_that("SPOTlight x SPE", {
         group_id = "type",
         gene_id = "gene")
   
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
+    .checks(res, sce)
     })
 
 
@@ -66,16 +64,7 @@ test_that("SPOTlight x sparse SC", {
         weight_id = "weight",
         group_id = "type",
         gene_id = "gene")
-  
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
+    .checks(res, sce)
     })
 
 # .SPOTlight with sparse matrix sp ----
@@ -90,16 +79,7 @@ test_that("SPOTlight x sparse SP", {
         group_id = "type",
         gene_id = "gene")
   
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
-  
+    .checks(res, sce)  
 })
 
 # .SPOTlight with matrices in both ----
@@ -113,15 +93,7 @@ test_that("SPOTlight x sparse SP", {
         group_id = "type",
         gene_id = "gene")
   
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
+    .checks(res, sce)
 })
 
 # .SPOTlight with matrices in both and HVG----
@@ -136,13 +108,5 @@ test_that("SPOTlight x sparse SP", {
         gene_id = "gene",
         hvg = row.names(sce)[1:50])
     
-    mtr <- res[[1]]
-    rss <- res[[2]]
-    mod <- res[[3]]
-    expect_is(res, "list")
-    expect_is(mtr, "matrix")
-    expect_is(rss, "numeric")
-    expect_is(mod, "NMFfit")
-    expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(nrow(mtr), length(rss))
+    .checks(res, sce)
 })
