@@ -76,9 +76,9 @@ setMethod("plotImage", "SpatialExperiment",
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             !is.null(getImg(x)),
-            slice %in% imgData(spe)[1, "sample_id"])
+            slice %in% imgData(x)[1, "sample_id"])
         # Convert to raster
-        x <- imgRaster(spe, sample_id = slice)
+        x <- imgRaster(x, sample_id = slice)
         # Convert to rasterGrob
         x <- rasterGrob(x)
         plotImage(x)

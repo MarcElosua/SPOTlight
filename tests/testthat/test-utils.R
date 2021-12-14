@@ -39,14 +39,16 @@ test_that("NMF", {
     args <- c(defs, list(x., y., groups, mgs))
     fit <- expect_silent(do.call(.train_nmf, args))
     expect_is(fit, "NMF")
-    expect_equivalent(rownames(fit), setdiff(rownames(x), c(i, j)))
+    expect_true(!all(c(i, j) %in% rownames(fit)))
+    # Only marker genes should be present - we don't use hvg here
+    expect_true(all(rownames(fit) %in% mgs$gene))
     # valid call should give an object of class 'NMF'
     # and dimension (#genes) x (#cells) x (#groups)
     args <- c(defs, list(x, y, groups, mgs))
     fit <- expect_silent(do.call(.train_nmf, args))
     expect_is(fit, "NMF")
-    expect_identical(dim(fit)[-3], dim(x))
-    expect_identical(dimnames(fit), c(dimnames(x), list(group_ids)))
+    # Remove genes since these can change depending on filtering, mgs, hvg, all 0...
+    expect_identical(dimnames(fit)[2:3], c(dimnames(x)[2], list(group_ids)))
 
     # + .topic_profiles ----
     # should give a square numeric matrix
@@ -69,17 +71,18 @@ test_that("NMF", {
     # should give a numeric matrix 
     # of dimension (#groups) x (#spots)
     # with proportions (i.e., values in [0, 1])
-    mat <- .deconvolute(y, fit, ref)
-    err <- mat[,  ncol(mat)]
-    mat <- mat[, -ncol(mat), drop = FALSE]
+    res <- .deconvolute(y, fit, ref)
+    mat <- res[[1]]
+    err <- res[[2]]
     expect_is(mat, "matrix")
+    expect_true(is.numeric(err))
     expect_true(is.numeric(x))
     expect_true(all(mat >= 0 & mat <= 1))
     expect_true(all(rowSums(mat)-1 < 1e-12))
     expect_identical(dimnames(mat), list(colnames(y), group_ids))
+    expect_identical(rownames(mat), names(err))
     # actually check the estimates are legit 
     # (MSE < 0.1 compared to simulated truth)
-    # TODO metadata function?
     sim <- metadata(spe)[[1]]
     mse <- mean((mat-sim)^2)
     expect_true(mse < 0.1)

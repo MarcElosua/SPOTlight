@@ -103,7 +103,6 @@
     # check validity of input arguments
     model <- match.arg(model)
     
-    # TODO
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
@@ -147,7 +146,7 @@
     if (verbose) message("Training NMF model")
     mod <- nmf(x, rank, paste0(model, "NMF"), seed) 
 
-    # capture top time
+    # capture stop time
     t1 <- Sys.time()
     
     # print runtimes
