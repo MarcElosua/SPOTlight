@@ -14,9 +14,8 @@ setGeneric("plotTopicProfiles",
 setGeneric("plotSpatialScatterpie", 
     function(x, y, ...) standardGeneric("plotSpatialScatterpie"))
 
-# TODO why not the one below?
 #' #' @export
-#' setGeneric("plotInteractions", 
+#' setGeneric("plotInteractions",
 #'     function(x, y, ...) standardGeneric("plotInteractions"))
 
 #' @export

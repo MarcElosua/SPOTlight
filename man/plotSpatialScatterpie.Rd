@@ -69,18 +69,17 @@ This function takes in the coordinates of the spots and the
   each spot is a piechart showing proportions of the cell type composition.
 }
 \examples{
-# Filename
-plotSpatialScatterpie("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
-path <- paste0(system.file(package="SPOTlight"), "/spotlight_ls_anterior.RDS")
-y <- readRDS(path)[[2]]
-
-# array
-# Seurat Object
-x <- LoadData("stxBrain", type = "anterior1")
-plotSpatialScatterpie(x, y)
-# SpatialExperiment
-example(read10xVisium, echo = FALSE)
-plotSpatialScatterpie(spe, y)
+set.seed(321)
+# Coordinates
+x <- replicate(2, rnorm(100))
+rownames(x) <- paste0("spot", seq_len(nrow(x)))
+colnames(x) <- c("imagecol", "imagerow")
+# Proportions
+y <- replicate(m <- 5, runif(nrow(x), 0, 1))
+y <- prop.table(y, 1)
+rownames(y) <- paste0("spot", seq_len(nrow(y)))
+colnames(y) <- paste0("type", seq_len(ncol(y)))
+(plt <- plotSpatialScatterpie(x = x, y = y))
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

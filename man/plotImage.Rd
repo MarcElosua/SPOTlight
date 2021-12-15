@@ -42,7 +42,7 @@ This function takes in an image-related object - path to
 }
 \examples{
 # Filename
-plotImage("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
+plotImage("../../inst/extdata/SPOTlight.png")
 path <- paste0(system.file(package="SPOTlight"), "/spatial/tissue_lowres_image.png")
 plotImage(path)
 # array

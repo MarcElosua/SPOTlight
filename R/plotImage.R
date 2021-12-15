@@ -22,7 +22,7 @@
 #'
 #' @examples
 #' # Filename
-#' plotImage("~/packages/SPOTlight/inst/extdata/SPOTlight.png")
+#' plotImage("../../inst/extdata/SPOTlight.png")
 #' path <- paste0(system.file(package="SPOTlight"), "/spatial/tissue_lowres_image.png")
 #' plotImage(path)
 #' # array
@@ -62,8 +62,10 @@ setMethod("plotImage", "Seurat",
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(!is.null(Images(x)),
             slice %in% Images(x))
-        x <- GetImage(x, image = slice)
-        plotImage(x)
+        # Extract Image in raster format
+        x <- GetImage(x, image = slice, mode = "raster")
+        # pass as a matrix
+        plotImage(as.matrix(x))
     })
 
 #' @rdname plotImage
@@ -79,12 +81,12 @@ setMethod("plotImage", "SpatialExperiment",
             slice %in% imgData(x)[1, "sample_id"])
         # Convert to raster
         x <- imgRaster(x, sample_id = slice)
-        # Convert to rasterGrob
-        x <- rasterGrob(x)
-        plotImage(x)
+        # pass as a matrix
+        plotImage(as.matrix(x))
     })
 
 #' @rdname plotImage
+#' @import ggplot2
 #' @importFrom grid unit rasterGrob
 #' @export
 setMethod("plotImage", "array", 
@@ -94,30 +96,22 @@ setMethod("plotImage", "array",
             interpolate = FALSE,
             width = unit(1, "npc"),
             height = unit(1, "npc"))
-        plotImage(x)
-    })
-
-#' #' @rdname plotImage
-#' #' @import ggplot2
-#' #' @export
-setMethod("plotImage", "rastergrob",
-          function(x, ..., slice = NULL) {
-            #' TODO Solve warning - in method for ‘plotImage’ with signature ‘"rastergrob"’: no definition for class “rastergrob”
-            ggplot() +
-              annotation_custom(
+        
+        ggplot() +
+            annotation_custom(
                 grob = x,
                 xmin = 0,
                 xmax = ncol(x$raster),
                 ymin = 0,
                 ymax = nrow(x$raster)
-                ) +
-              coord_fixed(
+            ) +
+            coord_fixed(
                 # ratio = 1
                 xlim = c(0, ncol(x$raster)),
                 ylim = c(0, nrow(x$raster))
-                ) +
-              theme_void()
-          })
+            ) +
+            theme_void()
+    })
 
 #' @rdname plotImage
 #' @export

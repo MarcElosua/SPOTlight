@@ -60,7 +60,6 @@ NULL
 
 #' @rdname data
 #' @importFrom Matrix rowSums
-#' @importFrom S4Vectors DataFrame
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @export
 .mock_sp <- function(x, ns = 100) 
@@ -91,7 +90,7 @@ NULL
     dimnames(xy) <- list(colnames(y), c("x", "y"))
     SingleCellExperiment(
         list(counts = y), 
-        colData = DataFrame(xy),
+        colData = data.frame(xy),
         metadata = list(props = fq))
 }
 

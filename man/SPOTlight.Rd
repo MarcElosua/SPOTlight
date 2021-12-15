@@ -159,9 +159,9 @@ id_keep <- lapply(sce_ls, function(.) {
 
 sce <- sce[, unlist(id_keep)]
 res <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = as.matrix(counts(spe)),
-    groups = as.character(sce$free_annotation),
+    x = counts(sce),
+    y = counts(spe),
+    groups = sce$free_annotation,
     mgs = mgs_df,
     hvg = hvg,
     weight_id = "mean.AUC",

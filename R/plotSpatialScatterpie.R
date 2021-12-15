@@ -27,20 +27,18 @@
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
-#' TODO mock data too simple?
 #' set.seed(321)
 #' # Coordinates
-#' x <- matrix(nrow = 10, data = c(1:10, 10:1))
-#' rownames(x) <- paste0("spot", 1:nrow(x))
+#' x <- replicate(2, rnorm(100))
+#' rownames(x) <- paste0("spot", seq_len(nrow(x)))
 #' colnames(x) <- c("imagecol", "imagerow")
 #' # Proportions
-#' y <- replicate(m <- 5, runif(10, 0, 1))
-#' y <- y / rowSums(y)
-#' rownames(y) <- paste0("spot", 1:nrow(y))
-#' colnames(y) <- paste0("type", 1:ncol(y))
-#' plt <- plotSpatialScatterpie(x = x, y = y)
+#' y <- replicate(m <- 5, runif(nrow(x), 0, 1))
+#' y <- prop.table(y, 1)
+#' rownames(y) <- paste0("spot", seq_len(nrow(y)))
+#' colnames(y) <- paste0("type", seq_len(ncol(y)))
+#' (plt <- plotSpatialScatterpie(x = x, y = y))
 NULL
-
 #' @rdname plotSpatialScatterpie
 #' @import ggplot2
 #' @importFrom scatterpie geom_scatterpie

@@ -16,8 +16,10 @@
 \item{y}{vector of group labels. Should be of length \code{ncol(coef(x))}.}
 
 \item{facet}{logical indicating whether to stratify by group. 
-  If \code{FALSE}, weights will be averaged across cells for each group.
-TODO check this when running example}
+If \code{FALSE} (default), weights will be the median across cells
+for each group (point = topic weight for a given cell type). 
+If \code{TRUE}, cell-specific weights will be shown 
+(point = topic weight of a given cell).}
 
 \item{min_prop}{scalar in [0,1]. When \code{facet = TRUE}, 
 only cells with a weight > \code{min_prop} will be included.}

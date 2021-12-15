@@ -40,7 +40,6 @@
 #'   obtain the proportion of each cell type for each spot by finding the
 #'   fitting the single-cell topic profiles to the spots topic contributions.
 #' 
-# TODO grab ideas from vignette/unit tests
 #' @examples 
 #' # Get sc Brain data from 
 #' # TENxBrainData
@@ -107,9 +106,9 @@
 #'
 #' sce <- sce[, unlist(id_keep)]
 #' res <- SPOTlight(
-#'     x = as.matrix(counts(sce)),
-#'     y = as.matrix(counts(spe)),
-#'     groups = as.character(sce$free_annotation),
+#'     x = counts(sce),
+#'     y = counts(spe),
+#'     groups = sce$free_annotation,
 #'     mgs = mgs_df,
 #'     hvg = hvg,
 #'     weight_id = "mean.AUC",
@@ -192,7 +191,7 @@ setMethod("SPOTlight",
     c("ANY", "ANY"), 
     function(x, y, ...) 
     {
-        stop("...")
+        stop("See ?SPOTlight for valid x & y inputs")
     })
 
 #' @rdname SPOTlight
@@ -224,11 +223,14 @@ setMethod("SPOTlight",
         stopifnot(
             is.numeric(x), is.numeric(y),
             is.character(ids), length(ids) == 3, ids %in% names(mgs),
-            length(groups) == ncol(x), groups %in% mgs[[group_id]],
+            is.null(groups), length(groups) == ncol(x),
             is.numeric(min_prop), length(min_prop) == 1,
             min_prop >= 0, min_prop <= 1,
             is.logical(scale), length(scale) == 1,
             is.logical(verbose), length(verbose) == 1)
+        
+        groups <- as.character(groups)
+        stopifnot(groups %in% mgs[[group_id]])
         
         # train NMF model
         mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id, weight_id, hvg, model, scale, verbose)

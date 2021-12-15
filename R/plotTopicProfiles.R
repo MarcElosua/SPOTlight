@@ -8,11 +8,12 @@
 #'   cell type to share a unique topic profile.
 #'
 #' @param x \code{\link{NMFfit}} object
-#TODO should we pass to Y a named vector of barcode with cell type (names)
 #' @param y vector of group labels. Should be of length \code{ncol(coef(x))}.
 #' @param facet logical indicating whether to stratify by group. 
-#'   If \code{FALSE}, weights will be the median across cells for each group.
-#'TODO check this when running example
+#'   If \code{FALSE} (default), weights will be the median across cells
+#'   for each group (point = topic weight for a given cell type). 
+#'   If \code{TRUE}, cell-specific weights will be shown 
+#'   (point = topic weight of a given cell).
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE}, 
 #'   only cells with a weight > \code{min_prop} will be included.
 #' @param nrow integer scalar specifying the number of facet columns.
@@ -58,7 +59,9 @@ setMethod(
     {
         # check validity of input arguments
         stopifnot(
-            is(x, "NMF"), length(y) == ncol(coef(x)),
+            is(x, "NMF"),
+            length(y) == ncol(coef(x)),
+            setequal(rownames(coef(x)), y),
             is.logical(facet), length(facet) == 1,
             is.numeric(min_prop), length(min_prop) == 1)
         

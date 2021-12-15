@@ -59,7 +59,7 @@ library(scran)
 
 # Introduction
 
-## What is SPOTlight?
+## What is `SPOTlight`?
 
 `SPOTlight`is a tool that enables the deconvolution of cell types and cell type
 proportions present within each capture location comprising mixtures of cells.
@@ -283,7 +283,7 @@ intended to return sparser results during the factorization in W and H, thus
 promoting cell-type-specific topic profile and reducing overfitting during 
 training. Before running factorization, we initialize each topic, column, 
 of W with the unique marker genes for each cell type with weights. In turn, each
-topic of H in SPOTlight is initialized with the corresponding belongance of each
+topic of H in `SPOTlight` is initialized with the corresponding belongance of each
 cell for each topic, 1 or 0. This way, we seed the model with prior information,
 thus guiding it towards a biologically relevant result. This initialization also
 aims at reducing variability and improving the consistency between runs. \
@@ -304,9 +304,9 @@ You can visualize the above explanation in the following workflow scheme:
 
 ```{r}
 res <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = as.matrix(counts(spe)),
-    groups = as.character(sce$free_annotation),
+    x = counts(sce),
+    y = counts(spe),
+    groups = sce$free_annotation,
     mgs = mgs_df,
     hvg = hvg,
     weight_id = "mean.AUC",
@@ -314,7 +314,7 @@ res <- SPOTlight(
     gene_id = "gene")
 ```
 
-Extract data from SPOTlight
+Extract data from `SPOTlight`
 ```{r}
 # saveRDS(object = res, file = "inst/extdata/res.rds")
 # Extract deconvolution matrix
@@ -336,7 +336,7 @@ mod <- res[[3]]
 
 plotTopicProfiles(
   x = mod,
-  y = as.character(sce$free_annotation),
+  y = sce$free_annotation,
   facet = FALSE,
   min_prop = 0.01,
   ncol = 1)
@@ -348,7 +348,7 @@ consistent signature for all the cells from the same cell identity.
 ```{r plotTopicProfiles2, fig.width=9, fig.height=9}
 plotTopicProfiles(
   x = mod,
-  y = as.character(sce$free_annotation),
+  y = sce$free_annotation,
   facet = TRUE,
   min_prop = 0.01,
   ncol = 4)
@@ -418,17 +418,19 @@ Lastly we can also take a look at how well the model predicted the proportions
 for each spot. We do this by looking at the residuals of the sum of squares for
 each spot which indicates the amount of biological signal not explained by the model.
 ```{r}
-meta <- merge(colData(spe), data.frame(res[[2]]), by = 0)
-row.names(meta) <- meta$Row.names
-colData(spe) <- meta
-# TODO ask Helena if we can plot spatial residuals
+spe$res_ss <- res[[2]][colnames(spe)]
+xy <- spatialCoords(spe)
+spe$x <- xy[, 1]
+spe$y <- xy[, 2]
+ggcells(spe, aes(x, y, color = res_ss)) +
+    geom_point() + 
+    scale_color_viridis_c() +
+    coord_fixed() +
+    theme_bw()
 ```
-
 
 # Session information
 
 ```{r session-info}
 sessionInfo()
 ```
-
-# References

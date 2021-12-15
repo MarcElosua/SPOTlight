@@ -45,8 +45,6 @@
 #'    outline.col = "lightgrey",
 #'    method = "circle",
 #'    colors = c("#64ccc9", "#b860bd", "#e3345d"))
-#' @export
-#' 
 #' @import ggcorrplot
 #' @export
 setMethod(

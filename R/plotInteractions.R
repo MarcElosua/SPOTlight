@@ -26,23 +26,32 @@
 #' 
 #' @examples
 #' mat <- replicate(10, rnorm(100, runif(1, -1, 1)))
-#' plotNetwork(mat)
+#' # Basic example
+#' plotInteractions(mat)
 #' 
+#' ### heatmap ###
+#' # This returns a ggplot object that can be modified as such
+#' plotInteractions(mat, which = "heatmap") +
+#'     scale_fill_gradient(low = "#f2e552", high = "#850000") +
+#'         labs(
+#'              title = "Interaction heatmap",
+#'              fill = "proportion")
+#' ### Network ###
 #' # specify node names
 #' nms <- letters[seq_len(ncol(mat))]
-#' plotNetwork(mat, vertex.label = nms)
+#' plotInteractions(mat, which = "network", vertex.label = nms)
 #' 
 #' # or set column names instead
 #' colnames(mat) <- nms
-#' plotNetwork(mat)
+#' plotInteractions(mat, which = "network")
 #' 
 #' # pass additional graphical parameters for aesthetics
-#' plotNetwork(mat, 
-#'   edge.color = "black",
-#'   vertex.color = "pink",
-#'   vertex.label.font = 2,
-#'   vertex.label.color = "maroon")
-#'   
+#' plotInteractions(mat,
+#'     which = "network",
+#'     edge.color = "cyan",
+#'     vertex.color = "pink",
+#'     vertex.label.font = 2,
+#'     vertex.label.color = "maroon")
 #' @export
 
 plotInteractions <- function(x, 
@@ -65,17 +74,6 @@ plotInteractions <- function(x,
         heatmap = .plot_heatmap(x, df),
         network = .plot_network(x, df, ...))
 }
-
-# TODO why do we need these 2 functions?
-#' @rdname plotInteractions
-#' @export
-plotHeatmap <- function(x, min_prop = 0, ...) 
-    plotInteractions(x, "heatmap", min_prop, ...)
-
-#' @rdname plotInteractions
-#' @export
-plotNetwork <- function(x, min_prop = 0, ...)
-    plotInteractions(x, "network", min_prop, ...)
 
 #' @importFrom matrixStats rowAlls
 .count_interactions <- function(x, min_prop)
@@ -102,8 +100,11 @@ plotNetwork <- function(x, min_prop = 0, ...)
     
     # compute proportion of samples that have all groups
     i <- match(df$from, colnames(x))
-    df$t <- colSums(x > 0)[i]
-    df$p <- df$n / df$t
+    j <- match(df$to, colnames(x))
+    df$t_from <- colSums(x > 0)[i]
+    df$t_to <- colSums(x > 0)[j]
+    df$p_from <- df$n / df$t_from
+    df$p_to <- df$n / df$t_to
     
     ggplot(df, aes_string("from", "to", fill = "p")) +
         geom_tile() +

@@ -7,10 +7,6 @@
 \title{Plot group interactions}
 \usage{
 plotInteractions(x, which = c("heatmap", "network"), min_prop = 0, ...)
-
-plotHeatmap(x, min_prop = 0, ...)
-
-plotNetwork(x, min_prop = 0, ...)
 }
 \arguments{
 \item{x}{numeric matrix with rows = samples and columns = groups.
