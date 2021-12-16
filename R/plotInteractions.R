@@ -25,7 +25,7 @@
 #' @author Marc Elosua Bayes & Helena L Crowell
 #' 
 #' @examples
-#' mat <- replicate(10, rnorm(100, runif(1, -1, 1)))
+#' mat <- replicate(8, rnorm(100, runif(1, -1, 1)))
 #' # Basic example
 #' plotInteractions(mat)
 #' 
@@ -95,24 +95,29 @@ plotInteractions <- function(x,
 .plot_heatmap <- function(x, df) 
 {
     # assure are properly ordered
-    df$from <- factor(df$from, colnames(x))
-    df$to <- factor(df$to, rev(colnames(x)))
+    y <- colnames(x)
+    df$i <- factor(df$from, y)
+    df$j <- factor(df$to, rev(y))
     
     # compute proportion of samples that have all groups
-    i <- match(df$from, colnames(x))
-    j <- match(df$to, colnames(x))
-    df$t_from <- colSums(x > 0)[i]
-    df$t_to <- colSums(x > 0)[j]
-    df$p_from <- df$n / df$t_from
-    df$p_to <- df$n / df$t_to
+    t <- colSums(x > 0)
+    i <- match(df$from, y)
+    j <- match(df$to, y)
+    df$ti <- t[i]
+    df$tj <- t[j]
+    df$pi <- df$n/df$ti
+    df$pj <- df$n/df$tj
     
-    ggplot(df, aes_string("from", "to", fill = "p")) +
-        geom_tile() +
+    ggplot(df) +
+        geom_tile(aes_string("i", "j", fill = "pi")) +
+        geom_tile(aes_string("j", "i", fill = "pj")) +
+        scale_fill_viridis_c("proportion", limits = c(0, NA)) +
+        scale_y_discrete(limits = \(.) rev(.)) +
         coord_fixed(expand = FALSE) +
-        scale_fill_viridis_c(limits = c(0, NA)) +
         theme_linedraw() +
         theme(
             panel.grid = element_blank(),
+            axis.title = element_blank(),
             axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
