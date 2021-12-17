@@ -304,8 +304,8 @@ You can visualize the above explanation in the following workflow scheme:
 
 ```{r}
 res <- SPOTlight(
-    x = counts(sce),
-    y = counts(spe),
+    x = sce,
+    y = spe,
     groups = sce$free_annotation,
     mgs = mgs_df,
     hvg = hvg,

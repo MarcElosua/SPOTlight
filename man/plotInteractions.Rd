@@ -34,24 +34,33 @@ This function takes in a matrix with the predicted proportions
    spatially.
 }
 \examples{
-mat <- replicate(10, rnorm(100, runif(1, -1, 1)))
-plotNetwork(mat)
+mat <- replicate(8, rnorm(100, runif(1, -1, 1)))
+# Basic example
+plotInteractions(mat)
 
+### heatmap ###
+# This returns a ggplot object that can be modified as such
+plotInteractions(mat, which = "heatmap") +
+    scale_fill_gradient(low = "#f2e552", high = "#850000") +
+        labs(
+             title = "Interaction heatmap",
+             fill = "proportion")
+### Network ###
 # specify node names
 nms <- letters[seq_len(ncol(mat))]
-plotNetwork(mat, vertex.label = nms)
+plotInteractions(mat, which = "network", vertex.label = nms)
 
 # or set column names instead
 colnames(mat) <- nms
-plotNetwork(mat)
+plotInteractions(mat, which = "network")
 
 # pass additional graphical parameters for aesthetics
-plotNetwork(mat, 
-  edge.color = "black",
-  vertex.color = "pink",
-  vertex.label.font = 2,
-  vertex.label.color = "maroon")
-  
+plotInteractions(mat,
+    which = "network",
+    edge.color = "cyan",
+    vertex.color = "pink",
+    vertex.label.font = 2,
+    vertex.label.color = "maroon")
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell
