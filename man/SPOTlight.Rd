@@ -8,6 +8,8 @@
 \alias{SPOTlight,ANY,Seurat-method}
 \alias{SPOTlight,ANY,dgCMatrix-method}
 \alias{SPOTlight,dgCMatrix,ANY-method}
+\alias{SPOTlight,ANY,DelayedMatrix-method}
+\alias{SPOTlight,DelayedMatrix,ANY-method}
 \alias{SPOTlight,matrix,matrix-method}
 \title{Deconvolution of mixture using single-cell data}
 \usage{
@@ -28,6 +30,10 @@
 \S4method{SPOTlight}{ANY,dgCMatrix}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{SPOTlight}{dgCMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+
+\S4method{SPOTlight}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
+
+\S4method{SPOTlight}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{SPOTlight}{matrix,matrix}(
   x,

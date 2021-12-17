@@ -54,10 +54,10 @@ test_that("SPOTlight x SPE", {
 
 
 # .SPOTlight with sparse matrix sc ----
-test_that("SPOTlight x sparse SC", {
+test_that("SPOTlight x dgCMatrix SC", {
   
     res <- SPOTlight(
-        x = counts(sce),
+        x = Matrix::Matrix(x, sparse = TRUE),
         y = as.matrix(counts(spe)),
         groups = sce$type,
         mgs = mgs,
@@ -68,11 +68,11 @@ test_that("SPOTlight x sparse SC", {
     })
 
 # .SPOTlight with sparse matrix sp ----
-test_that("SPOTlight x sparse SP", {
+test_that("SPOTlight x dgCMatrix SP", {
   
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
-        y = counts(spe),
+        y = Matrix::Matrix(x, sparse = TRUE),
         groups = sce$type,
         mgs = mgs,
         weight_id = "weight",
@@ -82,8 +82,37 @@ test_that("SPOTlight x sparse SP", {
     .checks(res, sce)  
 })
 
+# .SPOTlight with sparse matrix sc ----
+test_that("SPOTlight x DelayedMatrix SC", {
+    
+    res <- SPOTlight(
+        x = DelayedArray::DelayedArray(x),
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
+    .checks(res, sce)
+})
+
+# .SPOTlight with sparse matrix sp ----
+test_that("SPOTlight x DelayedMatrix SP", {
+    
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = DelayedArray::DelayedArray(x),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene")
+    
+    .checks(res, sce)  
+})
+
 # .SPOTlight with matrices in both ----
-test_that("SPOTlight x sparse SP", {
+test_that("SPOTlight x matrices", {
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = as.matrix(counts(spe)),
@@ -97,7 +126,7 @@ test_that("SPOTlight x sparse SP", {
 })
 
 # .SPOTlight with matrices in both and HVG----
-test_that("SPOTlight x sparse SP", {
+test_that("SPOTlight x hvg", {
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = as.matrix(counts(spe)),
