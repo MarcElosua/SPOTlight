@@ -189,6 +189,29 @@ setMethod("SPOTlight",
     SPOTlight(as.matrix(x), y, ...)
   })
 
+#' @rdname SPOTlight
+#' @export
+setMethod("SPOTlight",
+    c("ANY", "DelayedMatrix"),
+    function(x, y, ..., 
+        slot = "counts", 
+        assay = "RNA") 
+    {
+        SPOTlight(x, as.matrix(y), ...)
+    })
+
+#' @rdname SPOTlight
+#' @export
+setMethod("SPOTlight",
+    c("DelayedMatrix", "ANY"),
+    function(x, y, ..., 
+        slot = "counts", 
+        assay = "RNA") 
+    {
+        SPOTlight(as.matrix(x), y, ...)
+    })
+
+
 setMethod("SPOTlight", 
     c("ANY", "ANY"), 
     function(x, y, ...) 
