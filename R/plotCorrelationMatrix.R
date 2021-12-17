@@ -45,8 +45,8 @@
 #'    outline.col = "lightgrey",
 #'    method = "circle",
 #'    colors = c("#64ccc9", "#b860bd", "#e3345d"))
-#' @import ggcorrplot
 #' @export
+#' @import ggplot2
 setMethod(
     "plotCorrelationMatrix", 
     c("matrix"),
@@ -60,6 +60,8 @@ setMethod(
         ...
         )
     {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("ggcorrplot")
         # If the following are left undefined select
         # the first element of the vector
         cor.method <- match.arg(cor.method)
@@ -79,14 +81,14 @@ setMethod(
         
         # Compute correlation P-value
         if (p.mat) {
-            p.mat <- cor_pmat(
+            p.mat <- ggcorrplot::cor_pmat(
                 x = x,
                 conf_int = 0.95,
                 method = cor.method)
         } else p.mat <- NULL
         
         # Plot correlation matrix as a heatmap
-        ggcorrplot(
+        ggcorrplot::ggcorrplot(
             corr = corr,
             p.mat = p.mat,
             hc.order = hc.order,
@@ -94,8 +96,8 @@ setMethod(
             lab = FALSE,
             colors = colors,
             ...) +
-            ggplot2::theme(
-                plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"),
-                axis.text.x = ggplot2::element_text(angle = 60, vjust = 1),
-                axis.text = ggplot2::element_text(vjust = 0.5))
+            theme(
+                plot.title = element_text(hjust = 0.5, face = "bold"),
+                axis.text.x = element_text(angle = 60, vjust = 1),
+                axis.text = element_text(vjust = 0.5))
     })

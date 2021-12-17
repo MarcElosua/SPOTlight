@@ -116,11 +116,13 @@ plotInteractions <- function(x,
             axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
-#' @importFrom igraph graph_from_data_frame plot.igraph
 .plot_network <- function(x, df, ...) {
+    # Check necessary packages are installed and if not STOP
+    .test_installed("igraph")
+    
     w <- scale(df$n, 1)
-    g <- graph_from_data_frame(df,
+    g <- igraph::graph_from_data_frame(df,
         vertices = colnames(x),
         directed = FALSE)
-    plot.igraph(g, edge.width = w, ...)
+    igraph::plot.igraph(g, edge.width = w, ...)
 }

@@ -44,7 +44,6 @@ setMethod("plotTopicProfiles", c("NMF", "ANY"),
     function(x, y, ...) plotTopicProfiles(x, as.character(y), ...))
 
 #' @rdname plotTopicProfiles
-#' @importFrom methods is
 #' @importFrom NMF coef
 #' @importFrom stats aggregate
 #' @import ggplot2
@@ -53,17 +52,23 @@ setMethod(
     "plotTopicProfiles", 
     c("NMF", "character"),
     function(x, y, 
-        facet = FALSE, 
-        min_prop = 0.1, 
+        facet = FALSE,
+        min_prop = 0.1,
         ncol = NULL)
     {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("methods")
+        
         # check validity of input arguments
         stopifnot(
-            is(x, "NMF"),
+            methods::is(x, "NMF"),
             length(y) == ncol(coef(x)),
             setequal(rownames(coef(x)), y),
             is.logical(facet), length(facet) == 1,
             is.numeric(min_prop), length(min_prop) == 1)
+        
+        y <- as.character(y)
+        stopifnot(y %in% colnames(basis(x)))
         
         # get group proportions
         mat <- prop.table(t(coef(x)), 1)

@@ -41,7 +41,6 @@
 NULL
 #' @rdname plotSpatialScatterpie
 #' @import ggplot2
-#' @importFrom scatterpie geom_scatterpie
 #' @export
 setMethod(
     "plotSpatialScatterpie", 
@@ -52,6 +51,9 @@ setMethod(
         scatterpie_alpha = 1,
         pie_scale = 0.4)
     {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("scatterpie")
+        
         # Stop if x and y don't have the same number of columns or if the
         # rownames are not common between them
         # TODO add checks for image - NULL
@@ -74,7 +76,7 @@ setMethod(
         df <- merge(x, y, by = 0, all = TRUE)
         
         # Plot
-        p + geom_scatterpie(
+        p + scatterpie::geom_scatterpie(
             data = df,
             aes(x = imagecol,
                 y = abs(imagerow - ymax)),
@@ -114,7 +116,6 @@ setMethod(
     })
 
 #' @rdname plotSpatialScatterpie
-#' @importFrom SpatialExperiment spatialCoords imgData
 #' @export
 setMethod(
     "plotSpatialScatterpie", 
@@ -123,20 +124,23 @@ setMethod(
         slice = imgData(x)[1, "sample_id"], 
         img = FALSE) 
     {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SpatialExperiment")
+        
         # TODO Stop if there are no images or the name selected doesn't exist
         if (isTRUE(img))
             stopifnot(
-                !is.null(getImg(x)),
-                slice %in% imgData(spe)[1, "sample_id"])
+                !is.null(SpatialExperiment::getImg(x)),
+                slice %in% SpatialExperiment::imgData(spe)[1, "sample_id"])
         
         # If 'img = TRUE' extract image from Seurat object
-        if (img) img <- imgRaster(spe, sample_id = slice)
+        if (img) img <- SpatialExperiment::imgRaster(spe, sample_id = slice)
         
         ## Extract spot barcodes
         barcodes <- colnames(x)
         
         ## Extract spatial coordinates
-        x <- as.matrix(spatialCoords(x)[, 1:2])
+        x <- as.matrix(SpatialExperiment::spatialCoords(x)[, 1:2])
         
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes

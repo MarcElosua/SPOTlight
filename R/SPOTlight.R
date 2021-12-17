@@ -118,7 +118,6 @@ NULL
 
 #' @rdname SPOTlight
 #' @importFrom SingleCellExperiment colLabels
-#' @importFrom SummarizedExperiment assay
 #' @export
 setMethod("SPOTlight", 
     c("SingleCellExperiment", "ANY"),
@@ -126,18 +125,21 @@ setMethod("SPOTlight",
         assay = "counts", 
         groups = colLabels(x, onAbsence = "error"))
     {
-        SPOTlight(as.matrix(assay(x, assay)), y, groups, ...)
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)), y, groups, ...)
     })
 
 #' @rdname SPOTlight
-#' @importFrom SummarizedExperiment assay
 #' @export
 setMethod("SPOTlight", 
     c("ANY", "SingleCellExperiment"),
     function(x, y, ..., 
         assay = "counts") 
     {
-        SPOTlight(x, as.matrix(assay(y, assay)), ...)
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        SPOTlight(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
     })
 
 #' @rdname SPOTlight
@@ -223,7 +225,7 @@ setMethod("SPOTlight",
         stopifnot(
             is.numeric(x), is.numeric(y),
             is.character(ids), length(ids) == 3, ids %in% names(mgs),
-            is.null(groups), length(groups) == ncol(x),
+            is.null(groups) | length(groups) == ncol(x),
             is.numeric(min_prop), length(min_prop) == 1,
             min_prop >= 0, min_prop <= 1,
             is.logical(scale), length(scale) == 1,

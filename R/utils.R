@@ -220,3 +220,16 @@
     
     return(list("mat" = t(res), "res_ss" = err))
 }
+
+# Test if a package is installed
+# x is a stringr or vector of strings of packages names
+# to test if they are installed
+.test_installed <- function(x) {
+    # Check which packages aren't installed
+    x <- x[! x %in% installed.packages()]
+    
+    if (length(x) > 0) {
+        x <- paste(x, collapse = ", ")
+        stop(paste0("Please install package/s: ", x))
+    }
+}

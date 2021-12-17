@@ -37,19 +37,20 @@
 NULL
 
 #' @rdname plotImage
-#' @importFrom jpeg readJPEG
-#' @importFrom png readPNG
 #' @export
 setMethod("plotImage", "character", 
     function(x) 
     {
+        # Check necessary packages are installed and if not STOP
+        .test_installed(c("jpeg", "png"))
+        
         stopifnot(file.exists(x))
         typ <- c("jpg", "jpeg", "png")
         pat <- paste0(".", typ, "$")
         idx <- vapply(pat, grepl, x = x, logical(1))
         if (!any(idx)) 
             stop("'x' should be of file type JPG, JPEG or PNG")
-        x <- switch(typ[idx], png = readPNG(x), readJPEG(x))
+        x <- switch(typ[idx], png = png::readPNG(x), jpeg::readJPEG(x))
         plotImage(x)
     })
 
@@ -69,33 +70,36 @@ setMethod("plotImage", "Seurat",
     })
 
 #' @rdname plotImage
-#' @importFrom SpatialExperiment imgRaster getImg imgData
 #' @export
 setMethod("plotImage", "SpatialExperiment",
     function(x, ..., 
         slice = imgData(x)[1, "sample_id"]) 
     {
+        .test_installed(c("SpatialExperiment"))
+        
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(getImg(x)),
-            slice %in% imgData(x)[1, "sample_id"])
+            !is.null(SpatialExperiment::getImg(x)),
+            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"])
         # Convert to raster
-        x <- imgRaster(x, sample_id = slice)
+        x <- SpatialExperiment::imgRaster(x, sample_id = slice)
         # pass as a matrix
         plotImage(as.matrix(x))
     })
 
 #' @rdname plotImage
 #' @import ggplot2
-#' @importFrom grid unit rasterGrob
 #' @export
 setMethod("plotImage", "array", 
     function(x) 
     {
-        x <- rasterGrob(x,
+        # Check necessary packages are installed and if not STOP
+        .test_installed("grid")
+        
+        x <- grid::rasterGrob(x,
             interpolate = FALSE,
-            width = unit(1, "npc"),
-            height = unit(1, "npc"))
+            width = grid::unit(1, "npc"),
+            height = grid::unit(1, "npc"))
         
         ggplot() +
             annotation_custom(

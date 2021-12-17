@@ -9,27 +9,27 @@ Authors@R: c(
 Depends: R (>= 4.1)
 Imports:
   ggplot2,
+  NMF,
+  Matrix,
+  matrixStats,
+  nnls,
+  SeuratObject,
+  SingleCellExperiment
+Suggests:
+  BiocStyle,
+  ExperimentHub,
   ggcorrplot,
   grid,
   igraph,
   jpeg,
-  NMF,
-  Matrix,
-  matrixStats,
-  methods,
-  nnls,
-  png,
-  scatterpie,
-  SeuratObject,
-  SummarizedExperiment,
-  SingleCellExperiment,
-  SpatialExperiment
-Suggests:
-  BiocStyle,
   knitr,
+  methods,
+  png,
   scater,
+  scatterpie,
   scran,
-  ExperimentHub,
+  SummarizedExperiment,
+  SpatialExperiment,
   TENxVisiumData,
   TabulaMurisSenisData
 biocViews: 
