@@ -57,7 +57,7 @@ test_that("SPOTlight x SPE", {
 test_that("SPOTlight x dgCMatrix SC", {
   
     res <- SPOTlight(
-        x = Matrix::Matrix(x, sparse = TRUE),
+        x = Matrix::Matrix(counts(sce), sparse = TRUE),
         y = as.matrix(counts(spe)),
         groups = sce$type,
         mgs = mgs,
@@ -72,7 +72,7 @@ test_that("SPOTlight x dgCMatrix SP", {
   
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
-        y = Matrix::Matrix(x, sparse = TRUE),
+        y = Matrix::Matrix(counts(spe), sparse = TRUE),
         groups = sce$type,
         mgs = mgs,
         weight_id = "weight",
@@ -86,7 +86,7 @@ test_that("SPOTlight x dgCMatrix SP", {
 test_that("SPOTlight x DelayedMatrix SC", {
     
     res <- SPOTlight(
-        x = DelayedArray::DelayedArray(x),
+        x = DelayedArray::DelayedArray(counts(sce)),
         y = as.matrix(counts(spe)),
         groups = sce$type,
         mgs = mgs,
@@ -101,7 +101,7 @@ test_that("SPOTlight x DelayedMatrix SP", {
     
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
-        y = DelayedArray::DelayedArray(x),
+        y = DelayedArray::DelayedArray(counts(sce)),
         groups = sce$type,
         mgs = mgs,
         weight_id = "weight",
