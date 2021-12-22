@@ -23,21 +23,21 @@ of markers to select per group.}
 \value{
 \itemize{
 \item{\code{.mock_sc} returns a \code{SingleCellExperiment}
-  with rows = genes, columns = single cells, and cell metadata 
+  with rows = genes, columns = single cells, and cell metadata
   (\code{colData}) column \code{type} containing group identifiers.}
 \item{\code{.mock_sp} returns a \code{SingleCellExperiment}
-  with rows = genes, columns = single cells, and cell metadata 
+  with rows = genes, columns = single cells, and cell metadata
   (\code{colData}) column \code{type} containing group identifiers.}
-\item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top} 
+\item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top}
   rows and 3 columns: gene and type (group) identifier, as well as the
   gene's weight = the proportion of counts accounted for by that type.}
 }
 }
 \description{
 \code{.mock_sc/sp()} are designed to generate synthetic single-cell and
-spatial mixture data. These data are not meant to represent biologically 
-meaningful use-cases, but are solely intended for use in examples, for 
-unit-testing, and to demonstrate \code{SPOTlight}'s general functionality. 
+spatial mixture data. These data are not meant to represent biologically
+meaningful use-cases, but are solely intended for use in examples, for
+unit-testing, and to demonstrate \code{SPOTlight}'s general functionality.
 Finally, \code{.get_mgs()} implements a statistically naive way to select
 markers from single-cell data; again, please don't use it in real life.
 }

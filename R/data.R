@@ -3,28 +3,28 @@
 #' @aliases .mock_sc .mock_sp .get_mgs
 #' @title Synthetic single-cell, mixture and marker data
 #'
-#' @description 
+#' @description
 #' \code{.mock_sc/sp()} are designed to generate synthetic single-cell and
-#' spatial mixture data. These data are not meant to represent biologically 
-#' meaningful use-cases, but are solely intended for use in examples, for 
-#' unit-testing, and to demonstrate \code{SPOTlight}'s general functionality. 
+#' spatial mixture data. These data are not meant to represent biologically
+#' meaningful use-cases, but are solely intended for use in examples, for
+#' unit-testing, and to demonstrate \code{SPOTlight}'s general functionality.
 #' Finally, \code{.get_mgs()} implements a statistically naive way to select
 #' markers from single-cell data; again, please don't use it in real life.
 #'
 #' @param ng,nc,nt,ns integer scalar specifying the number
 #'   of genes, cells, types (groups) and spots to simulate.
 #' @param n_top integer scalar specifying the number
-#'   of markers to select per group.  
+#'   of markers to select per group.
 #'
-#' @return 
+#' @return
 #' \itemize{
 #' \item{\code{.mock_sc} returns a \code{SingleCellExperiment}
-#'   with rows = genes, columns = single cells, and cell metadata 
+#'   with rows = genes, columns = single cells, and cell metadata
 #'   (\code{colData}) column \code{type} containing group identifiers.}
 #' \item{\code{.mock_sp} returns a \code{SingleCellExperiment}
-#'   with rows = genes, columns = single cells, and cell metadata 
+#'   with rows = genes, columns = single cells, and cell metadata
 #'   (\code{colData}) column \code{type} containing group identifiers.}
-#' \item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top} 
+#' \item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top}
 #'   rows and 3 columns: gene and type (group) identifier, as well as the
 #'   gene's weight = the proportion of counts accounted for by that type.}
 #' }
@@ -39,20 +39,21 @@ NULL
 #' @importFrom SingleCellExperiment cbind SingleCellExperiment
 #' @importFrom stats rnbinom runif
 #' @export
-.mock_sc <- function(ng = 200, nc = 50, nt = 3)
-{
+.mock_sc <- function(ng = 200, nc = 50, nt = 3) {
     z <- lapply(seq_len(nt), \(t) {
         ms <- 2^runif(ng, 2, 10)
-        ds <- 0.5+100/ms
-        y <- rnbinom(ng*nc, mu = ms, size = 1/ds)
+        ds <- 0.5 + 100 / ms
+        y <- rnbinom(ng * nc, mu = ms, size = 1 / ds)
         y <- matrix(y, nrow = ng, ncol = nc)
         dimnames(y) <- list(
             paste0("gene", seq_len(ng)),
-            paste0("cell", seq_len(nc)))
+            paste0("cell", seq_len(nc))
+        )
         x <- SingleCellExperiment(list(counts = y))
         x$type <- factor(
-            paste0("type", t), 
-            paste0("type", seq_len(nt)))
+            paste0("type", t),
+            paste0("type", seq_len(nt))
+        )
         return(x)
     })
     do.call(cbind, z)
@@ -62,8 +63,7 @@ NULL
 #' @importFrom Matrix rowSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @export
-.mock_sp <- function(x, ns = 100) 
-{
+.mock_sp <- function(x, ns = 100) {
     z <- replicate(ns, {
         # sample number of cells
         nc <- sample(5, 1)
@@ -73,25 +73,27 @@ NULL
         y <- counts(x[, cs])
         y <- rowSums(y)
         # compute composition
-        n <- table(x$type[cs])/nc
+        n <- table(x$type[cs]) / nc
         n <- c(unclass(n))
         list(y, n)
-    }) 
+    })
     # get counts
     y <- t(do.call(rbind, z[1, ]))
     dimnames(y) <- list(
         rownames(x),
-        paste0("spot", seq_len(ns)))
+        paste0("spot", seq_len(ns))
+    )
     # get compositions
     fq <- do.call(rbind, z[2, ])
     rownames(fq) <- colnames(y)
     # sample coordinates
-    xy <- matrix(runif(2*ns), ncol = 2)
+    xy <- matrix(runif(2 * ns), ncol = 2)
     dimnames(xy) <- list(colnames(y), c("x", "y"))
     SingleCellExperiment(
-        list(counts = y), 
+        list(counts = y),
         colData = data.frame(xy),
-        metadata = list(props = fq))
+        metadata = list(props = fq)
+    )
 }
 
 #' @rdname data
@@ -99,8 +101,7 @@ NULL
 #' @importFrom SingleCellExperiment counts
 #' @importFrom stats aggregate
 #' @export
-.get_mgs <- function(x, n_top = 10) 
-{
+.get_mgs <- function(x, n_top = 10) {
     # compute sum of counts by group
     y <- aggregate(t(counts(x)), list(x$type), sum)
     rownames(y) <- y[, 1]

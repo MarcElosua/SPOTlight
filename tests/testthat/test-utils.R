@@ -19,7 +19,8 @@ defs <- list(
     gene_id = "gene",
     group_id = "type",
     weight_id = "weight",
-    verbose = FALSE)
+    verbose = FALSE
+)
 
 # NMF ----
 test_that("NMF", {
@@ -28,14 +29,16 @@ test_that("NMF", {
     groups <- sce$type
     group_ids <- levels(groups)
     n_groups <- length(group_ids)
-    
+
     # + .train_nmf ----
     # undetected genes should be filtered out
     # and pass silently (i.e., without error)
     i <- sample(rownames(x), 5)
     j <- sample(rownames(y), 5)
-    x. <- x; x.[i, ] <- 0
-    y. <- y; y.[j, ] <- 0
+    x. <- x
+    x.[i, ] <- 0
+    y. <- y
+    y.[j, ] <- 0
     args <- c(defs, list(x., y., groups, mgs))
     fit <- expect_silent(do.call(.train_nmf, args))
     expect_is(fit, "NMF")
@@ -58,7 +61,7 @@ test_that("NMF", {
     expect_equal(dim(ref), rep(n_groups, 2))
     expect_identical(rownames(ref), group_ids)
     expect_identical(colnames(ref), group_ids)
-    
+
     # + .pred_prop ----
     fqs <- .pred_prop(x, fit)
     expect_is(fqs, "matrix")
@@ -66,9 +69,9 @@ test_that("NMF", {
     expect_true(all(fqs >= 0))
     expect_equal(dim(fqs), c(n_groups, ncol(x)))
     expect_identical(dimnames(fqs), list(group_ids, colnames(x)))
-    
+
     # + .deconvolute ----
-    # should give a numeric matrix 
+    # should give a numeric matrix
     # of dimension (#groups) x (#spots)
     # with proportions (i.e., values in [0, 1])
     res <- .deconvolute(y, fit, ref)
@@ -78,12 +81,12 @@ test_that("NMF", {
     expect_true(is.numeric(err))
     expect_true(is.numeric(x))
     expect_true(all(mat >= 0 & mat <= 1))
-    expect_true(all(rowSums(mat)-1 < 1e-12))
+    expect_true(all(rowSums(mat) - 1 < 1e-12))
     expect_identical(dimnames(mat), list(colnames(y), group_ids))
     expect_identical(rownames(mat), names(err))
-    # actually check the estimates are legit 
+    # actually check the estimates are legit
     # (MSE < 0.1 compared to simulated truth)
     sim <- metadata(spe)[[1]]
-    mse <- mean((mat-sim)^2)
+    mse <- mean((mat - sim)^2)
     expect_true(mse < 0.1)
 })

@@ -15,13 +15,13 @@
 
 \item{y}{vector of group labels. Should be of length \code{ncol(coef(x))}.}
 
-\item{facet}{logical indicating whether to stratify by group. 
+\item{facet}{logical indicating whether to stratify by group.
 If \code{FALSE} (default), weights will be the median across cells
-for each group (point = topic weight for a given cell type). 
-If \code{TRUE}, cell-specific weights will be shown 
+for each group (point = topic weight for a given cell type).
+If \code{TRUE}, cell-specific weights will be shown
 (point = topic weight of a given cell).}
 
-\item{min_prop}{scalar in [0,1]. When \code{facet = TRUE}, 
+\item{min_prop}{scalar in [0,1]. When \code{facet = TRUE},
 only cells with a weight > \code{min_prop} will be included.}
 
 \item{nrow}{integer scalar specifying the number of facet columns.}
@@ -39,11 +39,12 @@ This function takes in the fitted NMF model and returns the
 x <- .mock_sc()
 y <- .mock_sp(x)
 z <- .get_mgs(x)
-res <- SPOTlight(x, y, 
-  groups = x$type, 
-  mgs = z, 
-  group_id = "type",
-  verbose = FALSE)
+res <- SPOTlight(x, y,
+    groups = x$type,
+    mgs = z,
+    group_id = "type",
+    verbose = FALSE
+)
 
 plotTopicProfiles(res[[1]], x$type, facet = TRUE)
 plotTopicProfiles(res[[1]], x$type, facet = FALSE)

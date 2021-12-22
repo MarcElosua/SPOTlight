@@ -17,13 +17,13 @@
 #'   image opacity. Lower values correspond to more transparency.
 #'
 #' @return \code{ggplot} object
-#' 
+#'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
 #' # Filename
 #' plotImage("../../inst/extdata/SPOTlight.png")
-#' path <- paste0(system.file(package="SPOTlight"), "/spatial/tissue_lowres_image.png")
+#' path <- paste0(system.file(package = "SPOTlight"), "/spatial/tissue_lowres_image.png")
 #' plotImage(path)
 #' # array
 #' png_img <- png::readPNG(path)
@@ -38,69 +38,80 @@ NULL
 
 #' @rdname plotImage
 #' @export
-setMethod("plotImage", "character", 
-    function(x) 
-    {
+setMethod(
+    "plotImage", "character",
+    function(x) {
         # Check necessary packages are installed and if not STOP
         .test_installed(c("jpeg", "png"))
-        
+
         stopifnot(file.exists(x))
         typ <- c("jpg", "jpeg", "png")
         pat <- paste0(".", typ, "$")
         idx <- vapply(pat, grepl, x = x, logical(1))
-        if (!any(idx)) 
-            stop("'x' should be of file type JPG, JPEG or PNG")
-        x <- switch(typ[idx], png = png::readPNG(x), jpeg::readJPEG(x))
+        if (!any(idx)) {
+              stop("'x' should be of file type JPG, JPEG or PNG")
+          }
+        x <- switch(typ[idx],
+            png = png::readPNG(x),
+            jpeg::readJPEG(x)
+        )
         plotImage(x)
-    })
+    }
+)
 
 #' @rdname plotImage
 #' @importFrom SeuratObject GetImage Images
 #' @export
-setMethod("plotImage", "Seurat",
-    function(x, ..., slice = Images(x)[1]) 
-    {
+setMethod(
+    "plotImage", "Seurat",
+    function(x, ..., slice = Images(x)[1]) {
         # Stop if there are no images or the name selected doesn't exist
-        stopifnot(!is.null(Images(x)),
-            slice %in% Images(x))
+        stopifnot(
+            !is.null(Images(x)),
+            slice %in% Images(x)
+        )
         # Extract Image in raster format
         x <- GetImage(x, image = slice, mode = "raster")
         # pass as a matrix
         plotImage(as.matrix(x))
-    })
+    }
+)
 
 #' @rdname plotImage
 #' @export
-setMethod("plotImage", "SpatialExperiment",
-    function(x, ..., 
-        slice = imgData(x)[1, "sample_id"]) 
-    {
+setMethod(
+    "plotImage", "SpatialExperiment",
+    function(x, ...,
+    slice = imgData(x)[1, "sample_id"]) {
         .test_installed(c("SpatialExperiment"))
-        
+
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             !is.null(SpatialExperiment::getImg(x)),
-            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"])
+            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"]
+        )
         # Convert to raster
         x <- SpatialExperiment::imgRaster(x, sample_id = slice)
         # pass as a matrix
         plotImage(as.matrix(x))
-    })
+    }
+)
 
 #' @rdname plotImage
 #' @import ggplot2
 #' @export
-setMethod("plotImage", "array", 
-    function(x) 
-    {
+setMethod(
+    "plotImage", "array",
+    function(x) {
         # Check necessary packages are installed and if not STOP
         .test_installed("grid")
-        
+
         x <- grid::rasterGrob(x,
             interpolate = FALSE,
             width = grid::unit(1, "npc"),
-            height = grid::unit(1, "npc"))
-        
+            height = grid::unit(1, "npc")
+        )
+
         ggplot() +
             annotation_custom(
                 grob = x,
@@ -115,9 +126,12 @@ setMethod("plotImage", "array",
                 ylim = c(0, nrow(x$raster))
             ) +
             theme_void()
-    })
+    }
+)
 
 #' @rdname plotImage
 #' @export
-setMethod("plotImage", "ANY",
-    function(x) stop("See ?plotImage for valid image inputs"))
+setMethod(
+    "plotImage", "ANY",
+    function(x) stop("See ?plotImage for valid image inputs")
+)

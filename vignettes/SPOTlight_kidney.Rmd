@@ -149,7 +149,7 @@ batch effects we are going to select cells all coming from the same age.
 # Keep cells from 18m mice
 sce <- subset(sce, , age == "18m")
 # Keep cells with clear cell type annotations
-sce <- subset(sce, , ! free_annotation %in% c("nan", "CD45"))
+sce <- subset(sce, , !free_annotation %in% c("nan", "CD45"))
 ```
 
 # Workflow
@@ -210,9 +210,10 @@ gene for that cell type. Examples can be `avgLogFC`, `AUC`, `pct.expressed`,
 colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector  indicating which genes are neither ribosomal or mitochondrial
-genes <- ! base::grepl(
-  x = rownames(sce),
-  pattern = "^Rp[l|s]|Mt")
+genes <- !base::grepl(
+    x = rownames(sce),
+    pattern = "^Rp[l|s]|Mt"
+)
 
 # Compute marker genes
 mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
@@ -222,15 +223,15 @@ Then we want to keep only those genes that are relevant for each cell identity
 
 ```{r mgs-df}
 mgs_ls <- lapply(names(mgs), \(i){
-  x <- mgs[[i]]
-  # Filter and keep relevant marker genes, those with AUC > 0.8
-  x <- x[x$mean.AUC > 0.8, ]
-  # Sort the genes from highest to lowest weight
-  x <- x[order(x$mean.AUC, decreasing = TRUE), ]
-  # Add gene and cluster id to the dataframe
-  x$gene <- rownames(x)
-  x$cluster <- i
-  data.frame(x)
+    x <- mgs[[i]]
+    # Filter and keep relevant marker genes, those with AUC > 0.8
+    x <- x[x$mean.AUC > 0.8, ]
+    # Sort the genes from highest to lowest weight
+    x <- x[order(x$mean.AUC, decreasing = TRUE), ]
+    # Add gene and cluster id to the dataframe
+    x$gene <- rownames(x)
+    x$cluster <- i
+    data.frame(x)
 })
 
 mgs_df <- dplyr::bind_rows(mgs_ls)
@@ -258,11 +259,12 @@ use 20 cells per cell identity
 n_cell <- 20
 sce_ls <- split(colData(sce), sce$free_annotation)
 id_keep <- lapply(sce_ls, function(.) {
-  sample(
-    x = rownames(.),
-    size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
-    replace = FALSE)
-  })
+    sample(
+        x = rownames(.),
+        size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
+        replace = FALSE
+    )
+})
 
 sce <- sce[, unlist(id_keep)]
 ```
@@ -311,7 +313,8 @@ res <- SPOTlight(
     hvg = hvg,
     weight_id = "mean.AUC",
     group_id = "cluster",
-    gene_id = "gene")
+    gene_id = "gene"
+)
 ```
 
 Extract data from `SPOTlight`
@@ -335,11 +338,12 @@ seen below.
 mod <- res[[3]]
 
 plotTopicProfiles(
-  x = mod,
-  y = sce$free_annotation,
-  facet = FALSE,
-  min_prop = 0.01,
-  ncol = 1)
+    x = mod,
+    y = sce$free_annotation,
+    facet = FALSE,
+    min_prop = 0.01,
+    ncol = 1
+)
 ```
 
 Next we also want to ensure that all the cells from the same cell identity share 
@@ -347,11 +351,12 @@ a similar topic profile since this will mean that `SPOTlight` has learnt a
 consistent signature for all the cells from the same cell identity.
 ```{r plotTopicProfiles2, fig.width=9, fig.height=9}
 plotTopicProfiles(
-  x = mod,
-  y = sce$free_annotation,
-  facet = TRUE,
-  min_prop = 0.01,
-  ncol = 4)
+    x = mod,
+    y = sce$free_annotation,
+    facet = TRUE,
+    min_prop = 0.01,
+    ncol = 4
+)
 ```
 
 Lastly we can take a look at which genes the model learned for each topic.
@@ -362,7 +367,7 @@ for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
 library(DT)
 library(NMF)
 sign <- basis(mod)
-colnames(sign) <- paste0("Topic",1:ncol(sign))
+colnames(sign) <- paste0("Topic", 1:ncol(sign))
 datatable(sign, fillContainer = TRUE, filter = "top")
 ```
 
@@ -407,10 +412,12 @@ plotSpatialScatterpie(
     cell_types = colnames(y),
     img = FALSE,
     scatterpie_alpha = 1,
-    pie_scale = 0.4) +
+    pie_scale = 0.4
+) +
     scale_fill_manual(
         values = mycolors,
-        breaks = names(mycolors))
+        breaks = names(mycolors)
+    )
 ```
 
 ## Residuals
@@ -423,7 +430,7 @@ xy <- spatialCoords(spe)
 spe$x <- xy[, 1]
 spe$y <- xy[, 2]
 ggcells(spe, aes(x, y, color = res_ss)) +
-    geom_point() + 
+    geom_point() +
     scale_color_viridis_c() +
     coord_fixed() +
     theme_bw()

@@ -4,7 +4,8 @@
 . <- \(.) {
     pdf(NULL)
     dev.control(displaylist = "enable")
-    set.seed(1); .
+    set.seed(1)
+    .
     . <- recordPlot()
     invisible(dev.off())
     return(.)
@@ -30,14 +31,14 @@ test_that("plotInteractions(), which = 'heatmap'", {
 test_that("plotInteractions(), which = 'heatmap', tunning", {
     p <- plotInteractions(x, "heatmap") +
         scale_fill_gradient(low = "#FFFF00", high = "#FF0000")
-    
+
     # Same base checks
     expect_is(p, "ggplot")
     expect_true(all(p$data$p >= 0))
     expect_true(all(p$data$p <= 1))
     expect_true(is.integer(p$data$n))
     expect_true(nrow(p$data) == m * (m - 1) / 2)
-    
+
     # Color checks
     g <- ggplot_build(p)
     d1 <- g$data[[1]]
@@ -65,7 +66,8 @@ test_that("plotInteractions(), which = 'network', tunning", {
         edge.color = "cyan",
         vertex.color = "pink",
         vertex.label.font = 2,
-        vertex.label.color = "maroon"))
+        vertex.label.color = "maroon"
+    ))
     expect_is(p, "recordedplot")
     # Test edge color
     expect_equal(p[[1]][[6]][[2]]$col, "cyan")
@@ -76,5 +78,3 @@ test_that("plotInteractions(), which = 'network', tunning", {
     expect_equal(p[[1]][[8]][[2]][[7]], "pink")
     p[[1]]
 })
-
-

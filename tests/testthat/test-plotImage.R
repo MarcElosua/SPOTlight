@@ -6,7 +6,7 @@ test_that("plotImage path", {
     # image
     x <- x_path
     plt <- plotImage(x = x)
-    
+
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -16,18 +16,20 @@ test_that("plotImage array", {
     # image
     x <- png::readPNG(x_path)
     plt <- plotImage(x = x)
-    
+
     expect_equal(class(plt)[1], "gg")
 })
 
 test_that("plotImage Seurat", {
-    if (! "SeuratData" %in% installed.packages())
-        devtools::install_github('satijalab/seurat-data')
+    if (!"SeuratData" %in% installed.packages()) {
+          devtools::install_github("satijalab/seurat-data")
+      }
     # image
-    if (! "stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset))
-        suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData", type = "anterior1"))
+    if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset)) {
+          suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData", type = "anterior1"))
+      }
     x <- suppressWarnings(SeuratData::LoadData(ds = "stxBrain", type = "anterior1"))
-    
+
     plt <- plotImage(x = x)
     expect_equal(class(plt)[1], "gg")
 })
@@ -35,12 +37,12 @@ test_that("plotImage Seurat", {
 test_that("plotImage SPE", {
     # image
     library(ExperimentHub)
-    eh <- ExperimentHub()        # initialize hub instance
+    eh <- ExperimentHub() # initialize hub instance
     q <- query(eh, "TENxVisium") # retrieve 'TENxVisiumData' records
-    id <- q$ah_id[1]             # specify dataset ID to load
+    id <- q$ah_id[1] # specify dataset ID to load
     x <- eh[[id]]
-        
+
     plt <- plotImage(x = x)
-    
+
     expect_equal(class(plt)[1], "gg")
 })

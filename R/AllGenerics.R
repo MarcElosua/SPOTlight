@@ -1,23 +1,33 @@
 #' @export
-setGeneric("SPOTlight", 
-    function(x, y, ...) standardGeneric("SPOTlight"))
+setGeneric(
+    "SPOTlight",
+    function(x, y, ...) standardGeneric("SPOTlight")
+)
 
 #' @export
-setGeneric("plotImage", 
-    function(x, ...) standardGeneric("plotImage"))
+setGeneric(
+    "plotImage",
+    function(x, ...) standardGeneric("plotImage")
+)
 
 #' @export
-setGeneric("plotTopicProfiles", 
-    function(x, y, ...) standardGeneric("plotTopicProfiles"))
+setGeneric(
+    "plotTopicProfiles",
+    function(x, y, ...) standardGeneric("plotTopicProfiles")
+)
 
 #' @export
-setGeneric("plotSpatialScatterpie", 
-    function(x, y, ...) standardGeneric("plotSpatialScatterpie"))
+setGeneric(
+    "plotSpatialScatterpie",
+    function(x, y, ...) standardGeneric("plotSpatialScatterpie")
+)
 
 #' #' @export
 #' setGeneric("plotInteractions",
 #'     function(x, y, ...) standardGeneric("plotInteractions"))
 
 #' @export
-setGeneric("plotCorrelationMatrix", 
-    function(x, y, ...) standardGeneric("plotCorrelationMatrix"))
+setGeneric(
+    "plotCorrelationMatrix",
+    function(x, y, ...) standardGeneric("plotCorrelationMatrix")
+)

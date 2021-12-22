@@ -15,12 +15,12 @@ Must have at least one row and column, and at least two columns.}
 \item{which}{character string specifying the type of
 visualization: one of "heatmap" or "network".}
 
-\item{min_prop}{scalar specifying the value above which 
-a group is considered to be contributing to a given sample. 
+\item{min_prop}{scalar specifying the value above which
+a group is considered to be contributing to a given sample.
 An interaction between groups i and j is counted for sample s
 only when both x[s, i] and x[s, j] fall above \code{min_prop}.}
 
-\item{...}{additional graphical parameters passed 
+\item{...}{additional graphical parameters passed
 to \code{plot.igraph} when \code{which = "network"}
 (see \code{?igraph.plotting}).}
 }
@@ -42,9 +42,10 @@ plotInteractions(mat)
 # This returns a ggplot object that can be modified as such
 plotInteractions(mat, which = "heatmap") +
     scale_fill_gradient(low = "#f2e552", high = "#850000") +
-        labs(
-             title = "Interaction heatmap",
-             fill = "proportion")
+    labs(
+        title = "Interaction heatmap",
+        fill = "proportion"
+    )
 ### Network ###
 # specify node names
 nms <- letters[seq_len(ncol(mat))]
@@ -60,7 +61,8 @@ plotInteractions(mat,
     edge.color = "cyan",
     vertex.color = "pink",
     vertex.label.font = 2,
-    vertex.label.color = "maroon")
+    vertex.label.color = "maroon"
+)
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

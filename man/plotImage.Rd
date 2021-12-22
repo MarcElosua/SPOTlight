@@ -43,7 +43,7 @@ This function takes in an image-related object - path to
 \examples{
 # Filename
 plotImage("../../inst/extdata/SPOTlight.png")
-path <- paste0(system.file(package="SPOTlight"), "/spatial/tissue_lowres_image.png")
+path <- paste0(system.file(package = "SPOTlight"), "/spatial/tissue_lowres_image.png")
 plotImage(path)
 # array
 png_img <- png::readPNG(path)

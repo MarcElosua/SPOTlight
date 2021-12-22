@@ -24,7 +24,6 @@ mgs <- .get_mgs(sce)
 # ------------------------------------------------------------------------------
 # .SPOTlight with SCE ----
 test_that("SPOTlight x SCE", {
-  
     res <- SPOTlight(
         x = sce,
         y = as.matrix(counts(spe)),
@@ -32,14 +31,14 @@ test_that("SPOTlight x SCE", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
-  
+        gene_id = "gene"
+    )
+
     .checks(res, sce)
 })
 
 # .SPOTlight with SPE ----
 test_that("SPOTlight x SPE", {
-  
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = spe,
@@ -47,15 +46,15 @@ test_that("SPOTlight x SPE", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
-  
+        gene_id = "gene"
+    )
+
     .checks(res, sce)
-    })
+})
 
 
 # .SPOTlight with sparse matrix sc ----
 test_that("SPOTlight x dgCMatrix SC", {
-  
     res <- SPOTlight(
         x = Matrix::Matrix(counts(sce), sparse = TRUE),
         y = as.matrix(counts(spe)),
@@ -63,13 +62,13 @@ test_that("SPOTlight x dgCMatrix SC", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
+        gene_id = "gene"
+    )
     .checks(res, sce)
-    })
+})
 
 # .SPOTlight with sparse matrix sp ----
 test_that("SPOTlight x dgCMatrix SP", {
-  
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = Matrix::Matrix(counts(spe), sparse = TRUE),
@@ -77,14 +76,14 @@ test_that("SPOTlight x dgCMatrix SP", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
-  
-    .checks(res, sce)  
+        gene_id = "gene"
+    )
+
+    .checks(res, sce)
 })
 
 # .SPOTlight with sparse matrix sc ----
 test_that("SPOTlight x DelayedMatrix SC", {
-    
     res <- SPOTlight(
         x = DelayedArray::DelayedArray(counts(sce)),
         y = as.matrix(counts(spe)),
@@ -92,13 +91,13 @@ test_that("SPOTlight x DelayedMatrix SC", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
+        gene_id = "gene"
+    )
     .checks(res, sce)
 })
 
 # .SPOTlight with sparse matrix sp ----
 test_that("SPOTlight x DelayedMatrix SP", {
-    
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = DelayedArray::DelayedArray(counts(sce)),
@@ -106,9 +105,10 @@ test_that("SPOTlight x DelayedMatrix SP", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
-    
-    .checks(res, sce)  
+        gene_id = "gene"
+    )
+
+    .checks(res, sce)
 })
 
 # .SPOTlight with matrices in both ----
@@ -120,8 +120,9 @@ test_that("SPOTlight x matrices", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene")
-  
+        gene_id = "gene"
+    )
+
     .checks(res, sce)
 })
 
@@ -135,7 +136,8 @@ test_that("SPOTlight x hvg", {
         weight_id = "weight",
         group_id = "type",
         gene_id = "gene",
-        hvg = row.names(sce)[1:50])
-    
+        hvg = row.names(sce)[1:50]
+    )
+
     .checks(res, sce)
 })

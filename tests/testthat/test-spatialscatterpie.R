@@ -15,7 +15,8 @@ img <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
 test_that("plotSpatialScatterpie", {
     plt <- plotSpatialScatterpie(
         x = x,
-        y = y)
+        y = y
+    )
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -24,7 +25,8 @@ test_that("plotSpatialScatterpie - image", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
-        img = img)
+        img = img
+    )
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -33,7 +35,8 @@ test_that("plotSpatialScatterpie - type subset", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
-        cell_types = colnames(y)[1:3])
+        cell_types = colnames(y)[1:3]
+    )
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -42,8 +45,9 @@ test_that("plotSpatialScatterpie - type subset", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
-        scatterpie_alpha = 0.5)
-    
+        scatterpie_alpha = 0.5
+    )
+
     expect_equal(class(plt)[1], "gg")
     expect_lt(plt$layers[[1]]$aes_params$alpha, 1)
 })
@@ -53,7 +57,7 @@ test_that("plotSpatialScatterpie - type subset", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
-        pie_scale = 0.1)
+        pie_scale = 0.1
+    )
     expect_equal(class(plt)[1], "gg")
 })
-

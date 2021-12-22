@@ -14,15 +14,15 @@ editor_options:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%",
-  cache = TRUE,
-  cache.lazy = FALSE,
-  warning = FALSE,
-  message = FALSE,
-  eval = TRUE
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%",
+    cache = TRUE,
+    cache.lazy = FALSE,
+    warning = FALSE,
+    message = FALSE,
+    eval = TRUE
 )
 ```
 
@@ -145,16 +145,20 @@ We can set the following parameters for more specific markers:
 ```{r eval = FALSE}
 #### Extract the top marker genes from each cluster ####
 Seurat::Idents(object = cortex_sc) <- cortex_sc@meta.data$subclass
-cluster_markers_all <- Seurat::FindAllMarkers(object = cortex_sc, 
-                                              assay = "SCT",
-                                              slot = "data",
-                                              verbose = TRUE, 
-                                              only.pos = TRUE, 
-                                              logfc.threshold = 1,
-                                              min.pct = 0.9)
+cluster_markers_all <- Seurat::FindAllMarkers(
+    object = cortex_sc,
+    assay = "SCT",
+    slot = "data",
+    verbose = TRUE,
+    only.pos = TRUE,
+    logfc.threshold = 1,
+    min.pct = 0.9
+)
 
-saveRDS(object = cluster_markers_all,
-        file = "sample_data/markers_sc.RDS")
+saveRDS(
+    object = cluster_markers_all,
+    file = "sample_data/markers_sc.RDS"
+)
 ```
 
 ```{r}
@@ -167,16 +171,18 @@ To run the deconvolution, one just needs to run the following function.
 For the sake of speed we will 10 cells per cell-type, we found the optimal number to be ~100
 ```{r eval = FALSE}
 set.seed(123)
-spotlight_ls <- spotlight_deconvolution(se_sc = cortex_sc,
-                                        counts_spatial = anterior@assays$Spatial@counts,
-                                        clust_vr = "subclass",
-                                        cluster_markers = cluster_markers_all,
-                                        cl_n = 50,
-                                        hvg = 3000,
-                                        ntop = NULL,
-                                        transf = "uv",
-                                        method = "nsNMF",
-                                        min_cont = 0.09)
+spotlight_ls <- spotlight_deconvolution(
+    se_sc = cortex_sc,
+    counts_spatial = anterior@assays$Spatial@counts,
+    clust_vr = "subclass",
+    cluster_markers = cluster_markers_all,
+    cl_n = 50,
+    hvg = 3000,
+    ntop = NULL,
+    transf = "uv",
+    method = "nsNMF",
+    min_cont = 0.09
+)
 
 # saveRDS(object = spotlight_ls,
 #         file = "sample_data/spotlight_ls_anterior.RDS")
@@ -199,31 +205,37 @@ anterior@meta.data <- cbind(anterior@meta.data, decon_mtrx)
 
 2nd Plot spot composition of all the cell types
 ```{r}
-SPOTlight::spatial_scatterpie(se_obj = anterior,
-                              cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              pie_scale = 0.4)
+SPOTlight::spatial_scatterpie(
+    se_obj = anterior,
+    cell_types_all = cell_types_all,
+    img_path = "sample_data/spatial/tissue_lowres_image.png",
+    pie_scale = 0.4
+)
 ```
 
 3rd show only spots containing cell types of interest
 ```{r}
-SPOTlight::spatial_scatterpie(se_obj = anterior,
-                              cell_types_all = cell_types_all,
-                              img_path = "sample_data/spatial/tissue_lowres_image.png",
-                              cell_types_interest = "L6b",
-                              pie_scale = 0.5)
+SPOTlight::spatial_scatterpie(
+    se_obj = anterior,
+    cell_types_all = cell_types_all,
+    img_path = "sample_data/spatial/tissue_lowres_image.png",
+    cell_types_interest = "L6b",
+    pie_scale = 0.5
+)
 ```
 
 #### Spatial location
 We can take a look at how the cell types are predicted to be spatially distributed.
 ```{r}
 SpatialFeaturePlot(anterior,
-                 features = "L6b", 
-                 pt.size.factor = 1,
-                 alpha = c(0, 1)) +
-  ggplot2::scale_fill_gradientn(
-      colours = heat.colors(10, rev = TRUE),
-      limits = c(0, 1))
+    features = "L6b",
+    pt.size.factor = 1,
+    alpha = c(0, 1)
+) +
+    ggplot2::scale_fill_gradientn(
+        colours = heat.colors(10, rev = TRUE),
+        limits = c(0, 1)
+    )
 ```
 
 #### Spatial interaction graph
@@ -236,13 +248,13 @@ If you want to tune how the graph looks you can do the following or you can chec
 ```{r}
 library(igraph)
 library(RColorBrewer)
-deg <- degree(graph_ntw, mode="all")
+deg <- degree(graph_ntw, mode = "all")
 
 # Get color palette for difusion
 edge_importance <- E(graph_ntw)$importance
 
 # Select a continuous palette
-qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'seq',]
+qual_col_pals <- brewer.pal.info[brewer.pal.info$category == "seq", ]
 
 # Create a color palette
 getPalette <- colorRampPalette(brewer.pal(9, "YlOrRd"))
@@ -251,26 +263,29 @@ getPalette <- colorRampPalette(brewer.pal(9, "YlOrRd"))
 grad_edge <- seq(0, max(edge_importance), 0.1)
 
 # Generate extended gradient palette dataframe
-graph_col_df <- data.frame(value = as.character(grad_edge),
-                           color = getPalette(length(grad_edge)),
-                           stringsAsFactors = FALSE)
+graph_col_df <- data.frame(
+    value = as.character(grad_edge),
+    color = getPalette(length(grad_edge)),
+    stringsAsFactors = FALSE
+)
 # Assign color to each edge
 color_edge <- data.frame(value = as.character(round(edge_importance, 1)), stringsAsFactors = FALSE) %>%
-  dplyr::left_join(graph_col_df, by = "value") %>%
-  dplyr::pull(color)
+    dplyr::left_join(graph_col_df, by = "value") %>%
+    dplyr::pull(color)
 
 # Open a pdf file
 plot(graph_ntw,
-     # Size of the edge
-     edge.width = edge_importance,
-     edge.color = color_edge,
-     # Size of the buble
-     vertex.size = deg,
-     vertex.color = "#cde394",
-     vertex.frame.color = "white",
-     vertex.label.color = "black",
-     vertex.label.family = "Ubuntu", # Font family of the label (e.g.“Times”, “Helvetica”)
-     layout = layout.circle)
+    # Size of the edge
+    edge.width = edge_importance,
+    edge.color = color_edge,
+    # Size of the buble
+    vertex.size = deg,
+    vertex.color = "#cde394",
+    vertex.frame.color = "white",
+    vertex.label.color = "black",
+    vertex.label.family = "Ubuntu", # Font family of the label (e.g.“Times”, “Helvetica”)
+    layout = layout.circle
+)
 ```
 
 #### Look at cell type profiles
@@ -284,10 +299,14 @@ Plot topic profiles
 ```{r}
 h <- NMF::coef(nmf_mod)
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
-topic_profile_plts <- dot_plot_profiles_fun(h = h,
-                      train_cell_clust = nmf_mod_ls[[2]])
-topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90), 
-                                axis.text = element_text(size = 12))
+topic_profile_plts <- dot_plot_profiles_fun(
+    h = h,
+    train_cell_clust = nmf_mod_ls[[2]]
+)
+topic_profile_plts[[2]] + theme(
+    axis.text.x = element_text(angle = 90),
+    axis.text = element_text(size = 12)
+)
 ```
 
 ```{r, include = FALSE}
@@ -305,26 +324,29 @@ knitr::include_graphics("img/SPOTlight_scheme.pdf")
 If the dataset is very large we want to downsample it, both in terms of number of cells and number of genes, to train the model. To do this downsampling we want to keep a representative amount of cells per cluster and the most important genes. We show that this downsampling doesn't affect the performance of the model and greatly speeds up the model training.
 ```{r eval = FALSE}
 # Downsample scRNAseq to select gene set and number of cells to train the model
-se_sc_down <- downsample_se_obj(se_obj = cortex_sc,
-                                clust_vr = "subclass",
-                                cluster_markers = cluster_markers_all,
-                                cl_n = 100,
-                                hvg = 3000)
-
+se_sc_down <- downsample_se_obj(
+    se_obj = cortex_sc,
+    clust_vr = "subclass",
+    cluster_markers = cluster_markers_all,
+    cl_n = 100,
+    hvg = 3000
+)
 ```
 
 #### Train NMF model
 Once we have the data ready to pass to the model we can train it as shown below.
 ```{r eval = FALSE}
 start_time <- Sys.time()
-nmf_mod_ls <- train_nmf(cluster_markers = cluster_markers_all, 
-                        se_sc = se_sc_down, 
-                        mtrx_spatial = anterior@assays$Spatial@counts,
-                        clust_vr = "subclass",
-                        ntop = NULL,
-                        hvg = 3000,
-                        transf = "uv",
-                        method = "nsNMF")
+nmf_mod_ls <- train_nmf(
+    cluster_markers = cluster_markers_all,
+    se_sc = se_sc_down,
+    mtrx_spatial = anterior@assays$Spatial@counts,
+    clust_vr = "subclass",
+    ntop = NULL,
+    hvg = 3000,
+    transf = "uv",
+    method = "nsNMF"
+)
 
 nmf_mod <- nmf_mod_ls[[1]]
 ```
@@ -344,9 +366,9 @@ Look at cell-type specific topic profile
 ```{r eval = FALSE}
 rownames(h) <- paste("Topic", 1:nrow(h), sep = "_")
 topic_profile_plts <- dot_plot_profiles_fun(
-  h = h,
-  train_cell_clust = nmf_mod_ls[[2]]
-  )
+    h = h,
+    train_cell_clust = nmf_mod_ls[[2]]
+)
 
 topic_profile_plts[[2]] + theme(axis.text.x = element_text(angle = 90))
 ```
@@ -362,13 +384,17 @@ spot_counts <- spot_counts[rownames(spot_counts) %in% rownames(w), ]
 
 Run spots through the basis to get the pertinent coefficients. To do this for every spot we are going to set up a system of linear equations where we need to find the coefficient, we will use non-negative least squares to determine the best coefficient fit. 
 ```{r eval = FALSE}
-ct_topic_profiles <- topic_profile_per_cluster_nmf(h = h,
-                              train_cell_clust = nmf_mod_ls[[2]])
+ct_topic_profiles <- topic_profile_per_cluster_nmf(
+    h = h,
+    train_cell_clust = nmf_mod_ls[[2]]
+)
 
-decon_mtrx <- mixture_deconvolution_nmf(nmf_mod = nmf_mod,
-                          mixture_transcriptome = spot_counts,
-                          transf = "uv",
-                          reference_profiles = ct_topic_profiles, 
-                          min_cont = 0.09)
+decon_mtrx <- mixture_deconvolution_nmf(
+    nmf_mod = nmf_mod,
+    mixture_transcriptome = spot_counts,
+    transf = "uv",
+    reference_profiles = ct_topic_profiles,
+    min_cont = 0.09
+)
 ````
 
