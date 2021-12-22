@@ -304,7 +304,7 @@ You can visualize the above explanation in the following workflow scheme:
 
 ![](../inst/extdata/workflow.png)
 
-```{r}
+```{r SPOTlight}
 res <- SPOTlight(
     x = sce,
     y = spe,
