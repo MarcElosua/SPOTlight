@@ -34,6 +34,7 @@ This function takes in a matrix with the predicted proportions
    spatially.
 }
 \examples{
+library(ggplot2)
 mat <- replicate(8, rnorm(100, runif(1, -1, 1)))
 # Basic example
 plotInteractions(mat)

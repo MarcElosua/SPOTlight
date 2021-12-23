@@ -3,8 +3,8 @@ x <- replicate(m <- 25, runif(10, 0, 1))
 # Add an anticorrelated column
 x[, 24] <- seq(0, 1, length.out = 10)
 x[, 25] <- seq(1, 0, length.out = 10)
-rownames(x) <- paste0("spot", 1:nrow(x))
-colnames(x) <- paste0("type", 1:ncol(x))
+rownames(x) <- paste0("spot", seq_len(nrow(x)))
+colnames(x) <- paste0("type", seq_len(ncol(x)))
 
 .checks <- function(p) {
     expect_is(p, "ggplot")
@@ -78,7 +78,7 @@ test_that("plotCorrelationMatrix() hc.order", {
 
     .checks(p)
     # Make sure the order is no changed
-    expect_equal(as.character(p$data$Var1[1:ncol(x)]), colnames(x))
+    expect_equal(as.character(p$data$Var1[seq_len(ncol(x))]), colnames(x))
 })
 
 # plotCorrelationMatrix() p.mat ----

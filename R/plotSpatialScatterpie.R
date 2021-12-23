@@ -20,8 +20,9 @@
 #'   column names of y.
 #' @param scatterpie_alpha Numeric scalar to set the alpha of the pie charts.
 #'   By default 1.
-#' @param pie_scaleNumeric scalar to set the size of the pie charts.
+#' @param pie_scale Numeric scalar to set the size of the pie charts.
 #'   By default 0.4.
+#' @param ... additional parameters to geom_scatterpie
 #' @return \code{ggplot} object
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
@@ -86,7 +87,8 @@ setMethod(
             cols = cell_types,
             color = NA,
             alpha = scatterpie_alpha,
-            pie_scale = pie_scale
+            pie_scale = pie_scale,
+            ...
         ) +
             # Below not needed bc comes from plotImage
             # coord_fixed() +
@@ -106,11 +108,11 @@ setMethod(
         # Stop if there image is to be extracted from Seurat object but
         # no images present or slice selected doesn't exist
         if (isTRUE(img)) {
-              stopifnot(
-                  !is.null(Images(x)),
-                  slice %in% Images(x)
-              )
-          }
+            stopifnot(
+                !is.null(Images(x)),
+                slice %in% Images(x)
+            )
+        }
 
         # If 'img = TRUE' extract image from Seurat object
         if (img) img <- GetImage(x, image = slice)
@@ -135,11 +137,11 @@ setMethod(
 
         # TODO Stop if there are no images or the name selected doesn't exist
         if (isTRUE(img)) {
-              stopifnot(
-                  !is.null(SpatialExperiment::getImg(x)),
-                  slice %in% SpatialExperiment::imgData(spe)[1, "sample_id"]
-              )
-          }
+            stopifnot(
+                !is.null(SpatialExperiment::getImg(x)),
+                slice %in% SpatialExperiment::imgData(spe)[1, "sample_id"]
+            )
+        }
 
         # If 'img = TRUE' extract image from Seurat object
         if (img) img <- SpatialExperiment::imgRaster(spe, sample_id = slice)
@@ -148,7 +150,7 @@ setMethod(
         barcodes <- colnames(x)
 
         ## Extract spatial coordinates
-        x <- as.matrix(SpatialExperiment::spatialCoords(x)[, 1:2])
+        x <- as.matrix(SpatialExperiment::spatialCoords(x)[, c(1, 2)])
 
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes

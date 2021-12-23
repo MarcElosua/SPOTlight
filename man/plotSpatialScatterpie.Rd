@@ -44,6 +44,8 @@ rownames should have the spot barcodes to match x.}
 \item{y}{Matrix or dataframe containing the deconvoluted spots. rownames
 hould have the spot barcodes to match x.}
 
+\item{...}{additional parameters to geom_scatterpie}
+
 \item{cell_types}{Vector of cell type names to plot. By default uses the
 column names of y.}
 
@@ -54,11 +56,11 @@ that image will be used. By default FALSE.}
 \item{scatterpie_alpha}{Numeric scalar to set the alpha of the pie charts.
 By default 1.}
 
+\item{pie_scale}{Numeric scalar to set the size of the pie charts.
+By default 0.4.}
+
 \item{slice}{Character string indicating which slice to plot if img is TRUE.
 By default uses the first image.}
-
-\item{pie_scaleNumeric}{scalar to set the size of the pie charts.
-By default 0.4.}
 }
 \value{
 \code{ggplot} object

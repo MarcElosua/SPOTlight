@@ -10,6 +10,7 @@
 \alias{SPOTlight,dgCMatrix,ANY-method}
 \alias{SPOTlight,ANY,DelayedMatrix-method}
 \alias{SPOTlight,DelayedMatrix,ANY-method}
+\alias{SPOTlight,ANY,ANY-method}
 \alias{SPOTlight,matrix,matrix-method}
 \title{Deconvolution of mixture using single-cell data}
 \usage{
@@ -35,6 +36,8 @@
 
 \S4method{SPOTlight}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
+\S4method{SPOTlight}{ANY,ANY}(x, y, ...)
+
 \S4method{SPOTlight}{matrix,matrix}(
   x,
   y,
@@ -48,20 +51,34 @@
   scale = TRUE,
   model = c("ns", "std"),
   min_prop = 0.01,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a 
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
+\item{...}{additional parameters.}
+
+\item{assay}{if the object is of Class \code{Seurat}, character string 
+specifying the assay from which to extract the expression matrix.
+By default "RNA".}
+
 \item{groups}{vector of group labels for cells in \code{x}. 
 When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject}, 
 defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
 
+\item{slot}{if the object is of Class \code{Seurat}, character string
+specifying the slot from which to extract the expression matrix.
+By default "counts".}
+
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes. 
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
+
+\item{n_top}{integer scalar specifying the number of markers to select per
+group. By default NULL uses all the marker genes to initialize the model.}
 
 \item{gene_id, group_id, weight_id}{character specifying the column in \code{mgs}
 containing gene identifiers, group labels and weights, respectively.}
@@ -73,6 +90,9 @@ By default NULL.}
 variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
+
+\item{model}{character string indicating which model to use when running NMF.
+Either "ns" (default) or "std".}
 
 \item{min_prop}{scalar in [0,1] setting the minimum contribution
 expected from a cell type in \code{x} to observations in \code{y}.
@@ -100,16 +120,18 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
   fitting the single-cell topic profiles to the spots topic contributions.
 }
 \examples{
-# Get sc Brain data from 
-# TENxBrainData
-# http://127.0.0.1:25293/library/TENxBrainData/doc/TENxBrainData.html
-# ExperimentHub
-# https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst/doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+library(scater)
+library(scran)
+library(SPOTlight)
 library(ExperimentHub)
-sc <- TENxBrainData20k()
+# ExperimentHub
+# https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst
+# /doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+library(ExperimentHub)
 
 # Get Visium data from TENxVisiumData
-# https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
+# https://bioconductor.org/packages/release/data/experiment/vignettes/
+# TENxVisiumData/inst/doc/vignette.html
 library(TENxVisiumData)
 # initialize a Hub instance which stores a complete set of recordd
 eh <- ExperimentHub()
@@ -145,14 +167,14 @@ mgs_ls <- lapply(names(mgs), \(i){
    # Filter and keep relevant marker genes, those with AUC > 0.8
    x <- x[x$mean.AUC > 0.8, ]
    # Sort the genes from highest to lowest weight
-   x <- x[order(x$mean.AUC, decreasing = TRUE), 
+   x <- x[order(x$mean.AUC, decreasing = TRUE), ]
    # Add gene and cluster id to the dataframe
    x$gene <- rownames(x)
    x$cluster <- i
    data.frame(x)
    })
 
-mgs_df <- dplyr::bind_rows(mgs_ls)
+mgs_df <- Reduce(rbind, as.vector(mgs_ls))
 
 n_cell <- 20
 sce_ls <- split(colData(sce), sce$free_annotation)

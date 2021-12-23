@@ -16,13 +16,15 @@
 #'   (point = topic weight of a given cell).
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE},
 #'   only cells with a weight > \code{min_prop} will be included.
-#' @param nrow integer scalar specifying the number of facet columns.
-#'
+#' @param ncol integer scalar specifying the number of facet columns.
+#' @param ... additional parameters
+#' 
 #' @return \code{ggplot} object
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
+#' library(ggplot2)
 #' x <- .mock_sc()
 #' y <- .mock_sp(x)
 #' z <- .get_mgs(x)
@@ -33,8 +35,8 @@
 #'     verbose = FALSE
 #' )
 #'
-#' plotTopicProfiles(res[[1]], x$type, facet = TRUE)
-#' plotTopicProfiles(res[[1]], x$type, facet = FALSE)
+#' plotTopicProfiles(res[[3]], x$type, facet = TRUE)
+#' plotTopicProfiles(res[[3]], x$type, facet = FALSE)
 NULL
 
 # try to convert anything to character

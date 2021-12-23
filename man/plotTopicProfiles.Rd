@@ -15,6 +15,8 @@
 
 \item{y}{vector of group labels. Should be of length \code{ncol(coef(x))}.}
 
+\item{...}{additional parameters}
+
 \item{facet}{logical indicating whether to stratify by group.
 If \code{FALSE} (default), weights will be the median across cells
 for each group (point = topic weight for a given cell type).
@@ -24,7 +26,7 @@ If \code{TRUE}, cell-specific weights will be shown
 \item{min_prop}{scalar in [0,1]. When \code{facet = TRUE},
 only cells with a weight > \code{min_prop} will be included.}
 
-\item{nrow}{integer scalar specifying the number of facet columns.}
+\item{ncol}{integer scalar specifying the number of facet columns.}
 }
 \value{
 \code{ggplot} object
@@ -36,6 +38,7 @@ This function takes in the fitted NMF model and returns the
   cell type to share a unique topic profile.
 }
 \examples{
+library(ggplot2)
 x <- .mock_sc()
 y <- .mock_sp(x)
 z <- .get_mgs(x)
@@ -46,8 +49,8 @@ res <- SPOTlight(x, y,
     verbose = FALSE
 )
 
-plotTopicProfiles(res[[1]], x$type, facet = TRUE)
-plotTopicProfiles(res[[1]], x$type, facet = FALSE)
+plotTopicProfiles(res[[3]], x$type, facet = TRUE)
+plotTopicProfiles(res[[3]], x$type, facet = FALSE)
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

@@ -101,7 +101,8 @@
     hvg = NULL,
     model = c("ns", "std"),
     scale = TRUE,
-    verbose = TRUE) {
+    verbose = TRUE,
+    ...) {
     # check validity of input arguments
     model <- match.arg(model)
 
@@ -143,7 +144,7 @@
 
     # train NMF model
     if (verbose) message("Training NMF model")
-    mod <- nmf(x, rank, paste0(model, "NMF"), seed)
+    mod <- nmf(x, rank, paste0(model, "NMF"), seed, ...)
 
     # capture stop time
     t1 <- Sys.time()
@@ -173,10 +174,6 @@
 #' @importFrom NMF basis
 #' @importFrom nnls nnls
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
-    # TODO:
-    # if 'scale = TRUE' in 'SPOTlight()', this is already
-    # done by '.train_nmf()'. could be removed here?
-    # this is a different matrix...
     W <- basis(mod)
     x <- x[rownames(W), ]
     if (scale) {
@@ -195,7 +192,8 @@
 }
 
 #' @importFrom nnls nnls
-.deconvolute <- function(x, mod, ref, scale = TRUE, min_prop = 0.01, verbose = TRUE) {
+.deconvolute <- function(x, mod, ref, scale = TRUE,
+    min_prop = 0.01, verbose = TRUE) {
     mat <- .pred_prop(x, mod, scale)
     if (verbose) message("Deconvoluting mixture data")
     res <- vapply(seq_len(ncol(mat)), \(i) {
@@ -232,6 +230,6 @@
 
     if (length(x) > 0) {
         x <- paste(x, collapse = ", ")
-        stop(paste0("Please install package/s: ", x))
+        stop("Please install package/s: ", x)
     }
 }

@@ -136,7 +136,7 @@ test_that("SPOTlight x hvg", {
         weight_id = "weight",
         group_id = "type",
         gene_id = "gene",
-        hvg = row.names(sce)[1:50]
+        hvg = row.names(sce)[seq_len(50)]
     )
 
     .checks(res, sce)

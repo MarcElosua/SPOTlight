@@ -17,8 +17,10 @@
 \item{ng, nc, nt, ns}{integer scalar specifying the number
 of genes, cells, types (groups) and spots to simulate.}
 
-\item{n_top}{integer scalar specifying the number
-of markers to select per group.}
+\item{x}{Single cell experiment object ç}
+
+\item{n_top}{integer specifying the number of marker genes to extract for 
+each cluster.}
 }
 \value{
 \itemize{

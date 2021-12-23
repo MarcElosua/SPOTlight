@@ -29,5 +29,5 @@ setGeneric(
 #' @export
 setGeneric(
     "plotCorrelationMatrix",
-    function(x, y, ...) standardGeneric("plotCorrelationMatrix")
+    function(x, ...) standardGeneric("plotCorrelationMatrix")
 )

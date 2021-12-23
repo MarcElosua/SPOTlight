@@ -15,25 +15,25 @@
 #'   slice available.
 #' @param alpha NOT IMPLEMENTED - single numeric between 0 and 1 determining the
 #'   image opacity. Lower values correspond to more transparency.
-#'
 #' @return \code{ggplot} object
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
 #' # Filename
-#' plotImage("../../inst/extdata/SPOTlight.png")
-#' path <- paste0(system.file(package = "SPOTlight"), "/spatial/tissue_lowres_image.png")
-#' plotImage(path)
+#' path <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
+#' plotImage(x = path)
 #' # array
 #' png_img <- png::readPNG(path)
 #' plotImage(png_img)
 #' # Seurat Object
-#' so <- LoadData("stxBrain", type = "anterior1")
-#' plotImage(so)
+#' # library(SeuratData)
+#' # so <- LoadData("stxBrain", type = "anterior1")
+#' # plotImage(so)
 #' # SpatialExperiment
-#' spe0 <- as.SingleCellExperiment(LoadData("stxBrain", type = "anterior1"))
-#' plotImage(spe0)
+#' library(TENxVisiumData)
+#' spe <- MouseKidneyCoronal()
+#' plotImage(spe)
 NULL
 
 #' @rdname plotImage
@@ -49,8 +49,8 @@ setMethod(
         pat <- paste0(".", typ, "$")
         idx <- vapply(pat, grepl, x = x, logical(1))
         if (!any(idx)) {
-              stop("'x' should be of file type JPG, JPEG or PNG")
-          }
+            stop("'x' should be of file type JPG, JPEG or PNG")
+        }
         x <- switch(typ[idx],
             png = png::readPNG(x),
             jpeg::readJPEG(x)
@@ -64,7 +64,7 @@ setMethod(
 #' @export
 setMethod(
     "plotImage", "Seurat",
-    function(x, ..., slice = Images(x)[1]) {
+    function(x, slice = Images(x)[1]) {
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             !is.null(Images(x)),
@@ -81,8 +81,7 @@ setMethod(
 #' @export
 setMethod(
     "plotImage", "SpatialExperiment",
-    function(x, ...,
-    slice = imgData(x)[1, "sample_id"]) {
+    function(x, slice = imgData(x)[1, "sample_id"]) {
         .test_installed(c("SpatialExperiment"))
 
         # Stop if there are no images or the name selected doesn't exist
@@ -102,7 +101,7 @@ setMethod(
 #' @export
 setMethod(
     "plotImage", "array",
-    function(x) {
+    function(x, alpha = NULL) {
         # Check necessary packages are installed and if not STOP
         .test_installed("grid")
 

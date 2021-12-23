@@ -1,5 +1,5 @@
 ---
-title: "Deconvolution with `SPOTlight`"
+title: "Spatial Transcriptomics Deconvolution with `SPOTlight`"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: Marc Elosua-Bayes
@@ -14,7 +14,6 @@ author:
   email: helena.crowell@uzh.ch
 abstract: > 
   <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots). data.package: "`r BiocStyle::pkg_ver('SPOTlight')`"
-bibliography: "`r file.path(system.file('extdata', package = 'SPOTlight'), 'refs.bib')`"
 vignette: >
   %\VignetteIndexEntry{"SPOTlight"}
   %\VignettePackage{SPOTlight}
@@ -37,6 +36,8 @@ editor_options:
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 library(BiocStyle)
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 ```
 
 For a more detailed explanation of `SPOTlight` consider looking at our
@@ -107,6 +108,9 @@ Both datasets are available through Biocondcutor's `ExperimentHub` and can be
 loaded into R as follows:
 
 ```{r eh, message = FALSE}
+if (!requireNamespace("ExperimentHub", quietly = TRUE))
+    BiocManager::install("ExperimentHub")
+
 library(ExperimentHub)
 
 # initialize a Hub instance which stores a complete set of recordd
@@ -120,7 +124,11 @@ query(eh, "MouseKidneyCoronal")
 Load the spatial data
 
 ```{r load-sp}
+if (!requireNamespace("TENxVisiumData", quietly = TRUE))
+    BiocManager::install("TENxVisiumData")
+
 library(TENxVisiumData)
+
 spe <- MouseKidneyCoronal()
 # Change ensemblid to symbol
 rownames(spe) <- rowData(spe)$symbol
@@ -131,6 +139,9 @@ Load the single cell data. Since we see that the data comes from the
 dataset we can directly load the SCE object as follows:
 
 ```{r load-sc}
+if (!requireNamespace("TabulaMurisSenisData", quietly = TRUE))
+    BiocManager::install("TabulaMurisSenisData")
+
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 ```
@@ -210,7 +221,7 @@ gene for that cell type. Examples can be `avgLogFC`, `AUC`, `pct.expressed`,
 colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector  indicating which genes are neither ribosomal or mitochondrial
-genes <- !base::grepl(
+genes <- !grepl(
     x = rownames(sce),
     pattern = "^Rp[l|s]|Mt"
 )
@@ -234,7 +245,7 @@ mgs_ls <- lapply(names(mgs), \(i){
     data.frame(x)
 })
 
-mgs_df <- dplyr::bind_rows(mgs_ls)
+mgs_df <- Reduce(rbind, as.vector(mgs_ls))
 ```
 
 ### Cell Downsampling
@@ -364,11 +375,12 @@ Higher values indicate that the gene is more relevant for that topic.
 In the below table we can see how the top genes for topic 1 are characteristic
 for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
 ```{r basis-dt}
-library(DT)
 library(NMF)
 sign <- basis(mod)
-colnames(sign) <- paste0("Topic", 1:ncol(sign))
-datatable(sign, fillContainer = TRUE, filter = "top")
+colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
+head(sign)
+# This can be dynamically visualized with DT as shown below
+# DT::datatable(sign, fillContainer = TRUE, filter = "top")
 ```
 
 ## Spatial Correlation Matrix
@@ -400,9 +412,13 @@ each spot. You can modify the colors as you would a standard `r CRANpkg("ggplot2
 ```{r Scatterpie, fig.width=12, fig.height=9}
 ct <- colnames(mat)
 mat[mat < 0.1] <- 0
-library(colorBlindness)
-paletteMartin
+
 # Define the number of colors you want
+# From the package colorBlindness we select paletteMartin
+paletteMartin <- c("#000000", "#004949", "#009292", "#ff6db6", "#ffb6db", 
+    "#490092", "#006ddb", "#b66dff", "#6db6ff", "#b6dbff", "#920000",
+    "#924900", "#db6d00", "#24ff24", "#ffff6d")
+
 mycolors <- colorRampPalette(paletteMartin)(length(ct))
 names(mycolors) <- ct
 

@@ -28,8 +28,8 @@
 #' @examples
 #' set.seed(321)
 #' x <- replicate(m <- 25, runif(10, 0, 1))
-#' rownames(x) <- paste0("spot", 1:nrow(x))
-#' colnames(x) <- paste0("type", 1:ncol(x))
+#' rownames(x) <- paste0("spot", seq_len(nrow(x)))
+#' colnames(x) <- paste0("type", seq_len(ncol(x)))
 #'
 #' # The most basic example
 #' plotCorrelationMatrix(x = x)
@@ -82,8 +82,7 @@ setMethod(
             p.mat <- ggcorrplot::cor_pmat(
                 x = x,
                 conf_int = 0.95,
-                method = cor.method
-            )
+                method = cor.method)
         } else {
             p.mat <- NULL
         }

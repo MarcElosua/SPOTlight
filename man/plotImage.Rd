@@ -11,11 +11,11 @@
 \usage{
 \S4method{plotImage}{character}(x)
 
-\S4method{plotImage}{Seurat}(x, ..., slice = Images(x)[1])
+\S4method{plotImage}{Seurat}(x, slice = Images(x)[1])
 
-\S4method{plotImage}{SpatialExperiment}(x, ..., slice = imgData(x)[1, "sample_id"])
+\S4method{plotImage}{SpatialExperiment}(x, slice = imgData(x)[1, "sample_id"])
 
-\S4method{plotImage}{array}(x)
+\S4method{plotImage}{array}(x, alpha = NULL)
 
 \S4method{plotImage}{ANY}(x)
 }
@@ -42,18 +42,19 @@ This function takes in an image-related object - path to
 }
 \examples{
 # Filename
-plotImage("../../inst/extdata/SPOTlight.png")
-path <- paste0(system.file(package = "SPOTlight"), "/spatial/tissue_lowres_image.png")
-plotImage(path)
+path <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
+plotImage(x = path)
 # array
 png_img <- png::readPNG(path)
 plotImage(png_img)
 # Seurat Object
-so <- LoadData("stxBrain", type = "anterior1")
-plotImage(so)
+# library(SeuratData)
+# so <- LoadData("stxBrain", type = "anterior1")
+# plotImage(so)
 # SpatialExperiment
-spe0 <- as.SingleCellExperiment(LoadData("stxBrain", type = "anterior1"))
-plotImage(spe0)
+library(TENxVisiumData)
+spe <- MouseKidneyCoronal()
+plotImage(spe)
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

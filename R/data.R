@@ -60,6 +60,7 @@ NULL
 }
 
 #' @rdname data
+#' @param x Single cell experiment object ç
 #' @importFrom Matrix rowSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @export
@@ -97,6 +98,8 @@ NULL
 }
 
 #' @rdname data
+#' @param n_top integer specifying the number of marker genes to extract for 
+#'   each cluster.
 #' @importFrom Matrix colSums rowSums
 #' @importFrom SingleCellExperiment counts
 #' @importFrom stats aggregate

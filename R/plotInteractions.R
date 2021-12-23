@@ -25,6 +25,7 @@
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
+#' library(ggplot2)
 #' mat <- replicate(8, rnorm(100, runif(1, -1, 1)))
 #' # Basic example
 #' plotInteractions(mat)
@@ -69,8 +70,8 @@ plotInteractions <- function(x,
 
     # get interactions table
     if (is.null(colnames(x))) {
-          colnames(x) <- seq_len(ncol(x))
-      }
+        colnames(x) <- seq_len(ncol(x))
+    }
     df <- .count_interactions(x, min_prop)
 
     switch(which,

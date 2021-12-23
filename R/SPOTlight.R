@@ -14,8 +14,9 @@
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
 #' @param hvg character vector containing hvg to include in the model. 
 #'   By default NULL.
-#' @param gene_id,group_id,weight_id character specifying the column in \code{mgs}
-#'   containing gene identifiers, group labels and weights, respectively.
+#' @param gene_id,group_id,weight_id character specifying the column
+#'   in \code{mgs} containing gene identifiers, group labels and weights,
+#'   respectively.
 #' @param scale logical specifying whether to scale single-cell counts to unit
 #'   variance. This gives the user the option to normalize the data beforehand
 #'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
@@ -23,9 +24,21 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
+#' @param assay if the object is of Class \code{Seurat}, character string 
+#'   specifying the assay from which to extract the expression matrix.
+#'   By default "RNA".
+#' @param slot if the object is of Class \code{Seurat}, character string
+#'   specifying the slot from which to extract the expression matrix.
+#'   By default "counts".
+#' @param n_top integer scalar specifying the number of markers to select per
+#'  group. By default NULL uses all the marker genes to initialize the model.
+#' @param model character string indicating which model to use when running NMF.
+#' Either "ns" (default) or "std".
 #' @param verbose logical. Should information on progress be reported?
+#' @param ... additional parameters.
 #' 
-#' @return a numeric matrix with rows corresponding to samples and columns to groups
+#' @return a numeric matrix with rows corresponding to samples
+#'   and columns to groups
 #' 
 #' @author Marc Elosua-Bayes & Helena L. Crowell
 #' 
@@ -41,16 +54,18 @@
 #'   fitting the single-cell topic profiles to the spots topic contributions.
 #' 
 #' @examples 
-#' # Get sc Brain data from 
-#' # TENxBrainData
-#' # http://127.0.0.1:25293/library/TENxBrainData/doc/TENxBrainData.html
-#' # ExperimentHub
-#' # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst/doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+#' library(scater)
+#' library(scran)
+#' library(SPOTlight)
 #' library(ExperimentHub)
-#' sc <- TENxBrainData20k()
+#' # ExperimentHub
+#' # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst
+#' # /doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
+#' library(ExperimentHub)
 #' 
 #' # Get Visium data from TENxVisiumData
-#' # https://bioconductor.org/packages/release/data/experiment/vignettes/TENxVisiumData/inst/doc/vignette.html
+#' # https://bioconductor.org/packages/release/data/experiment/vignettes/
+#' # TENxVisiumData/inst/doc/vignette.html
 #' library(TENxVisiumData)
 #' # initialize a Hub instance which stores a complete set of recordd
 #' eh <- ExperimentHub()
@@ -86,14 +101,14 @@
 #'    # Filter and keep relevant marker genes, those with AUC > 0.8
 #'    x <- x[x$mean.AUC > 0.8, ]
 #'    # Sort the genes from highest to lowest weight
-#'    x <- x[order(x$mean.AUC, decreasing = TRUE), 
+#'    x <- x[order(x$mean.AUC, decreasing = TRUE), ]
 #'    # Add gene and cluster id to the dataframe
 #'    x$gene <- rownames(x)
 #'    x$cluster <- i
 #'    data.frame(x)
 #'    })
 #'
-#' mgs_df <- dplyr::bind_rows(mgs_ls)
+#' mgs_df <- Reduce(rbind, as.vector(mgs_ls))
 #' 
 #' n_cell <- 20
 #' sce_ls <- split(colData(sce), sce$free_annotation)
@@ -127,7 +142,8 @@ setMethod("SPOTlight",
     {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)), y, groups, ...)
+        SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)), 
+            y, groups, ...)
     })
 
 #' @rdname SPOTlight
@@ -169,25 +185,25 @@ setMethod("SPOTlight",
 
 #' @rdname SPOTlight
 #' @export
-setMethod("SPOTlight",
-  c("ANY", "dgCMatrix"),
-  function(x, y, ..., 
-    slot = "counts", 
-    assay = "RNA") 
-  {
+setMethod("SPOTlight", 
+    c("ANY", "dgCMatrix"),
+    function(x, y, ..., 
+        slot = "counts", 
+        assay = "RNA") 
+        {
     SPOTlight(x, as.matrix(y), ...)
   })
 
 #' @rdname SPOTlight
 #' @export
 setMethod("SPOTlight",
-  c("dgCMatrix", "ANY"),
-  function(x, y, ..., 
-    slot = "counts", 
-    assay = "RNA") 
-  {
+    c("dgCMatrix", "ANY"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") 
+        {
     SPOTlight(as.matrix(x), y, ...)
-  })
+        })
 
 #' @rdname SPOTlight
 #' @export
@@ -211,7 +227,8 @@ setMethod("SPOTlight",
         SPOTlight(as.matrix(x), y, ...)
     })
 
-
+#' @rdname SPOTlight
+#' @export
 setMethod("SPOTlight", 
     c("ANY", "ANY"), 
     function(x, y, ...) 
@@ -238,7 +255,8 @@ setMethod("SPOTlight",
         # deconvolution
         min_prop = 0.01,
         # other
-        verbose = TRUE)
+        verbose = TRUE,
+        ...)
     {
         # check validity if input arguments
         model <- match.arg(model)
@@ -258,7 +276,8 @@ setMethod("SPOTlight",
         stopifnot(groups %in% mgs[[group_id]])
         
         # train NMF model
-        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id, weight_id, hvg, model, scale, verbose)
+        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id,
+            weight_id, hvg, model, scale, verbose, ...)
         
         # get topic profiles
         ref <- .topic_profiles(mod, groups)

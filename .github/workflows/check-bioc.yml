@@ -53,9 +53,11 @@ jobs:
       matrix:
         config:
           - { os: ubuntu-latest, r: '4.1', bioc: '3.14', cont: "bioconductor/bioconductor_docker:RELEASE_3_14", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: ubuntu-latest, r: '4.2', bioc: '3.15', cont: "bioconductor/bioconductor_docker:RELEASE_3_14", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: ubuntu-latest, r: '4.2', bioc: '3.15', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
           - { os: macOS-latest, r: '4.1', bioc: '3.14'}
+          - { os: macOS-latest, r: '4.2', bioc: '3.15'}
           - { os: windows-latest, r: '4.1', bioc: '3.14'}
+          - { os: windows-latest, r: '4.2', bioc: '3.15'}
           ## Check https://github.com/r-lib/actions/tree/master/examples
           ## for examples using the http-user-agent
     env:
@@ -169,7 +171,18 @@ jobs:
           ## https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016675.html
           ## https://github.com/r-lib/remotes/issues/296
           ## Ideally, all dependencies should get installed in the first pass.
-
+          ## First install basic packages
+          install.packages(c("knitr", "rmarkdown", "devtools", repos = gha_repos)
+          ## Next install Imports from CRAN
+          install.packages(c("ggplot2", "NMF", "Matrix", "matrixStats",
+          "nnls", "SeuratObject"), repos = gha_repos)
+          ## Next install adjacent dependencies
+          install.packages(c( "ggcorrplot", "grid", "igraph", "jpeg", "methods",
+          "png", "scater", "scatterpie"), repos = gha_repos)
+          ## Next Bioconductor packages
+          BiocManager::install(c( "BiocStyle", "SummarizedExperiment",
+          "SingleCellExperiment", "ExperimentHub", "scran",
+          "TENxVisiumData", "TabulaMurisSenisData", "SpatialExperiment"))
           ## Set the repos source depending on the OS
           ## Alternatively use https://storage.googleapis.com/bioconductor_docker/packages/
           ## though based on https://bit.ly/bioc2021-package-binaries
