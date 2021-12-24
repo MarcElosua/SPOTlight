@@ -80,8 +80,9 @@ the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
 
-\item{gene_id, group_id, weight_id}{character specifying the column in \code{mgs}
-containing gene identifiers, group labels and weights, respectively.}
+\item{gene_id, group_id, weight_id}{character specifying the column
+in \code{mgs} containing gene identifiers, group labels and weights,
+respectively.}
 
 \item{hvg}{character vector containing hvg to include in the model. 
 By default NULL.}
@@ -101,7 +102,8 @@ By default 0.}
 \item{verbose}{logical. Should information on progress be reported?}
 }
 \value{
-a numeric matrix with rows corresponding to samples and columns to groups
+a numeric matrix with rows corresponding to samples
+  and columns to groups
 }
 \description{
 This is the backbone function which takes in single cell
@@ -122,7 +124,7 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 \examples{
 library(scater)
 library(scran)
-library(SPOTlight)
+# library(SPOTlight)
 library(ExperimentHub)
 # ExperimentHub
 # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst

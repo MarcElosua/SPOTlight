@@ -56,7 +56,7 @@
 #' @examples 
 #' library(scater)
 #' library(scran)
-#' library(SPOTlight)
+#' # library(SPOTlight)
 #' library(ExperimentHub)
 #' # ExperimentHub
 #' # https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst
@@ -139,7 +139,7 @@ setMethod("SPOTlight",
     function(x, y, ..., 
         assay = "counts", 
         groups = colLabels(x, onAbsence = "error"))
-    {
+        {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
         SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)), 
@@ -151,8 +151,7 @@ setMethod("SPOTlight",
 setMethod("SPOTlight", 
     c("ANY", "SingleCellExperiment"),
     function(x, y, ..., 
-        assay = "counts") 
-    {
+        assay = "counts") {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
         SPOTlight(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
@@ -166,8 +165,7 @@ setMethod("SPOTlight",
     function(x, y, ..., 
         slot = "counts", 
         assay = "RNA", 
-        groups = Idents(x)) 
-    {
+        groups = Idents(x)) {
         SPOTlight(GetAssayData(x, slot, assay), y, groups, ...)
     })
 
@@ -178,8 +176,7 @@ setMethod("SPOTlight",
     c("ANY", "Seurat"),
     function(x, y, ..., 
         slot = "counts", 
-        assay = "RNA") 
-    {
+        assay = "RNA") {
         SPOTlight(x, GetAssayData(y, slot, assay), ...)
     })
 
@@ -189,10 +186,9 @@ setMethod("SPOTlight",
     c("ANY", "dgCMatrix"),
     function(x, y, ..., 
         slot = "counts", 
-        assay = "RNA") 
-        {
-    SPOTlight(x, as.matrix(y), ...)
-  })
+        assay = "RNA") {
+        SPOTlight(x, as.matrix(y), ...)
+        })
 
 #' @rdname SPOTlight
 #' @export
@@ -200,8 +196,7 @@ setMethod("SPOTlight",
     c("dgCMatrix", "ANY"),
     function(x, y, ...,
         slot = "counts",
-        assay = "RNA") 
-        {
+        assay = "RNA") {
     SPOTlight(as.matrix(x), y, ...)
         })
 
@@ -211,8 +206,7 @@ setMethod("SPOTlight",
     c("ANY", "DelayedMatrix"),
     function(x, y, ..., 
         slot = "counts", 
-        assay = "RNA") 
-    {
+        assay = "RNA") {
         SPOTlight(x, as.matrix(y), ...)
     })
 
@@ -222,8 +216,7 @@ setMethod("SPOTlight",
     c("DelayedMatrix", "ANY"),
     function(x, y, ..., 
         slot = "counts", 
-        assay = "RNA") 
-    {
+        assay = "RNA") {
         SPOTlight(as.matrix(x), y, ...)
     })
 
@@ -231,8 +224,7 @@ setMethod("SPOTlight",
 #' @export
 setMethod("SPOTlight", 
     c("ANY", "ANY"), 
-    function(x, y, ...) 
-    {
+    function(x, y, ...) {
         stop("See ?SPOTlight for valid x & y inputs")
     })
 
@@ -256,8 +248,7 @@ setMethod("SPOTlight",
         min_prop = 0.01,
         # other
         verbose = TRUE,
-        ...)
-    {
+        ...) {
         # check validity if input arguments
         model <- match.arg(model)
         if (is.null(n_top)) 

@@ -13,8 +13,8 @@
     weight_id = "weight") {
     # check validity of input arguments
     if (is.null(n_top)) {
-          n_top <- max(table(mgs[[group_id]]))
-      }
+        n_top <- max(table(mgs[[group_id]]))
+    }
     stopifnot(
         is.character(gene_id), length(gene_id) == 1,
         is.character(group_id), length(group_id) == 1,
@@ -81,11 +81,11 @@
         rownames(y)
     )
     if (length(i) < 10) {
-          stop(
-              "Insufficient number of features shared",
-              " between single-cell and mixture dataset."
-          )
-      }
+        stop(
+            "Insufficient number of features shared",
+            " between single-cell and mixture dataset."
+        )
+    }
     return(x[i, ])
 }
 
@@ -177,8 +177,8 @@
     W <- basis(mod)
     x <- x[rownames(W), ]
     if (scale) {
-          x <- .scale_uv(x)
-      }
+        x <- .scale_uv(x)
+    }
 
     y <- vapply(
         seq_len(ncol(x)), \(i) {

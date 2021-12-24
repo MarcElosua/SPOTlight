@@ -9,7 +9,8 @@
 #' @param x A variety of objects can be passed: character string corresponding
 #'   to an image file path, valid file types are JPG, JPEG and PNG. It can also
 #'   take as input objects of class raster and RGB arrays. It can also take
-#'   a SpatialExperiment or Seurat object from which the image will be extracted.
+#'   a SpatialExperiment or Seurat object from which the
+#'   image will be extracted.
 #' @param slice Character string indicating which image slice to use when
 #'   SpatialExperiment or Seurat objects are passed. By default uses the first
 #'   slice available.

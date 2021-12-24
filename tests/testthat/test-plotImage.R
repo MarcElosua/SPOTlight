@@ -25,10 +25,12 @@ test_that("plotImage Seurat", {
           devtools::install_github("satijalab/seurat-data")
       }
     # image
-    if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset)) {
-          suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData", type = "anterior1"))
+    if (!"stxBrain.SeuratData" %in% suppressWarnings(InstalledData()$Dataset)) {
+          suppressWarnings(InstallData(
+              ds = "stxBrain.SeuratData",
+              type = "anterior1"))
       }
-    x <- suppressWarnings(SeuratData::LoadData(ds = "stxBrain", type = "anterior1"))
+    x <- suppressWarnings(LoadData(ds = "stxBrain", type = "anterior1"))
 
     plt <- plotImage(x = x)
     expect_equal(class(plt)[1], "gg")

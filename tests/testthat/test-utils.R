@@ -50,7 +50,8 @@ test_that("NMF", {
     args <- c(defs, list(x, y, groups, mgs))
     fit <- expect_silent(do.call(.train_nmf, args))
     expect_is(fit, "NMF")
-    # Remove genes since these can change depending on filtering, mgs, hvg, all 0...
+    # Remove genes since these can change depending on 
+    # filtering, mgs, hvg, all 0...
     expect_identical(dimnames(fit)[2:3], c(dimnames(x)[2], list(group_ids)))
 
     # + .topic_profiles ----

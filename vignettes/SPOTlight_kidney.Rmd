@@ -36,8 +36,6 @@ editor_options:
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 library(BiocStyle)
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
 ```
 
 For a more detailed explanation of `SPOTlight` consider looking at our
