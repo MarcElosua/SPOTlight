@@ -172,7 +172,8 @@ jobs:
           ## https://github.com/r-lib/remotes/issues/296
           ## Ideally, all dependencies should get installed in the first pass.
           ## First install basic packages
-          install.packages(c("knitr", "rmarkdown", "devtools", repos = gha_repos)
+          install.packages(c("knitr", "rmarkdown", "devtools", "sessioninfo"),
+            repos = gha_repos)
           ## Next install Imports from CRAN
           install.packages(c("ggplot2", "NMF", "Matrix", "matrixStats",
           "nnls", "SeuratObject"), repos = gha_repos)
@@ -196,7 +197,8 @@ jobs:
 
           ## For running the checks
           message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
-          install.packages(c("rcmdcheck", "BiocCheck"), repos = gha_repos)
+          install.packages("rcmdcheck", repos = gha_repos)
+          BiocManager::install("BiocCheck")
 
           ## Pass #1 at installing dependencies
           ## This pass uses AnVIL-powered fast binaries
