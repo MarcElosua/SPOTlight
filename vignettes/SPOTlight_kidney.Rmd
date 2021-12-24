@@ -106,9 +106,6 @@ Both datasets are available through Biocondcutor's `ExperimentHub` and can be
 loaded into R as follows:
 
 ```{r eh, message = FALSE}
-if (!requireNamespace("ExperimentHub", quietly = TRUE))
-    BiocManager::install("ExperimentHub")
-
 library(ExperimentHub)
 
 # initialize a Hub instance which stores a complete set of recordd
@@ -122,9 +119,6 @@ query(eh, "MouseKidneyCoronal")
 Load the spatial data
 
 ```{r load-sp}
-if (!requireNamespace("TENxVisiumData", quietly = TRUE))
-    BiocManager::install("TENxVisiumData")
-
 library(TENxVisiumData)
 
 spe <- MouseKidneyCoronal()
@@ -137,9 +131,6 @@ Load the single cell data. Since we see that the data comes from the
 dataset we can directly load the SCE object as follows:
 
 ```{r load-sc}
-if (!requireNamespace("TabulaMurisSenisData", quietly = TRUE))
-    BiocManager::install("TabulaMurisSenisData")
-
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 ```
