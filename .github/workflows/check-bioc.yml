@@ -172,14 +172,13 @@ jobs:
           ## https://github.com/r-lib/remotes/issues/296
           ## Ideally, all dependencies should get installed in the first pass.
           ## First install basic packages
-          install.packages(c("knitr", "rmarkdown", "devtools", "sessioninfo"),
-            repos = gha_repos)
+          install.packages(c("knitr", "rmarkdown", "devtools", "sessioninfo"))
           ## Next install Imports from CRAN
           install.packages(c("ggplot2", "NMF", "Matrix", "matrixStats",
-          "nnls", "SeuratObject"), repos = gha_repos)
+          "nnls", "SeuratObject"))
           ## Next install adjacent dependencies
           install.packages(c( "ggcorrplot", "grid", "igraph", "jpeg", "methods",
-          "png", "scater", "scatterpie"), repos = gha_repos)
+          "png", "scater", "scatterpie"))
           ## Next Bioconductor packages
           BiocManager::install(c( "BiocStyle", "SummarizedExperiment",
           "SingleCellExperiment", "ExperimentHub", "scran",
