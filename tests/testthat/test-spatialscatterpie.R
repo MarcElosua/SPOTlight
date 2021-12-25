@@ -9,7 +9,7 @@ y <- y / rowSums(y)
 rownames(y) <- paste0("spot", seq_len(nrow(y)))
 colnames(y) <- paste0("type", seq_len(ncol(y)))
 # image
-img <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
+img <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
 
 # plotSpatialScatterpie() ----
 test_that("plotSpatialScatterpie", {

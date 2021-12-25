@@ -1,12 +1,13 @@
 set.seed(321)
 # x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/image.png")
-x_path <- "../../inst/extdata/SPOTlight.png"
+# x_path <- "../../inst/extdata/SPOTlight.png"
+x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
+
 # plotImage() ----
 test_that("plotImage path", {
     # image
     x <- x_path
     plt <- plotImage(x = x)
-
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -16,7 +17,6 @@ test_that("plotImage array", {
     # image
     x <- png::readPNG(x_path)
     plt <- plotImage(x = x)
-
     expect_equal(class(plt)[1], "gg")
 })
 
@@ -25,12 +25,16 @@ test_that("plotImage Seurat", {
           devtools::install_github("satijalab/seurat-data")
       }
     # image
-    if (!"stxBrain.SeuratData" %in% suppressWarnings(InstalledData()$Dataset)) {
+    if (!"stxBrain.SeuratData" %in% suppressWarnings(
+        SeuratData::InstalledData()$Dataset)
+        ) {
           suppressWarnings(InstallData(
               ds = "stxBrain.SeuratData",
               type = "anterior1"))
       }
-    x <- suppressWarnings(LoadData(ds = "stxBrain", type = "anterior1"))
+    x <- suppressWarnings(SeuratData::LoadData(
+        ds = "stxBrain",
+        type = "anterior1"))
 
     plt <- plotImage(x = x)
     expect_equal(class(plt)[1], "gg")
@@ -48,3 +52,4 @@ test_that("plotImage SPE", {
 
     expect_equal(class(plt)[1], "gg")
 })
+
