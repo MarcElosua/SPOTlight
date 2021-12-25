@@ -2,4 +2,4 @@ set.seed(321)
 library(testthat)
 library(SPOTlight)
 # plotImage() ----
-testthat::test_check()
+test_check("SPOTlight")
