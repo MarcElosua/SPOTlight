@@ -28,7 +28,7 @@ test_that("plotImage Seurat", {
     if (!"stxBrain.SeuratData" %in% suppressWarnings(
         SeuratData::InstalledData()$Dataset)
         ) {
-          suppressWarnings(InstallData(
+          suppressWarnings(SeuratData::InstallData(
               ds = "stxBrain.SeuratData",
               type = "anterior1"))
       }

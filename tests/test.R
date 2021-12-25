@@ -1,6 +1,5 @@
 set.seed(321)
-
+library(testthat)
+library(SPOTlight)
 # plotImage() ----
-test_that("dir", {
-    expect_equal(TRUE, TRUE)
-})
+testthat::test_check()
