@@ -21,8 +21,8 @@ test_that("plotImage array", {
 })
 
 test_that("plotImage Seurat", {
-    if (!"SeuratData" %in% installed.packages()) {
-          devtools::install_github("satijalab/seurat-data")
+    # if (!"SeuratData" %in% installed.packages()) {
+    #       devtools::install_github("satijalab/seurat-data")
       }
     # image
     if (!"stxBrain.SeuratData" %in% suppressWarnings(
