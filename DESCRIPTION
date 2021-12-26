@@ -31,10 +31,11 @@ Suggests:
   scater,
   scatterpie,
   scran,
-  SummarizedExperiment,
+  SeuratData,
   SpatialExperiment,
-  TENxVisiumData,
+  SummarizedExperiment,
   TabulaMurisSenisData,
+  TENxVisiumData,
   testthat
 biocViews: 
   SingleCell, 
