@@ -41,7 +41,7 @@ test_that("plotSpatialScatterpie - type subset", {
 })
 
 # plotSpatialScatterpie() ----
-test_that("plotSpatialScatterpie - type subset", {
+test_that("plotSpatialScatterpie - alpha", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
@@ -53,7 +53,7 @@ test_that("plotSpatialScatterpie - type subset", {
 })
 
 # plotSpatialScatterpie() ----
-test_that("plotSpatialScatterpie - type subset", {
+test_that("plotSpatialScatterpie - pie_scale", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y,
