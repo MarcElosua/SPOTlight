@@ -34,7 +34,8 @@ Suggests:
   SummarizedExperiment,
   SpatialExperiment,
   TENxVisiumData,
-  TabulaMurisSenisData
+  TabulaMurisSenisData,
+  testthat
 biocViews: 
   SingleCell, 
   Spatial,
