@@ -183,6 +183,8 @@ jobs:
           BiocManager::install(c( "BiocStyle", "SummarizedExperiment",
           "SingleCellExperiment", "ExperimentHub", "scran",
           "TENxVisiumData", "TabulaMurisSenisData", "SpatialExperiment"))
+          ## Github packages
+          suppressWarnings(devtools::install_github("satijalab/seurat-data"))
           ## Set the repos source depending on the OS
           ## Alternatively use https://storage.googleapis.com/bioconductor_docker/packages/
           ## though based on https://bit.ly/bioc2021-package-binaries
