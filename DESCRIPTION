@@ -21,6 +21,7 @@ Imports:
 Suggests:
   BiocStyle,
   ExperimentHub,
+  DelayedArray,
   ggcorrplot,
   grid,
   igraph,
