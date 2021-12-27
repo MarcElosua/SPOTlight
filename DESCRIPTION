@@ -32,6 +32,7 @@ Suggests:
   scater,
   scatterpie,
   scran,
+  Seurat,
   SeuratData,
   SpatialExperiment,
   SummarizedExperiment,
