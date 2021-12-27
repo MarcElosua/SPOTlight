@@ -25,11 +25,9 @@ test_that("plotImage Seurat", {
     #       devtools::install_github("satijalab/seurat-data")
       # }
     # image
-    if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset)) {
-          suppressWarnings(SeuratData::InstallData(
-              ds = "stxBrain.SeuratData",
-              type = "anterior1"))
-      }
+    if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset))
+        suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData"))
+    
     x <- suppressWarnings(SeuratData::LoadData(
         ds = "stxBrain",
         type = "anterior1"))
