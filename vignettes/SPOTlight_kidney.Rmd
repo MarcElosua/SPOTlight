@@ -3,14 +3,14 @@ title: "Spatial Transcriptomics Deconvolution with `SPOTlight`"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: Marc Elosua-Bayes
-  affilitation:
-  - CNAG-CRG National Center for Genomic Analysis - Center for Genomic Regulation
-  - UPF University Pompeu Fabra
+  affiliation: 
+  - &CNAG-CRG National Center for Genomic Analysis - Center for Genomic Regulation
+  - &UPF University Pompeu Fabra
   email: marc.elosua@cnag.crg.eu
 - name: Helena L. Crowell
   affiliation:
-  - IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
-  - SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
+  - &IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
+  - &SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
   email: helena.crowell@uzh.ch
 abstract: > 
   <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots). data.package: "`r BiocStyle::pkg_ver('SPOTlight')`"
@@ -118,7 +118,7 @@ query(eh, "MouseKidneyCoronal")
 
 Load the spatial data
 
-```{r load-sp}
+```{r load-sp, message=FALSE}
 library(TENxVisiumData)
 
 spe <- MouseKidneyCoronal()
@@ -130,7 +130,7 @@ Load the single cell data. Since we see that the data comes from the
 [Tabula Muris Sensis](https://www.nature.com/articles/s41586-020-2496-1) 
 dataset we can directly load the SCE object as follows:
 
-```{r load-sc}
+```{r load-sc, message=FALSE}
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 ```
@@ -138,7 +138,7 @@ sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 Quick data exploration
 
 ```{r explo}
-table(colData(sce)$age, colData(sce)$free_annotation)
+table(colData(sce)$free_annotation, colData(sce)$age)
 ```
 
 We see how there is a good representation of all the cell types across ages
