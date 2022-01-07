@@ -4,13 +4,13 @@ date: "`r BiocStyle::doc_date()`"
 author:
 - name: Marc Elosua-Bayes
   affilitation:
-  - &CNAG-CRG National Center for Genomic Analysis - Center for Genomic Regulation
-  - &UPF University Pompeu Fabra
+  - CNAG-CRG National Center for Genomic Analysis - Center for Genomic Regulation
+  - UPF University Pompeu Fabra
   email: marc.elosua@cnag.crg.eu
 - name: Helena L. Crowell
   affiliation:
-  - &IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
-  - &SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
+  - IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
+  - SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
   email: helena.crowell@uzh.ch
 abstract: > 
   <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots). data.package: "`r BiocStyle::pkg_ver('SPOTlight')`"
