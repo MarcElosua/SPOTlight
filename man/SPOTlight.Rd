@@ -124,70 +124,65 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 \examples{
 library(scater)
 library(scran)
-# library(SPOTlight)
 library(ExperimentHub)
-# ExperimentHub
-# https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst
-# /doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
-library(ExperimentHub)
-
-# Get Visium data from TENxVisiumData
-# https://bioconductor.org/packages/release/data/experiment/vignettes/
-# TENxVisiumData/inst/doc/vignette.html
 library(TENxVisiumData)
-# initialize a Hub instance which stores a complete set of recordd
+
+# Initialize a Hub instance storing a complete set of records
 eh <- ExperimentHub()
-# retrieve any records that match our keyword(s) of interest
+
+# Retrieve any records that match our keyword(s) of interest
 query(eh, "Tabula Muris Senis droplet Kidney")
 query(eh, "MouseKidneyCoronal")
+
+# Get Visium data from 'TENxVisiumData'
 spe <- MouseKidneyCoronal()
-# Change ensemblid to symbol
+
+# Use symbols instead of Ensembl IDs as feature names
 rownames(spe) <- rowData(spe)$symbol
+
 # Load SCE data
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
-# Keep cells from 18m mice
+
+# Keep cells from 18m mice with clear cell type annotations
 sce <- subset(sce, , age == "18m")
-# Keep cells with clear cell type annotations
 sce <- subset(sce, , ! free_annotation \%in\% c("nan", "CD45"))
-# Get marker genes
-lib_sce <- librarySizeFactors(sce)
-sizeFactors(sce) <- lib_sce
+
+# Get the top 3000 highly variable genes
 sce <- logNormCounts(sce)
 dec <- modelGeneVar(sce)
-# Get the top 3000 genes.
 hvg <- getTopHVGs(dec, n = 3000)
 colLabels(sce) <- colData(sce)$free_annotation
-# Get vector  indicating which genes are neither ribosomal or mitochondrial
-genes <- ! base::grepl(
-   x = rownames(sce),
-   pattern = "^Rp[l|s]|Mt")
+
+# Get vector indicating which genes
+# are neither ribosomal or mitochondrial
+genes <- !grepl("^Rp[l|s]|Mt", rownames(x))
+
 # Compute marker genes
-mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
+mgs <- scoreMarkers(sce, subset.row = genes)
 mgs_ls <- lapply(names(mgs), \(i){
-   x <- mgs[[i]]
-   # Filter and keep relevant marker genes, those with AUC > 0.8
-   x <- x[x$mean.AUC > 0.8, ]
-   # Sort the genes from highest to lowest weight
-   x <- x[order(x$mean.AUC, decreasing = TRUE), ]
-   # Add gene and cluster id to the dataframe
-   x$gene <- rownames(x)
-   x$cluster <- i
-   data.frame(x)
-   })
-
-mgs_df <- Reduce(rbind, as.vector(mgs_ls))
-
-n_cell <- 20
-sce_ls <- split(colData(sce), sce$free_annotation)
-id_keep <- lapply(sce_ls, function(.) {
-   sample(
-       x = rownames(.),
-       size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
-       replace = FALSE)
+  x <- mgs[[i]]
+  # Filter and keep relevant marker genes, those with AUC > 0.8
+  x <- x[x$mean.AUC > 0.8, ]
+  # Sort the genes from highest to lowest weight
+  x <- x[order(x$mean.AUC, decreasing = TRUE), ]
+  # Add gene and cluster id to the dataframe
+  x$gene <- rownames(x)
+  x$cluster <- i
+  data.frame(x)
 })
+mgs_df <- do.call(rbind, mgs_ls)
 
-sce <- sce[, unlist(id_keep)]
+# downsample to at most 20 cells per identity
+n_cells <- 20
+cs_keep <- lapply(idx, \(i) {
+  n <- length(i) 
+  if (n < n_cells)
+    n_cells <- n
+  sample(i, n_cells)
+})
+sce <- sce[, unlist(cs_keep)]
+
 res <- SPOTlight(
     x = counts(sce),
     y = counts(spe),

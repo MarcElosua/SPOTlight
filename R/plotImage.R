@@ -22,7 +22,9 @@
 #'
 #' @examples
 #' # Filename
-#' path <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
+#' path <- file.path(
+#'   system.file(package = "SPOTlight"), 
+#'   "extdata/SPOTlight.png")
 #' plotImage(x = path)
 #' # array
 #' png_img <- png::readPNG(path)
@@ -54,8 +56,7 @@ setMethod(
         }
         x <- switch(typ[idx],
             png = png::readPNG(x),
-            jpeg::readJPEG(x)
-        )
+            jpeg::readJPEG(x))
         plotImage(x)
     }
 )
@@ -69,8 +70,7 @@ setMethod(
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             !is.null(Images(x)),
-            slice %in% Images(x)
-        )
+            slice %in% Images(x))
         # Extract Image in raster format
         x <- GetImage(x, image = slice, mode = "raster")
         # pass as a matrix
@@ -84,7 +84,6 @@ setMethod(
     "plotImage", "SpatialExperiment",
     function(x, slice = imgData(x)[1, "sample_id"]) {
         .test_installed(c("SpatialExperiment"))
-
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             !is.null(SpatialExperiment::getImg(x)),
@@ -109,8 +108,7 @@ setMethod(
         x <- grid::rasterGrob(x,
             interpolate = FALSE,
             width = grid::unit(1, "npc"),
-            height = grid::unit(1, "npc")
-        )
+            height = grid::unit(1, "npc"))
 
         ggplot() +
             annotation_custom(
@@ -118,13 +116,10 @@ setMethod(
                 xmin = 0,
                 xmax = ncol(x$raster),
                 ymin = 0,
-                ymax = nrow(x$raster)
-            ) +
+                ymax = nrow(x$raster)) + 
             coord_fixed(
-                # ratio = 1
                 xlim = c(0, ncol(x$raster)),
-                ylim = c(0, nrow(x$raster))
-            ) +
+                ylim = c(0, nrow(x$raster))) + 
             theme_void()
     }
 )

@@ -28,12 +28,12 @@
 #' x <- .mock_sc()
 #' y <- .mock_sp(x)
 #' z <- .get_mgs(x)
+#' 
 #' res <- SPOTlight(x, y,
 #'     groups = x$type,
 #'     mgs = z,
 #'     group_id = "type",
-#'     verbose = FALSE
-#' )
+#'     verbose = FALSE)
 #'
 #' plotTopicProfiles(res[[3]], x$type, facet = TRUE)
 #' plotTopicProfiles(res[[3]], x$type, facet = FALSE)
@@ -69,8 +69,7 @@ setMethod(
             length(y) == ncol(coef(x)),
             setequal(rownames(coef(x)), y),
             is.logical(facet), length(facet) == 1,
-            is.numeric(min_prop), length(min_prop) == 1
-        )
+            is.numeric(min_prop), length(min_prop) == 1)
 
         y <- as.character(y)
         stopifnot(y %in% colnames(basis(x)))
@@ -84,8 +83,7 @@ setMethod(
                 id = seq_len(nrow(mat)),
                 weight = c(mat),
                 group = rep(y, ncol(mat)),
-                topic = rep(seq_len(ncol(mat)), each = nrow(mat))
-            )
+                topic = rep(seq_len(ncol(mat)), each = nrow(mat)))
 
             # drop cells with 'weight < min_prop'
             df <- df[df$weight >= min_prop, ]
@@ -101,8 +99,7 @@ setMethod(
             df <- data.frame(
                 weight = unlist(df),
                 group = rep(colnames(df), each = nrow(df)),
-                topic = rep(seq_len(nrow(df)), ncol(df))
-            )
+                topic = rep(seq_len(nrow(df)), ncol(df)))
 
             # set aesthetics
             x <- "group"
@@ -113,19 +110,17 @@ setMethod(
 
         # render plot
         ggplot(df, aes_string(x, "topic",
-            col = "weight", size = "weight"
-        )) +
-            f +
-            geom_point() +
-            guides(col = guide_legend()) +
+            col = "weight", size = "weight")) +
+            f + geom_point() +
+            guides(col = guide_legend(override.aes = list(size = 2))) +
             scale_size_continuous(range = c(0, 3)) +
             scale_color_continuous(low = "lightgrey", high = "blue") +
             xlab(if (facet) x) +
             theme_bw() +
             theme(
                 panel.grid = element_blank(),
+                legend.key.size = unit(0.5, "lines"),
                 plot.title = element_text(hjust = 0.5),
-                axis.text.x = element_text(angle = 45, hjust = 1)
-            )
+                axis.text.x = element_text(angle = 45, hjust = 1))
     }
 )

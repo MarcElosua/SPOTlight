@@ -72,15 +72,19 @@ This function takes in the coordinates of the spots and the
 }
 \examples{
 set.seed(321)
+
 # Coordinates
 x <- replicate(2, rnorm(100))
 rownames(x) <- paste0("spot", seq_len(nrow(x)))
 colnames(x) <- c("imagecol", "imagerow")
+
 # Proportions
 y <- replicate(m <- 5, runif(nrow(x), 0, 1))
 y <- prop.table(y, 1)
+
 rownames(y) <- paste0("spot", seq_len(nrow(y)))
 colnames(y) <- paste0("type", seq_len(ncol(y)))
+
 (plt <- plotSpatialScatterpie(x = x, y = y))
 }
 \author{

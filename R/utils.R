@@ -20,8 +20,7 @@
         is.character(group_id), length(group_id) == 1,
         is.character(weight_id), length(weight_id) == 1,
         c(gene_id, group_id, weight_id) %in% names(mgs),
-        is.numeric(n_top), length(n_top) == 1, round(n_top) == n_top
-    )
+        is.numeric(n_top), length(n_top) == 1, round(n_top) == n_top)
 
     ng <- nrow(x)
     nc <- ncol(x)
@@ -78,13 +77,12 @@
     # keep only shared features
     i <- intersect(
         rownames(x),
-        rownames(y)
-    )
+        rownames(y))
+    
     if (length(i) < 10) {
         stop(
             "Insufficient number of features shared",
-            " between single-cell and mixture dataset."
-        )
+            " between single-cell and mixture dataset.")
     }
     return(x[i, ])
 }
@@ -181,11 +179,10 @@
     }
 
     y <- vapply(
-        seq_len(ncol(x)), \(i) {
-            nnls(W, x[, i])$x
-        },
-        numeric(ncol(W))
-    )
+        seq_len(ncol(x)), 
+        \(i) nnls(W, x[, i])$x,
+        numeric(ncol(W)))
+    
     rownames(y) <- dimnames(mod)[[3]]
     colnames(y) <- colnames(x)
     return(y)
