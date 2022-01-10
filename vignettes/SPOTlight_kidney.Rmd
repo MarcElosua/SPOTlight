@@ -36,10 +36,10 @@ editor_options:
 ```
 
 For a more detailed explanation of `SPOTlight` consider looking at our
-manuscript:\
-\> Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H.\
-SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics spots\
-with single-cell transcriptomes.\
+manuscript:
+> Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H.  
+SPOTlight: seeded NMF regression to deconvolute  
+spatial transcriptomics spots with single-cell transcriptomes.  
 *Nucleic Acids Res.* **2021;49(9):e50**. doi: [10.1093](10.1093/nar/gkab043)
 
 # Load packages {.unnumbered}
