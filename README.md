@@ -1,4 +1,4 @@
-<img src="img/SPOTlight_VF2.png" width="200px" style="display: block; margin: auto;" />
+<img src="inst/extdata/SPOTlight.png" width="200px" style="display: block; margin: auto;" />
 
 The goal of **SPOTlight** is to provide a tool that enables the
 deconvolution of cell types and cell type proportions present within
