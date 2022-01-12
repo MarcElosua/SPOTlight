@@ -272,5 +272,5 @@ setMethod("SPOTlight",
         res <- .deconvolute(y, mod, ref, scale, min_prop, verbose)
         
         # return list of NMF model & deconvolution matrix
-        c(res[c("mat", "res_ss")], list(NMF = mod))
+        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod)
     })

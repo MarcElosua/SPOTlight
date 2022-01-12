@@ -201,7 +201,7 @@ gene for that cell type. Examples include `avgLogFC`, `AUC`, `pct.expressed`,
 colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector indicating which genes are neither ribosomal or mitochondrial
-genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
+genes <- !grepl(pattern = "^Rp[l|s]|Mt", x = rownames(sce))
 
 # Compute marker genes
 mgs <- scoreMarkers(sce, subset.row = genes)
