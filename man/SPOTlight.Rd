@@ -156,7 +156,7 @@ colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector indicating which genes
 # are neither ribosomal or mitochondrial
-genes <- !grepl("^Rp[l|s]|Mt", rownames(x))
+genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
 
 # Compute marker genes
 mgs <- scoreMarkers(sce, subset.row = genes)
@@ -174,7 +174,7 @@ mgs_ls <- lapply(names(mgs), \(i){
 mgs_df <- do.call(rbind, mgs_ls)
 
 # downsample to at most 20 cells per identity
-n_cells <- 20
+n_cells <- 2
 cs_keep <- lapply(idx, \(i) {
   n <- length(i) 
   if (n < n_cells)

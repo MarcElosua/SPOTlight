@@ -88,7 +88,7 @@
 #' 
 #' # Get vector indicating which genes
 #' # are neither ribosomal or mitochondrial
-#' genes <- !grepl("^Rp[l|s]|Mt", rownames(x))
+#' genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
 #' 
 #' # Compute marker genes
 #' mgs <- scoreMarkers(sce, subset.row = genes)
