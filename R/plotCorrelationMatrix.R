@@ -1,4 +1,5 @@
 #' @rdname plotCorrelationMatrix
+#' @name plotCorrelationMatrix
 #' @title Plot Correlation Matrix
 #'
 #' @description This function takes in a matrix with the predicted proportions
@@ -44,7 +45,10 @@
 #'     outline.col = "lightgrey",
 #'     method = "circle",
 #'     colors = c("#64ccc9", "#b860bd", "#e3345d"))
-#' 
+#'
+NULL
+
+#' @rdname plotCorrelationMatrix
 #' @importFrom Matrix colSums
 #' @import ggplot2
 #' @export
@@ -71,7 +75,7 @@ setMethod(
             is.character(colors), length(colors) == 3,
             is.logical(hc.order), length(hc.order) == 1,
             is.logical(p.mat), length(p.mat) == 1)
-        
+
         # Remove columns that are all 0
         x <- x[, colSums(x) > 0]
         corr <- cor(x)
@@ -92,7 +96,7 @@ setMethod(
             insig = insig,
             lab = FALSE,
             colors = colors,
-            ...) + 
+            ...) +
             theme(
                 plot.title = element_text(hjust = 0.5, face = "bold"),
                 axis.text.x = element_text(angle = 60, vjust = 1),

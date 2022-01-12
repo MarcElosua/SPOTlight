@@ -246,7 +246,7 @@ use 20 cells per cell identity:
 # split cell indices by identity
 idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 per identity & subset
-n_cells <- 20
+n_cells <- 2
 cs_keep <- lapply(idx, \(i) {
     n <- length(i)
     if (n < n_cells)
