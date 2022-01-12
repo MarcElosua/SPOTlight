@@ -56,24 +56,24 @@
 )
 }
 \arguments{
-\item{x, y}{single-cell and mixture dataset, respectively. Can be a 
+\item{x, y}{single-cell and mixture dataset, respectively. Can be a
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
 \item{...}{additional parameters.}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string 
+\item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
 By default "RNA".}
 
-\item{groups}{vector of group labels for cells in \code{x}. 
-When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject}, 
+\item{groups}{vector of group labels for cells in \code{x}.
+When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
 defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
 
 \item{slot}{if the object is of Class \code{Seurat}, character string
 specifying the slot from which to extract the expression matrix.
 By default "counts".}
 
-\item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes. 
+\item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
@@ -84,7 +84,7 @@ group. By default NULL uses all the marker genes to initialize the model.}
 in \code{mgs} containing gene identifiers, group labels and weights,
 respectively.}
 
-\item{hvg}{character vector containing hvg to include in the model. 
+\item{hvg}{character vector containing hvg to include in the model.
 By default NULL.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -114,10 +114,10 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
   which genes are important for each cell type. In order to drive the
   factorization and give more importance to cell type marker genes we
   previously compute them and use them to initialize the basis matrix. This
-  initialized matrices will then be used to carry out the factorization with 
+  initialized matrices will then be used to carry out the factorization with
   the single cell expression data. Once the model has learn the topic
   profiles for each cell type we use non-negative least squares (NNLS) to
-  obtain the topic contributions to each spot. Lastly, NNLS is again used to 
+  obtain the topic contributions to each spot. Lastly, NNLS is again used to
   obtain the proportion of each cell type for each spot by finding the
   fitting the single-cell topic profiles to the spots topic contributions.
 }
@@ -173,10 +173,12 @@ mgs_ls <- lapply(names(mgs), \(i){
 })
 mgs_df <- do.call(rbind, mgs_ls)
 
+# split cell indices by identity
+idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 cells per identity
-n_cells <- 2
+n_cells <- 20
 cs_keep <- lapply(idx, \(i) {
-  n <- length(i) 
+  n <- length(i)
   if (n < n_cells)
     n_cells <- n
   sample(i, n_cells)
