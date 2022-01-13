@@ -2,11 +2,11 @@
 
 `SPOTlight` provides a tool that enables the deconvolution of mixtures of cells from a single-cell reference. Originally developed for 10X's Visium - spatial transcriptomics- technology, it can be used for all technologies that output mixtures of cells. It is compatible with Bioconductor's `SingleCellExperiment` and `SpatialExperiment` classes as well as with `Seurat` objects. Furthermore, the package also provides visualization tools to assess the results of the deconvolution. Briefly, `SPOTlight` is based on finding topic profile signatures, by means of an NMFreg model, for each cell type and then optimizing the cell types proportions to fit the mixture we want to deconvolute.
 
-<img src="inst/extdata/schematic.png" width="200" align="center"/>
+&nbsp![SPOTlight schematic](inst/extdata/schematic.png){width="600"}
 
 ## Installation
 
-```r
+``` r
 install.packages("BiocManager")
 BiocManager::install("SPOTlight")
 # Or the devel version
@@ -14,7 +14,8 @@ BiocManager::install("SPOTlight", version = "devel")
 ```
 
 Alternatively, you can install it from GitHub using the [devtools](https://github.com/hadley/devtools) package.
-```r
+
+``` r
 install.packages("devtools")
 library(devtools)
 install_github("https://github.com/MarcElosua/SPOTlight")
@@ -22,12 +23,11 @@ install_github("https://github.com/MarcElosua/SPOTlight")
 
 ### References
 
-- Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H (2021): 
-*SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics spots with single-cell transcriptomes*. **Nucleic Acids Res** 49(9):e50. doi:10.1093/nar/gkab043. 
+-   Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H (2021): *SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics spots with single-cell transcriptomes*. **Nucleic Acids Res** 49(9):e50. <doi:10.1093/nar/gkab043>.
 
----
+------------------------------------------------------------------------
 
-## Contributors
+### Contributors
 
 SPOTlight was originally developed by [Marc Elosua Bayes](https://github.com/MarcElosua/) and has received substantial additional contributions from [Helena L. Crowell](https://github.com/HelenaLC).
 
