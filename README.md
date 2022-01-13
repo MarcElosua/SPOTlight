@@ -1,67 +1,36 @@
-<img src="inst/extdata/SPOTlight.png" width="200px" style="display: block; margin: auto;" />
+# Welcome to `SPOTlight` <img src="inst/extdata/SPOTlight.png" width="200" align="right"/>
 
-The goal of **SPOTlight** is to provide a tool that enables the
-deconvolution of cell types and cell type proportions present within
-each capture locations comprising mixtures of cells, originally
-developed for 10X’s Visium - spatial trancsiptomics- technology, it can
-be used for all technologies returning mixtures of cells. **SPOTlight**
-is based on finding topic profile signatures, by means of an NMFreg
-model, for each cell type and finding which combination fits best the
-spot we want to deconvolute.
+`SPOTlight` provides a tool that enables the deconvolution of mixtures of cells from a single-cell reference. Originally developed for 10X's Visium - spatial transcriptomics- technology, it can be used for all technologies that output mixtures of cells. It is compatible with Bioconductor's `SingleCellExperiment` and `SpatialExperiment` classes as well as with `Seurat` objects. Furthermore, the package also provides visualization tools to assess the results of the deconvolution. Briefly, `SPOTlight` is based on finding topic profile signatures, by means of an NMFreg model, for each cell type and then optimizing the cell types proportions to fit the mixture we want to deconvolute.
 
-![Graphical abstract](img/SPOTlight_graphical_abstract.png)
+<img src="inst/extdata/schematic.png" width="200" align="center"/>
 
-Installation
-------------
+## Installation
 
-You can install the latest stable version from the GitHub repository
-[SPOTlight](https://github.com/MarcElosua/SPOTlight) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("https://github.com/MarcElosua/SPOTlight")
-devtools::install_git("https://github.com/MarcElosua/SPOTlight")
+```r
+install.packages("BiocManager")
+BiocManager::install("SPOTlight")
+# Or the devel version
+BiocManager::install("SPOTlight", version = "devel")
 ```
 
-Or the latest version in development by downloading the devel branch
-
-``` r
-devtools::install_github("https://github.com/MarcElosua/SPOTlight", ref = "devel")
-devtools::install_git("https://github.com/MarcElosua/SPOTlight", ref = "devel")
+Alternatively, you can install it from GitHub using the [devtools](https://github.com/hadley/devtools) package.
+```r
+install.packages("devtools")
+library(devtools)
+install_github("https://github.com/MarcElosua/SPOTlight")
 ```
 
-To ensure the environment is compatible we have put out a docker
-environment that can be downloaded from DockerHub.  
-To download the R environment image
+### References
 
-    # R environment
-    docker pull marcelosua/spotlight_env_r:latest
+- Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H (2021): 
+*SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics spots with single-cell transcriptomes*. **Nucleic Acids Res** 49(9):e50. doi:10.1093/nar/gkab043. 
 
-To download the R studio image
+---
 
-    # Rstudio environment
-    docker pull marcelosua/spotlight_env_rstudio:latest
+## Contributors
 
-Run the following command in the terminal
+SPOTlight was originally developed by [Marc Elosua Bayes](https://github.com/MarcElosua/) and has received substantial additional contributions from [Helena L. Crowell](https://github.com/HelenaLC).
 
-    docker run -e PASSWORD=pwd -p 8787:8787 marcelosua/spotlight_env_rstudio 
+### Issues - Ideas?
 
-Go to
-**<a href="http://localhost:8787/" class="uri">http://localhost:8787/</a>**
-or other port you’ve set before.
-
-Log in with:
-
-**username**: rstudio
-
-**password**: pwd \# Same password as set in the above command (pwd)
-
-In the Rstudio environment you can upload files and carry out analysis
-there, to save the files from the RStudio server click on More (gear)
-and export the desired files.
-
-For more information check out the
-[rocker](https://www.rocker-project.org/) project guidelines
-<a href="https://hub.docker.com/r/rocker/rstudio/" class="uri">https://hub.docker.com/r/rocker/rstudio/</a>
-
-A vignette on how to run the basic SPOTlight workflow can be found [here](https://marcelosua.github.io/SPOTlight/)
+`SPOTlight` is still under active development. We greatly welcome (and highly encourage!) all feedback, bug reports and suggestions for improvement [here](https://github.com/MarcElosua/SPOTlight/issues). **Please make sure to raise issues with a [reproducible example](https://www.tidyverse.org/help/) and the output of your `sessionInfo()`.**
