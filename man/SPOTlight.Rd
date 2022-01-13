@@ -160,7 +160,7 @@ genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
 
 # Compute marker genes
 mgs <- scoreMarkers(sce, subset.row = genes)
-mgs_ls <- lapply(names(mgs), \(i){
+mgs_ls <- lapply(names(mgs), function(i){
   x <- mgs[[i]]
   # Filter and keep relevant marker genes, those with AUC > 0.8
   x <- x[x$mean.AUC > 0.8, ]
@@ -177,7 +177,7 @@ mgs_df <- do.call(rbind, mgs_ls)
 idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 cells per identity
 n_cells <- 20
-cs_keep <- lapply(idx, \(i) {
+cs_keep <- lapply(idx, function(i) {
   n <- length(i)
   if (n < n_cells)
     n_cells <- n
