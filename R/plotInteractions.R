@@ -81,7 +81,7 @@ plotInteractions <- function(x,
     # samples have value above 'min_prop'
     x <- x > min_prop
     ij <- combn(colnames(x), 2)
-    y <- apply(ij, 2, \(.) sum(rowAlls(x[, ., drop = FALSE])))
+    y <- apply(ij, 2, function(.) sum(rowAlls(x[, ., drop = FALSE])))
 
     # construct 'data.frame'
     df <- data.frame(t(ij), y)
@@ -110,7 +110,7 @@ plotInteractions <- function(x,
         geom_tile(aes_string("i", "j", fill = "pi")) +
         geom_tile(aes_string("j", "i", fill = "pj")) +
         scale_fill_viridis_c("proportion", limits = c(0, NA)) +
-        scale_y_discrete(limits = \(.) rev(.)) +
+        scale_y_discrete(limits = function(.) rev(.)) +
         coord_fixed(expand = FALSE) +
         labs(x = "From", y = "To", fill = "Proportion") +
         theme_linedraw() +

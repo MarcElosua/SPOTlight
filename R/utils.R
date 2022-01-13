@@ -28,14 +28,14 @@
 
     # subset 'n_top' features
     mgs <- split(mgs, mgs[[group_id]])
-    mgs <- lapply(mgs, \(df) {
+    mgs <- lapply(mgs, function(df) {
         o <- order(df[[weight_id]], decreasing = TRUE)
         n <- ifelse(nrow(df) < n_top, nrow(df), n_top)
         df[o, ][seq_len(n), ]
     })
 
     # subset unique features
-    mgs <- lapply(ks, \(k) {
+    mgs <- lapply(ks, function(k) {
         g1 <- mgs[[k]][[gene_id]]
         g2 <- unlist(lapply(mgs[ks != k], `[[`, gene_id))
         mgs[[k]][!g1 %in% g2, , drop = FALSE]
@@ -43,7 +43,7 @@
 
     # W is of dimension (#groups)x(#features) with W(i,j)
     # equal to weight if j is marker for i, and ~0 otherwise
-    W <- vapply(ks, \(k) {
+    W <- vapply(ks, function(k) {
         w <- numeric(ng) + 1e-12
         names(w) <- rownames(x)
         ws <- mgs[[k]][[weight_id]]
@@ -54,7 +54,7 @@
     # H is of dimension (#groups)x(#samples) with H(i,j)
     # equal to 1 if j is in i, and ~0 otherwise
     cs <- split(seq_len(nc), groups)
-    H <- t(vapply(ks, \(k) {
+    H <- t(vapply(ks, function(k) {
         h <- numeric(nc) + 1e-12
         h[cs[[k]]] <- 1
         return(h)
@@ -67,7 +67,7 @@
 
 .filter <- function(x, y) {
     # remove undetected features
-    .fil <- \(.) {
+    .fil <- function(.) {
         i <- rowSums(.) > 0
         .[i, , drop = FALSE]
     }
@@ -161,7 +161,7 @@
     df <- data.frame(t(coef(mod)))
     dfs <- split(df, groups)
     res <- vapply(
-        dfs, \(df)
+        dfs, function(df)
         colMedians(as.matrix(df)),
         numeric(ncol(df))
     )
@@ -180,7 +180,7 @@
 
     y <- vapply(
         seq_len(ncol(x)), 
-        \(i) nnls(W, x[, i])$x,
+        function(i) nnls(W, x[, i])$x,
         numeric(ncol(W)))
     
     rownames(y) <- dimnames(mod)[[3]]
@@ -193,7 +193,7 @@
     min_prop = 0.01, verbose = TRUE) {
     mat <- .pred_prop(x, mod, scale)
     if (verbose) message("Deconvoluting mixture data")
-    res <- vapply(seq_len(ncol(mat)), \(i) {
+    res <- vapply(seq_len(ncol(mat)), function(i) {
         pred <- nnls::nnls(ref, mat[, i])
         prop <- prop.table(pred$x)
         # drop groups that fall below 'min_prop' & update
