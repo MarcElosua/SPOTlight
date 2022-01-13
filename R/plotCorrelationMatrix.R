@@ -1,6 +1,6 @@
 #' @rdname plotCorrelationMatrix
+#' @name plotCorrelationMatrix
 #' @title Plot Correlation Matrix
-#'
 #'
 #' @description This function takes in a matrix with the predicted proportions
 #'   for each spot and returns a correlation matrix between cell types.
@@ -44,10 +44,15 @@
 #'     type = "lower",
 #'     outline.col = "lightgrey",
 #'     method = "circle",
-#'     colors = c("#64ccc9", "#b860bd", "#e3345d")
-#' )
-#' @export
+#'     colors = c("#64ccc9", "#b860bd", "#e3345d"))
+#'
+NULL
+
+#' @rdname plotCorrelationMatrix
+#' @importFrom Matrix colSums
 #' @import ggplot2
+#' @export
+
 setMethod(
     "plotCorrelationMatrix",
     c("matrix"),
@@ -66,25 +71,21 @@ setMethod(
         insig <- match.arg(insig)
 
         stopifnot(
-            is.matrix(x),
-            cor.method %in% c("pearson", "kendall", "spearman"),
-            insig %in% c("blank", "pch"),
-            length(colors) == 3,
-            is.logical(hc.order),
-            is.logical(p.mat)
-        )
+            is.matrix(x), is.numeric(x),
+            is.character(colors), length(colors) == 3,
+            is.logical(hc.order), length(hc.order) == 1,
+            is.logical(p.mat), length(p.mat) == 1)
+
         # Remove columns that are all 0
         x <- x[, colSums(x) > 0]
         corr <- cor(x)
 
         # Compute correlation P-value
-        if (p.mat) {
-            p.mat <- ggcorrplot::cor_pmat(
+        p.mat <- if (p.mat) {
+            ggcorrplot::cor_pmat(
                 x = x,
                 conf_int = 0.95,
                 method = cor.method)
-        } else {
-            p.mat <- NULL
         }
 
         # Plot correlation matrix as a heatmap
@@ -95,12 +96,10 @@ setMethod(
             insig = insig,
             lab = FALSE,
             colors = colors,
-            ...
-        ) +
+            ...) +
             theme(
                 plot.title = element_text(hjust = 0.5, face = "bold"),
                 axis.text.x = element_text(angle = 60, vjust = 1),
-                axis.text = element_text(vjust = 0.5)
-            )
+                axis.text = element_text(vjust = 0.5))
     }
 )

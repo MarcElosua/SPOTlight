@@ -42,12 +42,12 @@ library(ggplot2)
 x <- .mock_sc()
 y <- .mock_sp(x)
 z <- .get_mgs(x)
+
 res <- SPOTlight(x, y,
     groups = x$type,
     mgs = z,
     group_id = "type",
-    verbose = FALSE
-)
+    verbose = FALSE)
 
 plotTopicProfiles(res[[3]], x$type, facet = TRUE)
 plotTopicProfiles(res[[3]], x$type, facet = FALSE)

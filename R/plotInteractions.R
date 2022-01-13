@@ -34,10 +34,8 @@
 #' # This returns a ggplot object that can be modified as such
 #' plotInteractions(mat, which = "heatmap") +
 #'     scale_fill_gradient(low = "#f2e552", high = "#850000") +
-#'     labs(
-#'         title = "Interaction heatmap",
-#'         fill = "proportion"
-#'     )
+#'     labs(title = "Interaction heatmap", fill = "proportion")
+#'         
 #' ### Network ###
 #' # specify node names
 #' nms <- letters[seq_len(ncol(mat))]
@@ -53,8 +51,7 @@
 #'     edge.color = "cyan",
 #'     vertex.color = "pink",
 #'     vertex.label.font = 2,
-#'     vertex.label.color = "maroon"
-#' )
+#'     vertex.label.color = "maroon")
 #' @export
 
 plotInteractions <- function(x,
@@ -65,8 +62,7 @@ plotInteractions <- function(x,
     stopifnot(
         is.matrix(x), is.numeric(x),
         all(dim(x) > 0), ncol(x) > 1,
-        is.numeric(min_prop), length(min_prop) == 1
-    )
+        is.numeric(min_prop), length(min_prop) == 1)
 
     # get interactions table
     if (is.null(colnames(x))) {
@@ -76,8 +72,7 @@ plotInteractions <- function(x,
 
     switch(which,
         heatmap = .plot_heatmap(x, df),
-        network = .plot_network(x, df, ...)
-    )
+        network = .plot_network(x, df, ...))
 }
 
 #' @importFrom matrixStats rowAlls
@@ -86,7 +81,7 @@ plotInteractions <- function(x,
     # samples have value above 'min_prop'
     x <- x > min_prop
     ij <- combn(colnames(x), 2)
-    y <- apply(ij, 2, \(.) sum(rowAlls(x[, ., drop = FALSE])))
+    y <- apply(ij, 2, function(.) sum(rowAlls(x[, ., drop = FALSE])))
 
     # construct 'data.frame'
     df <- data.frame(t(ij), y)
@@ -115,14 +110,13 @@ plotInteractions <- function(x,
         geom_tile(aes_string("i", "j", fill = "pi")) +
         geom_tile(aes_string("j", "i", fill = "pj")) +
         scale_fill_viridis_c("proportion", limits = c(0, NA)) +
-        scale_y_discrete(limits = \(.) rev(.)) +
+        scale_y_discrete(limits = function(.) rev(.)) +
         coord_fixed(expand = FALSE) +
         labs(x = "From", y = "To", fill = "Proportion") +
         theme_linedraw() +
         theme(
             panel.grid = element_blank(),
-            axis.text.x = element_text(angle = 45, hjust = 1)
-        )
+            axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
 .plot_network <- function(x, df, ...) {
@@ -132,7 +126,7 @@ plotInteractions <- function(x,
     w <- scale(df$n, 1)
     g <- igraph::graph_from_data_frame(df,
         vertices = colnames(x),
-        directed = FALSE
-    )
+        directed = FALSE)
+    
     igraph::plot.igraph(g, edge.width = w, ...)
 }
