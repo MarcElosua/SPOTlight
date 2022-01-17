@@ -19,8 +19,8 @@ of genes, cells, types (groups) and spots to simulate.}
 
 \item{x}{Single cell experiment object ç}
 
-\item{n_top}{integer specifying the number of marker genes to extract for 
-each cluster.}
+\item{n_top}{integer specifying the number of
+marker genes to extract for each cluster.}
 }
 \value{
 \itemize{

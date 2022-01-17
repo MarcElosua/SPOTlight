@@ -98,8 +98,8 @@ NULL
 }
 
 #' @rdname data
-#' @param n_top integer specifying the number of marker genes to extract for 
-#'   each cluster.
+#' @param n_top integer specifying the number of  
+#'   marker genes to extract for each cluster.
 #' @importFrom Matrix colSums rowSums
 #' @importFrom SingleCellExperiment counts
 #' @importFrom stats aggregate
@@ -127,7 +127,10 @@ NULL
         # Get indexes of the positions in the sorted order
         o <- order(.$weight, decreasing = TRUE)
         # order the markers
-        .[o, ][seq_len(ifelse(n_top > nrow(.), nrow(.), n_top)), ]
+        n <- nrow(.)
+        if (n < n_top)
+            n_top <- n
+        .[o, ][seq_len(n_top), ]
     })
     z <- do.call(rbind, z)
     rownames(z) <- NULL

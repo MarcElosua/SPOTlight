@@ -56,24 +56,24 @@
 )
 }
 \arguments{
-\item{x, y}{single-cell and mixture dataset, respectively. Can be a 
+\item{x, y}{single-cell and mixture dataset, respectively. Can be a
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
 \item{...}{additional parameters.}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string 
+\item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
 By default "RNA".}
 
-\item{groups}{vector of group labels for cells in \code{x}. 
-When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject}, 
+\item{groups}{vector of group labels for cells in \code{x}.
+When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
 defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
 
 \item{slot}{if the object is of Class \code{Seurat}, character string
 specifying the slot from which to extract the expression matrix.
 By default "counts".}
 
-\item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes. 
+\item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
@@ -84,7 +84,7 @@ group. By default NULL uses all the marker genes to initialize the model.}
 in \code{mgs} containing gene identifiers, group labels and weights,
 respectively.}
 
-\item{hvg}{character vector containing hvg to include in the model. 
+\item{hvg}{character vector containing hvg to include in the model.
 By default NULL.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -114,80 +114,77 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
   which genes are important for each cell type. In order to drive the
   factorization and give more importance to cell type marker genes we
   previously compute them and use them to initialize the basis matrix. This
-  initialized matrices will then be used to carry out the factorization with 
+  initialized matrices will then be used to carry out the factorization with
   the single cell expression data. Once the model has learn the topic
   profiles for each cell type we use non-negative least squares (NNLS) to
-  obtain the topic contributions to each spot. Lastly, NNLS is again used to 
+  obtain the topic contributions to each spot. Lastly, NNLS is again used to
   obtain the proportion of each cell type for each spot by finding the
   fitting the single-cell topic profiles to the spots topic contributions.
 }
 \examples{
 library(scater)
 library(scran)
-# library(SPOTlight)
 library(ExperimentHub)
-# ExperimentHub
-# https://bioconductor.org/packages/release/bioc/vignettes/ExperimentHub/inst
-# /doc/ExperimentHub.html#using-experimenthub-to-retrieve-data
-library(ExperimentHub)
-
-# Get Visium data from TENxVisiumData
-# https://bioconductor.org/packages/release/data/experiment/vignettes/
-# TENxVisiumData/inst/doc/vignette.html
 library(TENxVisiumData)
-# initialize a Hub instance which stores a complete set of recordd
+
+# Initialize a Hub instance storing a complete set of records
 eh <- ExperimentHub()
-# retrieve any records that match our keyword(s) of interest
+
+# Retrieve any records that match our keyword(s) of interest
 query(eh, "Tabula Muris Senis droplet Kidney")
 query(eh, "MouseKidneyCoronal")
+
+# Get Visium data from 'TENxVisiumData'
 spe <- MouseKidneyCoronal()
-# Change ensemblid to symbol
+
+# Use symbols instead of Ensembl IDs as feature names
 rownames(spe) <- rowData(spe)$symbol
+
 # Load SCE data
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
-# Keep cells from 18m mice
+
+# Keep cells from 18m mice with clear cell type annotations
 sce <- subset(sce, , age == "18m")
-# Keep cells with clear cell type annotations
 sce <- subset(sce, , ! free_annotation \%in\% c("nan", "CD45"))
-# Get marker genes
-lib_sce <- librarySizeFactors(sce)
-sizeFactors(sce) <- lib_sce
+
+# Get the top 3000 highly variable genes
 sce <- logNormCounts(sce)
 dec <- modelGeneVar(sce)
-# Get the top 3000 genes.
 hvg <- getTopHVGs(dec, n = 3000)
 colLabels(sce) <- colData(sce)$free_annotation
-# Get vector  indicating which genes are neither ribosomal or mitochondrial
-genes <- ! base::grepl(
-   x = rownames(sce),
-   pattern = "^Rp[l|s]|Mt")
+
+# Get vector indicating which genes
+# are neither ribosomal or mitochondrial
+genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
+
 # Compute marker genes
-mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
-mgs_ls <- lapply(names(mgs), \(i){
-   x <- mgs[[i]]
-   # Filter and keep relevant marker genes, those with AUC > 0.8
-   x <- x[x$mean.AUC > 0.8, ]
-   # Sort the genes from highest to lowest weight
-   x <- x[order(x$mean.AUC, decreasing = TRUE), ]
-   # Add gene and cluster id to the dataframe
-   x$gene <- rownames(x)
-   x$cluster <- i
-   data.frame(x)
-   })
-
-mgs_df <- Reduce(rbind, as.vector(mgs_ls))
-
-n_cell <- 20
-sce_ls <- split(colData(sce), sce$free_annotation)
-id_keep <- lapply(sce_ls, function(.) {
-   sample(
-       x = rownames(.),
-       size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
-       replace = FALSE)
+mgs <- scoreMarkers(sce, subset.row = genes)
+mgs_ls <- lapply(names(mgs), function(i){
+  x <- mgs[[i]]
+  # Filter and keep relevant marker genes, those with AUC > 0.8
+  x <- x[x$mean.AUC > 0.8, ]
+  # Sort the genes from highest to lowest weight
+  x <- x[order(x$mean.AUC, decreasing = TRUE), ]
+  # Add gene and cluster id to the dataframe
+  x$gene <- rownames(x)
+  x$cluster <- i
+  data.frame(x)
 })
+mgs_df <- do.call(rbind, mgs_ls)
 
-sce <- sce[, unlist(id_keep)]
+# split cell indices by identity
+idx <- split(seq(ncol(sce)), sce$free_annotation)
+# downsample to at most 20 cells per identity
+n_cells <- 20
+cs_keep <- lapply(idx, function(i) {
+  n <- length(i)
+  if (n < n_cells)
+    n_cells <- n
+  sample(i, n_cells)
+})
+sce <- sce[, unlist(cs_keep)]
+
 res <- SPOTlight(
     x = counts(sce),
     y = counts(spe),

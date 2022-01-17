@@ -14,7 +14,7 @@ Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
     of cell types and states within a complex tissue. SPOTlight is centered 
     around a seeded non-negative matrix factorization (NMF) regression, 
     initialized using cell-type marker genes and non-negative least squares
-    (NNLS) to subsequently deconvolute ST capture locations (spots)
+    (NNLS) to subsequently deconvolute ST capture locations (spots).
 Authors@R: c(
   person("Marc", "Elosua-Bayes", email="elosua.marc@gmail.com", role=c("aut", "cre")),
   person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))

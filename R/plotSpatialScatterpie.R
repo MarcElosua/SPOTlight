@@ -29,17 +29,22 @@
 #'
 #' @examples
 #' set.seed(321)
+#' 
 #' # Coordinates
 #' x <- replicate(2, rnorm(100))
 #' rownames(x) <- paste0("spot", seq_len(nrow(x)))
 #' colnames(x) <- c("imagecol", "imagerow")
+#' 
 #' # Proportions
 #' y <- replicate(m <- 5, runif(nrow(x), 0, 1))
 #' y <- prop.table(y, 1)
+#' 
 #' rownames(y) <- paste0("spot", seq_len(nrow(y)))
 #' colnames(y) <- paste0("type", seq_len(ncol(y)))
+#' 
 #' (plt <- plotSpatialScatterpie(x = x, y = y))
 NULL
+
 #' @rdname plotSpatialScatterpie
 #' @import ggplot2
 #' @export
@@ -59,8 +64,7 @@ setMethod(
         # TODO add checks for image - NULL
         stopifnot(
             nrow(x) == nrow(y),
-            all(rownames(x) %in% rownames(y))
-        )
+            all(rownames(x) %in% rownames(y)))
 
         # If image is passed add it as the base layer, if not, no image
         # Need to use isFALSE bc img can have many different inputs
@@ -88,11 +92,11 @@ setMethod(
             color = NA,
             alpha = scatterpie_alpha,
             pie_scale = pie_scale,
-            ...
-        ) +
+            ...) +
             # Below not needed bc comes from plotImage
             # coord_fixed() +
-            theme_void()
+            theme_void() + 
+            theme(legend.key.size = unit(0.5, "lines"))
     }
 )
 
@@ -110,8 +114,7 @@ setMethod(
         if (isTRUE(img)) {
             stopifnot(
                 !is.null(Images(x)),
-                slice %in% Images(x)
-            )
+                slice %in% Images(x))
         }
 
         # If 'img = TRUE' extract image from Seurat object
@@ -139,8 +142,7 @@ setMethod(
         if (isTRUE(img)) {
             stopifnot(
                 !is.null(SpatialExperiment::getImg(x)),
-                slice %in% SpatialExperiment::imgData(spe)[1, "sample_id"]
-            )
+                slice %in% SpatialExperiment::imgData(spe)[1, "sample_id"])
         }
 
         # If 'img = TRUE' extract image from Seurat object

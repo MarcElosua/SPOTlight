@@ -43,10 +43,8 @@ plotInteractions(mat)
 # This returns a ggplot object that can be modified as such
 plotInteractions(mat, which = "heatmap") +
     scale_fill_gradient(low = "#f2e552", high = "#850000") +
-    labs(
-        title = "Interaction heatmap",
-        fill = "proportion"
-    )
+    labs(title = "Interaction heatmap", fill = "proportion")
+        
 ### Network ###
 # specify node names
 nms <- letters[seq_len(ncol(mat))]
@@ -62,8 +60,7 @@ plotInteractions(mat,
     edge.color = "cyan",
     vertex.color = "pink",
     vertex.label.font = 2,
-    vertex.label.color = "maroon"
-)
+    vertex.label.color = "maroon")
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

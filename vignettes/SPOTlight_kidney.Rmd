@@ -13,7 +13,8 @@ author:
   - &SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
   email: helena.crowell@uzh.ch
 abstract: > 
-  <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots). data.package: "`r BiocStyle::pkg_ver('SPOTlight')`"
+  <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots).
+package: "`r BiocStyle::pkg_ver('SPOTlight')`"
 vignette: >
   %\VignetteIndexEntry{"SPOTlight"}
   %\VignettePackage{SPOTlight}
@@ -34,15 +35,11 @@ editor_options:
 </style>
 ```
 
-```{r echo = FALSE, message = FALSE, warning = FALSE}
-library(BiocStyle)
-```
-
 For a more detailed explanation of `SPOTlight` consider looking at our
-manuscript:\
-\> Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H.\
-SPOTlight: seeded NMF regression to deconvolute spatial transcriptomics spots\
-with single-cell transcriptomes.\
+manuscript:
+> Elosua-Bayes M, Nieto P, Mereu E, Gut I, Heyn H.  
+SPOTlight: seeded NMF regression to deconvolute  
+spatial transcriptomics spots with single-cell transcriptomes.  
 *Nucleic Acids Res.* **2021;49(9):e50**. doi: [10.1093](10.1093/nar/gkab043)
 
 # Load packages {.unnumbered}
@@ -60,7 +57,7 @@ library(scran)
 
 ## What is `SPOTlight`?
 
-`SPOTlight`is a tool that enables the deconvolution of cell types and cell type
+`SPOTlight` is a tool that enables the deconvolution of cell types and cell type
 proportions present within each capture location comprising mixtures of cells.
 Originally developed for 10X's Visium - spatial transcriptomics - technology, it
 can be used for all technologies returning mixtures of cells.
@@ -74,13 +71,14 @@ summarizing the key steps.
 
 ## Starting point
 
-The minimal unit of data required to run `SPOTlight` are:\
+The minimal unit of data required to run `SPOTlight` are:
+
 - ST (sparse) matrix with the expression, raw or normalized, where rows = genes
-and columns = capture locations.\
-- Single Cell (sparse) matrix with the expression, raw or normalized, where rows
-= genes and columns = cells.\
-- Vector indicating the cell identity for each column in the Single Cell
-expression matrix.\
+and columns = capture locations.
+- Single cell (sparse) matrix with the expression, raw or normalized,  
+where rows = genes and columns = cells.
+- Vector indicating the cell identity for each column in the single cell
+expression matrix.
 
 Data inputs can also be objects of class `r Biocpkg("SpatialExperiment")` (SE),
 `r Biocpkg("SingleCellExperiment")` (SCE) or `r CRANpkg("Seurat")` objects from
@@ -102,7 +100,7 @@ subset to map it to the Visium slide.
 
 ## Loading the data
 
-Both datasets are available through Biocondcutor's `ExperimentHub` and can be
+Both datasets are available through Biocondcutor's `r Biocpkg("ExperimentHub")` and can be
 loaded into R as follows:
 
 ```{r eh, message = FALSE}
@@ -116,29 +114,28 @@ query(eh, "Tabula Muris Senis droplet Kidney")
 query(eh, "MouseKidneyCoronal")
 ```
 
-Load the spatial data
+Load the spatial data:
 
 ```{r load-sp, message=FALSE}
 library(TENxVisiumData)
-
 spe <- MouseKidneyCoronal()
-# Change ensemblid to symbol
+# Use symbols instead of Ensembl IDs as feature names
 rownames(spe) <- rowData(spe)$symbol
 ```
 
-Load the single cell data. Since we see that the data comes from the 
+Load the single cell data. Since our data comes from the 
 [Tabula Muris Sensis](https://www.nature.com/articles/s41586-020-2496-1) 
-dataset we can directly load the SCE object as follows:
+dataset, we can directly load the SCE object as follows:
 
 ```{r load-sc, message=FALSE}
 library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 ```
 
-Quick data exploration
+Quick data exploration:
 
 ```{r explo}
-table(colData(sce)$free_annotation, colData(sce)$age)
+table(sce$free_annotation, sce$age)
 ```
 
 We see how there is a good representation of all the cell types across ages
@@ -177,21 +174,15 @@ Normalization procedure as described in
 [OSCA](http://bioconductor.org/books/3.14/OSCA.basic/normalization.html). We
 first carry out library size normalization to correct for cell-specific biases:
 
-```{r size-factor}
-lib_sce <- librarySizeFactors(sce)
-sizeFactors(sce) <- lib_sce
-```
-
-Once we have the size factor for each cell we scale and log transform the data
-to get get normalized expression values for each cell.
-
 ```{r lognorm}
 sce <- logNormCounts(sce)
 ```
 
 ### Variance modelling
+
 We aim to identify highly variable genes that drive biological heterogeneity. 
-By feeding these genes to the model we improve the resolution of the biological structure and reduce the technical noise
+By feeding these genes to the model we improve the resolution of the biological structure and reduce the technical noise.
+
 ```{r variance}
 dec <- modelGeneVar(sce)
 plot(dec$mean, dec$total, xlab = "Mean log-expression", ylab = "Variance")
@@ -203,26 +194,23 @@ hvg <- getTopHVGs(dec, n = 3000)
 
 Next we obtain the marker genes for each cell identity. You can use whichever
 method you want as long as it returns a weight indicating the importance of that
-gene for that cell type. Examples can be `avgLogFC`, `AUC`, `pct.expressed`,
+gene for that cell type. Examples include `avgLogFC`, `AUC`, `pct.expressed`,
 `p-value`...
 
 ```{r mgs}
 colLabels(sce) <- colData(sce)$free_annotation
 
-# Get vector  indicating which genes are neither ribosomal or mitochondrial
-genes <- !grepl(
-    x = rownames(sce),
-    pattern = "^Rp[l|s]|Mt"
-)
+# Get vector indicating which genes are neither ribosomal or mitochondrial
+genes <- !grepl(pattern = "^Rp[l|s]|Mt", x = rownames(sce))
 
 # Compute marker genes
-mgs <- scoreMarkers(sce, colLabels(sce), subset.row = genes)
+mgs <- scoreMarkers(sce, subset.row = genes)
 ```
 
-Then we want to keep only those genes that are relevant for each cell identity
+Then we want to keep only those genes that are relevant for each cell identity:
 
 ```{r mgs-df}
-mgs_ls <- lapply(names(mgs), \(i){
+mgs_fil <- lapply(names(mgs), function(i) {
     x <- mgs[[i]]
     # Filter and keep relevant marker genes, those with AUC > 0.8
     x <- x[x$mean.AUC > 0.8, ]
@@ -233,15 +221,14 @@ mgs_ls <- lapply(names(mgs), \(i){
     x$cluster <- i
     data.frame(x)
 })
-
-mgs_df <- Reduce(rbind, as.vector(mgs_ls))
+mgs_df <- do.call(rbind, mgs_fil)
 ```
 
 ### Cell Downsampling
 
-Next you randomly select up to 100 cells/cell identity If a cell type is
-comprised of \<100 cells than all the cells will be used. If we have very
-biologically different cell identities (B cells vs T cells vs Macrophages vs
+Next, we randomly select at most 100 cells per cell identity. If a cell type is
+comprised of \<100 cells, all the cells will be used. If we have very
+biologically different cell identities (B cells vs. T cells vs. Macrophages vs.
 Epithelial) we can use fewer cells since their transcriptional profiles will be
 very different. In cases when we have more transcriptionally similar cell
 identities we need to increase our N to capture the biological heterogeneity
@@ -252,28 +239,28 @@ cells from each cell type from the same batch if you have a joint dataset from
 multiple runs. This will ensure that the model removes as much signal from the
 batch as possible and actually learns the biological signal.
 
-For the purpose of this vignette and to speed up the analysis we are going to
-use 20 cells per cell identity
+For the purpose of this vignette and to speed up the analysis, we are going to
+use 20 cells per cell identity:
 
 ```{r downsample}
-n_cell <- 20
-sce_ls <- split(colData(sce), sce$free_annotation)
-id_keep <- lapply(sce_ls, function(.) {
-    sample(
-        x = rownames(.),
-        size = ifelse(n_cell > nrow(.), nrow(.), n_cell),
-        replace = FALSE
-    )
+# split cell indices by identity
+idx <- split(seq(ncol(sce)), sce$free_annotation)
+# downsample to at most 20 per identity & subset
+n_cells <- 2
+cs_keep <- lapply(idx, function(i) {
+    n <- length(i)
+    if (n < n_cells)
+        n_cells <- n
+    sample(i, n_cells)
 })
-
-sce <- sce[, unlist(id_keep)]
+sce <- sce[, unlist(cs_keep)]
 ```
 
 ## Deconvolution
 
 You are now set to run `SPOTlight` to deconvolute the spots!
 
-Briefly here is how it works: \
+Briefly, here is how it works:
 
 1. NMF is used to factorize a matrix into two lower dimensionality matrices
 without negative elements. We first have an initial matrix V (SCE count matrix),
@@ -313,57 +300,59 @@ res <- SPOTlight(
     hvg = hvg,
     weight_id = "mean.AUC",
     group_id = "cluster",
-    gene_id = "gene"
-)
+    gene_id = "gene")
 ```
 
-Extract data from `SPOTlight`
+Extract data from `SPOTlight`:
+
 ```{r}
-# saveRDS(object = res, file = "inst/extdata/res.rds")
 # Extract deconvolution matrix
-head(mat <- res[[1]])
+head(mat <- res$mat)[, seq_len(3)]
+# Extract NMF model fit
+mod <- res$NMF
 ```
 
 # Visualization
+
 In the next section we show how to visualize the data and interpret
-`SPOTlight`'s performance.
+`SPOTlight`'s results. 
 
 ## Topic profiles
 
-We first take a look at the Topic profiles. By setting facet = FALSE we want to
+We first take a look at the Topic profiles. By setting `facet = FALSE` we want to
 evaluate how specific each topic signature is for each cell identity.
 Ideally each cell identity will have a unique topic profile associated to it as 
 seen below.
-```{r plotTopicProfiles1, fig.width=9, fig.height=9}
-mod <- res[[3]]
 
+```{r plotTopicProfiles1, fig.width=6, fig.height=7}
 plotTopicProfiles(
     x = mod,
     y = sce$free_annotation,
     facet = FALSE,
     min_prop = 0.01,
-    ncol = 1
-)
+    ncol = 1) +
+    theme(aspect.ratio = 1)
 ```
 
 Next we also want to ensure that all the cells from the same cell identity share 
-a similar topic profile since this will mean that `SPOTlight` has learnt a
+a similar topic profile since this will mean that `SPOTlight` has learned a
 consistent signature for all the cells from the same cell identity.
-```{r plotTopicProfiles2, fig.width=9, fig.height=9}
+
+```{r plotTopicProfiles2, fig.width=9, fig.height=6}
 plotTopicProfiles(
     x = mod,
     y = sce$free_annotation,
     facet = TRUE,
     min_prop = 0.01,
-    ncol = 4
-)
+    ncol = 6)
 ```
 
 Lastly we can take a look at which genes the model learned for each topic.
 Higher values indicate that the gene is more relevant for that topic. 
-In the below table we can see how the top genes for topic 1 are characteristic
+In the below table we can see how the top genes for `Topic1` are characteristic
 for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
-```{r basis-dt}
+
+```{r basis-dt, message=FALSE, warning=FALSE}
 library(NMF)
 sign <- basis(mod)
 colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
@@ -376,8 +365,9 @@ head(sign)
 
 See [here](http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2) 
 for additional graphical parameters.
+
 ```{r plotCorrelationMatrix, fig.width=9, fig.height=9}
-plotCorrelationMatrix(x = mat)
+plotCorrelationMatrix(mat)
 ```
 
 ## Co-localization
@@ -396,20 +386,22 @@ plotInteractions(mat, "network")
 
 ## Scatterpie
 
-We can also visualize the cell type proportions as sections of a piechart for 
+We can also visualize the cell type proportions as sections of a pie chart for 
 each spot. You can modify the colors as you would a standard `r CRANpkg("ggplot2")`.
-```{r Scatterpie, fig.width=12, fig.height=9}
+
+```{r Scatterpie, fig.width=9, fig.height=6}
 ct <- colnames(mat)
 mat[mat < 0.1] <- 0
 
-# Define the number of colors you want
-# From the package colorBlindness we select paletteMartin
-paletteMartin <- c("#000000", "#004949", "#009292", "#ff6db6", "#ffb6db", 
-    "#490092", "#006ddb", "#b66dff", "#6db6ff", "#b6dbff", "#920000",
-    "#924900", "#db6d00", "#24ff24", "#ffff6d")
+# Define color palette
+# (here we use 'paletteMartin' from the 'colorBlindness' package)
+paletteMartin <- c(
+    "#000000", "#004949", "#009292", "#ff6db6", "#ffb6db", 
+    "#490092", "#006ddb", "#b66dff", "#6db6ff", "#b6dbff", 
+    "#920000", "#924900", "#db6d00", "#24ff24", "#ffff6d")
 
-mycolors <- colorRampPalette(paletteMartin)(length(ct))
-names(mycolors) <- ct
+pal <- colorRampPalette(paletteMartin)(length(ct))
+names(pal) <- ct
 
 plotSpatialScatterpie(
     x = spe,
@@ -417,19 +409,19 @@ plotSpatialScatterpie(
     cell_types = colnames(y),
     img = FALSE,
     scatterpie_alpha = 1,
-    pie_scale = 0.4
-) +
+    pie_scale = 0.4) +
     scale_fill_manual(
-        values = mycolors,
-        breaks = names(mycolors)
-    )
+        values = pal,
+        breaks = names(pal))
 ```
 
 ## Residuals
+
 Lastly we can also take a look at how well the model predicted the proportions
 for each spot. We do this by looking at the residuals of the sum of squares for
 each spot which indicates the amount of biological signal not explained by the model.
-```{r}
+
+```{r message=FALSE}
 spe$res_ss <- res[[2]][colnames(spe)]
 xy <- spatialCoords(spe)
 spe$x <- xy[, 1]
