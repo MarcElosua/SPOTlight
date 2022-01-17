@@ -1,0 +1,10 @@
+pandoc: 2.14.0.3
+pkgdown: 2.0.2
+pkgdown_sha: ~
+articles:
+  SPOTlight_kidney: SPOTlight_kidney.html
+last_built: 2022-01-17T22:57Z
+urls:
+  reference: https://marcelosua.github.io/SPOTlight/reference
+  article: https://marcelosua.github.io/SPOTlight/articles
+
