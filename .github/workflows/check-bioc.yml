@@ -227,7 +227,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Install covr
-        if: github.ref == 'refs/heads/main' && env.run_covr == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/bioc' && env.run_covr == 'true' && runner.os == 'Linux'
         run: |
           remotes::install_cran("covr")
         shell: Rscript {0}
