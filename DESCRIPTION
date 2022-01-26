@@ -43,7 +43,6 @@ Suggests:
   scatterpie,
   scran,
   Seurat,
-  SeuratData,
   SpatialExperiment,
   SummarizedExperiment,
   TabulaMurisSenisData,

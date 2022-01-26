@@ -19,22 +19,22 @@ test_that("plotImage array", {
     plt <- plotImage(x = x)
     expect_equal(class(plt)[1], "gg")
 })
-
-test_that("plotImage Seurat", {
-    # if (!"SeuratData" %in% installed.packages()) {
-    #       devtools::install_github("satijalab/seurat-data")
-      # }
-    # image
-    if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset))
-        suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData"))
-    
-    x <- suppressWarnings(SeuratData::LoadData(
-        ds = "stxBrain",
-        type = "anterior1"))
-
-    plt <- plotImage(x = x)
-    expect_equal(class(plt)[1], "gg")
-})
+# Can't run this on Bioconductor since it doesn't accept github packages
+# test_that("plotImage Seurat", {
+#     # if (!"SeuratData" %in% installed.packages()) {
+#     #       devtools::install_github("satijalab/seurat-data")
+#       # }
+#     # image
+#     if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset))
+#         suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData"))
+#     
+#     x <- suppressWarnings(SeuratData::LoadData(
+#         ds = "stxBrain",
+#         type = "anterior1"))
+# 
+#     plt <- plotImage(x = x)
+#     expect_equal(class(plt)[1], "gg")
+# })
 
 test_that("plotImage SPE", {
     # image
