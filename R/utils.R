@@ -1,0 +1,232 @@
+#' @importFrom matrixStats rowSds
+.scale_uv <- function(x) {
+    sds <- rowSds(x, na.rm = TRUE)
+    t(scale(t(x), center = FALSE, scale = sds))
+}
+
+.init_nmf <- function(x,
+    groups,
+    mgs,
+    n_top = NULL,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "weight") {
+    # check validity of input arguments
+    if (is.null(n_top)) {
+        n_top <- max(table(mgs[[group_id]]))
+    }
+    stopifnot(
+        is.character(gene_id), length(gene_id) == 1,
+        is.character(group_id), length(group_id) == 1,
+        is.character(weight_id), length(weight_id) == 1,
+        c(gene_id, group_id, weight_id) %in% names(mgs),
+        is.numeric(n_top), length(n_top) == 1, round(n_top) == n_top)
+
+    ng <- nrow(x)
+    nc <- ncol(x)
+    names(ks) <- ks <- unique(groups)
+
+    # subset 'n_top' features
+    mgs <- split(mgs, mgs[[group_id]])
+    mgs <- lapply(mgs, function(df) {
+        o <- order(df[[weight_id]], decreasing = TRUE)
+        n <- ifelse(nrow(df) < n_top, nrow(df), n_top)
+        df[o, ][seq_len(n), ]
+    })
+
+    # subset unique features
+    mgs <- lapply(ks, function(k) {
+        g1 <- mgs[[k]][[gene_id]]
+        g2 <- unlist(lapply(mgs[ks != k], `[[`, gene_id))
+        mgs[[k]][!g1 %in% g2, , drop = FALSE]
+    })
+
+    # W is of dimension (#groups)x(#features) with W(i,j)
+    # equal to weight if j is marker for i, and ~0 otherwise
+    W <- vapply(ks, function(k) {
+        w <- numeric(ng) + 1e-12
+        names(w) <- rownames(x)
+        ws <- mgs[[k]][[weight_id]]
+        w[mgs[[k]][[gene_id]]] <- ws
+        return(w)
+    }, numeric(ng))
+
+    # H is of dimension (#groups)x(#samples) with H(i,j)
+    # equal to 1 if j is in i, and ~0 otherwise
+    cs <- split(seq_len(nc), groups)
+    H <- t(vapply(ks, function(k) {
+        h <- numeric(nc) + 1e-12
+        h[cs[[k]]] <- 1
+        return(h)
+    }, numeric(nc)))
+
+    dimnames(W) <- list(rownames(x), ks)
+    dimnames(H) <- list(ks, colnames(x))
+    return(list("W" = W, "H" = H))
+}
+
+.filter <- function(x, y) {
+    # remove undetected features
+    .fil <- function(.) {
+        i <- rowSums(.) > 0
+        .[i, , drop = FALSE]
+    }
+    x <- .fil(x)
+    y <- .fil(y)
+
+    # keep only shared features
+    i <- intersect(
+        rownames(x),
+        rownames(y))
+    
+    if (length(i) < 10) {
+        stop(
+            "Insufficient number of features shared",
+            " between single-cell and mixture dataset.")
+    }
+    return(x[i, ])
+}
+
+#' @importFrom Matrix rowSums
+#' @importFrom NMF nmf nmfModel
+.train_nmf <- function(x, y,
+    groups,
+    mgs,
+    n_top = NULL,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "weight",
+    hvg = NULL,
+    model = c("ns", "std"),
+    scale = TRUE,
+    verbose = TRUE,
+    ...) {
+    # check validity of input arguments
+    model <- match.arg(model)
+
+    # select genes in mgs or hvg
+    if (!is.null(hvg)) {
+        # Select union of genes between markers and HVG
+        mod_genes <- union(unique(mgs[, gene_id]), hvg)
+    } else {
+        # Select union of genes between markers and HVG
+        mod_genes <- unique(mgs[, gene_id])
+    }
+
+    # Select intersection between interest and present in x (sce) & y (spe)
+    mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y)))
+
+    # drop features that are undetected
+    # in single-cell and/or mixture data
+    x <- .filter(x[mod_genes, ], y[mod_genes, ])
+    mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
+
+    # scale to unit variance (optional)
+    if (scale) {
+        if (verbose) message("Scaling count matrix")
+        x <- .scale_uv(x)
+    }
+
+    # capture start time
+    t0 <- Sys.time()
+
+    # set model rank to number of groups
+    rank <- length(unique(groups))
+
+    # get seeding matrices (optional)
+    seed <- if (TRUE) {
+        if (verbose) message("Seeding initial matrices")
+        hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
+        nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
+    }
+
+    # train NMF model
+    if (verbose) message("Training NMF model")
+    mod <- nmf(x, rank, paste0(model, "NMF"), seed, ...)
+
+    # capture stop time
+    t1 <- Sys.time()
+
+    # print runtimes
+    if (verbose) {
+        dt <- round(difftime(t1, t0, units = "mins"), 2)
+        message("Time for training: ", dt, "min")
+    }
+    return(mod)
+}
+
+#' @importFrom matrixStats colMedians
+#' @importFrom NMF coef
+.topic_profiles <- function(mod, groups) {
+    df <- data.frame(t(coef(mod)))
+    dfs <- split(df, groups)
+    res <- vapply(
+        dfs, function(df)
+        colMedians(as.matrix(df)),
+        numeric(ncol(df))
+    )
+    rownames(res) <- names(dfs)
+    return(t(res))
+}
+
+#' @importFrom NMF basis
+#' @importFrom nnls nnls
+.pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
+    W <- basis(mod)
+    x <- x[rownames(W), ]
+    if (scale) {
+        x <- .scale_uv(x)
+    }
+
+    y <- vapply(
+        seq_len(ncol(x)), 
+        function(i) nnls(W, x[, i])$x,
+        numeric(ncol(W)))
+    
+    rownames(y) <- dimnames(mod)[[3]]
+    colnames(y) <- colnames(x)
+    return(y)
+}
+
+#' @importFrom nnls nnls
+.deconvolute <- function(x, mod, ref, scale = TRUE,
+    min_prop = 0.01, verbose = TRUE) {
+    mat <- .pred_prop(x, mod, scale)
+    if (verbose) message("Deconvoluting mixture data")
+    res <- vapply(seq_len(ncol(mat)), function(i) {
+        pred <- nnls::nnls(ref, mat[, i])
+        prop <- prop.table(pred$x)
+        # drop groups that fall below 'min_prop' & update
+        prop[prop < min_prop] <- 0
+        prop <- prop.table(prop)
+        # compute residual sum of squares
+        ss <- sum(mat[, i]^2)
+        # compute percentage of unexplained residuals
+        err <- pred$deviance / ss
+        c(prop, err)
+    }, numeric(ncol(ref) + 1))
+    # set dimension names
+    rownames(res) <- c(dimnames(mod)[[3]], "res_ss")
+    colnames(res) <- colnames(mat)
+
+    # Separate residuals from proportions
+    # Extract residuals
+    err <- res["res_ss", ]
+    # Extract only deconvolution matrices
+    res <- res[-nrow(res), ]
+
+    return(list("mat" = t(res), "res_ss" = err))
+}
+
+# Test if a package is installed
+# x is a stringr or vector of strings of packages names
+# to test if they are installed
+.test_installed <- function(x) {
+    # Check which packages aren't installed
+    x <- x[!x %in% installed.packages()]
+
+    if (length(x) > 0) {
+        x <- paste(x, collapse = ", ")
+        stop("Please install package/s: ", x)
+    }
+}

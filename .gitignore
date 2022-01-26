@@ -1,4 +1,12 @@
 .Rproj.user
+*.Rproj
+.git/
+.DS_Store
 .Rhistory
 .RData
 .Ruserdata
+vignettes/*.html
+vignettes/*/
+*.pdf
+*/**/.pdf
+docs

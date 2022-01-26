@@ -1,38 +1,60 @@
 Package: SPOTlight
+Version: 0.99.0
 Type: Package
-Title: Cell type deconvolution of Visium data
-Version: 0.1.7
-Author: Marc Elosua-Bayes
-Maintainer: Marc Elosua-Bayes <marc.elosua@cnag.crg.eu>
-Description: This package is aimed at deconvoluting the cell types and proportions of single-cell mixtures.
-License: MIT + file LICENSE
+Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
+Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
+    spots using a seeded NMF approach along with visualization tools to assess
+    the results. Spatially resolved gene expression profiles are key to
+    understand tissue organization and function. However, novel spatial 
+    transcriptomics (ST) profiling techniques lack single-cell resolution and 
+    require a combination with single-cell RNA sequencing (scRNA-seq) 
+    information to deconvolute the spatially indexed datasets. Leveraging the 
+    strengths of both data types, we developed SPOTlight, a computational tool 
+    that enables the integration of ST with scRNA-seq data to infer the location
+    of cell types and states within a complex tissue. SPOTlight is centered 
+    around a seeded non-negative matrix factorization (NMF) regression, 
+    initialized using cell-type marker genes and non-negative least squares
+    (NNLS) to subsequently deconvolute ST capture locations (spots).
+Authors@R: c(
+  person("Marc", "Elosua-Bayes", email="elosua.marc@gmail.com", role=c("aut", "cre")),
+  person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))
+Depends: R (>= 4.1)
+Imports:
+  ggplot2,
+  NMF,
+  Matrix,
+  matrixStats,
+  nnls,
+  SeuratObject,
+  SingleCellExperiment,
+  stats
+Suggests:
+  BiocStyle,
+  ExperimentHub,
+  DelayedArray,
+  ggcorrplot,
+  grid,
+  igraph,
+  jpeg,
+  knitr,
+  methods,
+  png,
+  scater,
+  scatterpie,
+  scran,
+  Seurat,
+  SpatialExperiment,
+  SummarizedExperiment,
+  TabulaMurisSenisData,
+  TENxVisiumData,
+  testthat
+biocViews: 
+  SingleCell, 
+  Spatial,
+  StatisticalMethod
+License: GPL-3
 Encoding: UTF-8
-LazyData: true
-Suggests: 
-    covr,
-    testthat,
-    spelling
-Language: en-US
-RoxygenNote: 7.1.1
-Depends: dplyr (>= 0.8.3)
-biocViews:
-Imports: arrangements (>= 1.1.8),
-         BiocGenerics (>= 0.32.0),
-         cowplot (>= 1.0.0),
-         DropletUtils (>= 1.6.1),
-         edgeR (>= 3.28.1),
-         ggplot2 (>= 3.3.0),
-         ggpubr (>= 0.2.5),
-         igraph (>= 1.2.4.2),
-         imager (>= 0.42.1),
-         jpeg (>= 0.1.8.1),
-         Matrix (>= 1.2.18),
-         matrixStats (>= 0.55.0),
-         NMF (>= 0.22.0),
-         nnls (>= 1.4),
-         png (>= 0.1.7),
-         philentropy(>= 0.4.0),
-         purrr (>= 0.3.3),
-         scatterpie (>= 0.1.5),
-         Seurat (>= 3.2.0),
-         tibble (>= 2.1.3)
+RoxygenNote: 7.1.2
+VignetteBuilder: knitr
+URL: https://github.com/MarcElosua/SPOTlight
+BugReports: https://github.com/MarcElosua/SPOTlight/issues
