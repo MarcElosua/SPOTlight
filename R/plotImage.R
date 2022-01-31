@@ -50,7 +50,7 @@ setMethod(
         stopifnot(file.exists(x))
         typ <- c("jpg", "jpeg", "png")
         pat <- paste0(".", typ, "$")
-        idx <- vapply(pat, grepl, x = x, logical(1))
+        idx <- vapply(pat, grepl, x = x, logical(1), ignore.case = TRUE)
         if (!any(idx)) {
             stop("'x' should be of file type JPG, JPEG or PNG")
         }
