@@ -30,6 +30,7 @@ Imports:
   stats
 Suggests:
   BiocStyle,
+  colorBlindness,
   ExperimentHub,
   DelayedArray,
   ggcorrplot,
