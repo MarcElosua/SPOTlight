@@ -2,10 +2,9 @@
 % Please edit documentation in R/plotCorrelationMatrix.R
 \name{plotCorrelationMatrix}
 \alias{plotCorrelationMatrix}
-\alias{plotCorrelationMatrix,matrix-method}
 \title{Plot Correlation Matrix}
 \usage{
-\S4method{plotCorrelationMatrix}{matrix}(
+plotCorrelationMatrix(
   x,
   cor.method = c("pearson", "kendall", "spearman"),
   insig = c("blank", "pch"),

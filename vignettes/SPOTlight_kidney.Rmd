@@ -67,7 +67,7 @@ model, for each cell type and finding which combination of cell types fits best
 the spot we want to deconvolute. Find below a graphical abstract visually
 summarizing the key steps.
 
-![](../inst/extdata/schematic.png)
+![](schematic.png)
 
 ## Starting point
 
@@ -100,20 +100,8 @@ subset to map it to the Visium slide.
 
 ## Loading the data
 
-Both datasets are available through Biocondcutor's `r Biocpkg("ExperimentHub")` and can be
-loaded into R as follows:
-
-```{r eh, message = FALSE}
-library(ExperimentHub)
-
-# initialize a Hub instance which stores a complete set of recordd
-eh <- ExperimentHub()
-
-# retrieve any records that match our keyword(s) of interest
-query(eh, "Tabula Muris Senis droplet Kidney")
-query(eh, "MouseKidneyCoronal")
-```
-
+Both datasets are available through Biocondcutor packages and can be loaded into R as follows. 
+`
 Load the spatial data:
 
 ```{r load-sp, message=FALSE}
@@ -144,9 +132,9 @@ batch effects we are going to select cells all coming from the same age.
 
 ```{r sub-18m}
 # Keep cells from 18m mice
-sce <- subset(sce, , age == "18m")
+sce <- sce[, sce$age == "18m"]
 # Keep cells with clear cell type annotations
-sce <- subset(sce, , !free_annotation %in% c("nan", "CD45"))
+sce <- sce[, !sce$free_annotation %in% c("nan", "CD45")]
 ```
 
 # Workflow
@@ -289,7 +277,7 @@ cell type that best fit H’ minimizing the residuals.
 
 You can visualize the above explanation in the following workflow scheme:
 
-![](../inst/extdata/workflow.png)
+![](workflow.png)
 
 ```{r SPOTlight}
 res <- SPOTlight(

@@ -1,7 +1,7 @@
 set.seed(123)
-x <- .mock_sc(nc = 50, nt = 3)
-y <- .mock_sp(x)
-z <- .get_mgs(x)
+x <- mockSC(nc = 50, nt = 3)
+y <- mockSP(x)
+z <- getMGS(x)
 res <- SPOTlight(x, y,
     groups = x$type,
     mgs = z,

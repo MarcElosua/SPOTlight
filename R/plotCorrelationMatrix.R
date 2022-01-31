@@ -53,10 +53,8 @@ NULL
 #' @import ggplot2
 #' @export
 
-setMethod(
-    "plotCorrelationMatrix",
-    c("matrix"),
-    function(x,
+plotCorrelationMatrix <- function(
+    x,
     cor.method = c("pearson", "kendall", "spearman"),
     insig = c("blank", "pch"),
     colors = c("#6D9EC1", "white", "#E46726"),
@@ -72,6 +70,7 @@ setMethod(
 
         stopifnot(
             is.matrix(x), is.numeric(x),
+            all(dim(x) > 0), ncol(x) > 1,
             is.character(colors), length(colors) == 3,
             is.logical(hc.order), length(hc.order) == 1,
             is.logical(p.mat), length(p.mat) == 1)
@@ -102,4 +101,3 @@ setMethod(
                 axis.text.x = element_text(angle = 60, vjust = 1),
                 axis.text = element_text(vjust = 0.5))
     }
-)

@@ -1,10 +1,10 @@
 #' @rdname data
 #' @name data
-#' @aliases .mock_sc .mock_sp .get_mgs
+#' @aliases mockSC mockSP getMGS
 #' @title Synthetic single-cell, mixture and marker data
 #'
 #' @description
-#' \code{.mock_sc/sp()} are designed to generate synthetic single-cell and
+#' \code{mockSC/mockSP()} are designed to generate synthetic single-cell and
 #' spatial mixture data. These data are not meant to represent biologically
 #' meaningful use-cases, but are solely intended for use in examples, for
 #' unit-testing, and to demonstrate \code{SPOTlight}'s general functionality.
@@ -18,28 +18,28 @@
 #'
 #' @return
 #' \itemize{
-#' \item{\code{.mock_sc} returns a \code{SingleCellExperiment}
+#' \item{\code{mockSC} returns a \code{SingleCellExperiment}
 #'   with rows = genes, columns = single cells, and cell metadata
 #'   (\code{colData}) column \code{type} containing group identifiers.}
-#' \item{\code{.mock_sp} returns a \code{SingleCellExperiment}
+#' \item{\code{mockSP} returns a \code{SingleCellExperiment}
 #'   with rows = genes, columns = single cells, and cell metadata
 #'   (\code{colData}) column \code{type} containing group identifiers.}
-#' \item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top}
+#' \item{\code{getMGS} returns a \code{data.frame} with \code{nt*n_top}
 #'   rows and 3 columns: gene and type (group) identifier, as well as the
 #'   gene's weight = the proportion of counts accounted for by that type.}
 #' }
 #'
 #' @examples
-#' sce <- .mock_sc()
-#' spe <- .mock_sp(sce)
-#' mgs <- .get_mgs(sce)
+#' sce <- mockSC()
+#' spe <- mockSP(sce)
+#' mgs <- getMGS(sce)
 NULL
 
 #' @rdname data
 #' @importFrom SingleCellExperiment cbind SingleCellExperiment
 #' @importFrom stats rnbinom runif
 #' @export
-.mock_sc <- function(ng = 200, nc = 50, nt = 3) {
+mockSC <- function(ng = 200, nc = 50, nt = 3) {
     z <- lapply(seq_len(nt), \(t) {
         ms <- 2^runif(ng, 2, 10)
         ds <- 0.5 + 100 / ms
@@ -64,7 +64,7 @@ NULL
 #' @importFrom Matrix rowSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @export
-.mock_sp <- function(x, ns = 100) {
+mockSP <- function(x, ns = 100) {
     z <- replicate(ns, {
         # sample number of cells
         nc <- sample(5, 1)
@@ -104,7 +104,7 @@ NULL
 #' @importFrom SingleCellExperiment counts
 #' @importFrom stats aggregate
 #' @export
-.get_mgs <- function(x, n_top = 10) {
+getMGS <- function(x, n_top = 10) {
     # compute sum of counts by group
     y <- aggregate(t(counts(x)), list(x$type), sum)
     rownames(y) <- y[, 1]

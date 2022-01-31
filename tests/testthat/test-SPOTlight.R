@@ -1,8 +1,8 @@
 set.seed(321)
 # mock up some single-cell, mixture & marker data
-sce <- .mock_sc(ng = 200, nc = 10, nt = 3)
-spe <- .mock_sp(sce)
-mgs <- .get_mgs(sce)
+sce <- mockSC(ng = 200, nc = 10, nt = 3)
+spe <- mockSP(sce)
+mgs <- getMGS(sce)
 
 # Function to run the checks
 .checks <- function(res, sce) {

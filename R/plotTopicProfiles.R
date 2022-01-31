@@ -25,9 +25,9 @@
 #'
 #' @examples
 #' library(ggplot2)
-#' x <- .mock_sc()
-#' y <- .mock_sp(x)
-#' z <- .get_mgs(x)
+#' x <- mockSC()
+#' y <- mockSP(x)
+#' z <- getMGS(x)
 #' 
 #' res <- SPOTlight(x, y,
 #'     groups = x$type,
@@ -60,9 +60,7 @@ setMethod(
     facet = FALSE,
     min_prop = 0.1,
     ncol = NULL) {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("methods")
-
+        
         # check validity of input arguments
         stopifnot(
             methods::is(x, "NMF"),
