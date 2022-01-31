@@ -60,9 +60,7 @@ setMethod(
     facet = FALSE,
     min_prop = 0.1,
     ncol = NULL) {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("methods")
-
+        
         # check validity of input arguments
         stopifnot(
             methods::is(x, "NMF"),
