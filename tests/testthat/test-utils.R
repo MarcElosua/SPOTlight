@@ -1,8 +1,8 @@
 set.seed(321)
 # mock up some single-cell, mixture & marker data
-sce <- .mock_sc()
-spe <- .mock_sp(sce)
-mgs <- .get_mgs(sce)
+sce <- mockSC()
+spe <- mockSP(sce)
+mgs <- getMGS(sce)
 
 # .scale_uv ----
 test_that(".scale_uv()", {

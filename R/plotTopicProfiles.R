@@ -25,9 +25,9 @@
 #'
 #' @examples
 #' library(ggplot2)
-#' x <- .mock_sc()
-#' y <- .mock_sp(x)
-#' z <- .get_mgs(x)
+#' x <- mockSC()
+#' y <- mockSP(x)
+#' z <- getMGS(x)
 #' 
 #' res <- SPOTlight(x, y,
 #'     groups = x$type,

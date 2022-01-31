@@ -2,16 +2,16 @@
 % Please edit documentation in R/data.R
 \name{data}
 \alias{data}
-\alias{.mock_sc}
-\alias{.mock_sp}
-\alias{.get_mgs}
+\alias{mockSC}
+\alias{mockSP}
+\alias{getMGS}
 \title{Synthetic single-cell, mixture and marker data}
 \usage{
-.mock_sc(ng = 200, nc = 50, nt = 3)
+mockSC(ng = 200, nc = 50, nt = 3)
 
-.mock_sp(x, ns = 100)
+mockSP(x, ns = 100)
 
-.get_mgs(x, n_top = 10)
+getMGS(x, n_top = 10)
 }
 \arguments{
 \item{ng, nc, nt, ns}{integer scalar specifying the number
@@ -24,19 +24,19 @@ marker genes to extract for each cluster.}
 }
 \value{
 \itemize{
-\item{\code{.mock_sc} returns a \code{SingleCellExperiment}
+\item{\code{mockSC} returns a \code{SingleCellExperiment}
   with rows = genes, columns = single cells, and cell metadata
   (\code{colData}) column \code{type} containing group identifiers.}
-\item{\code{.mock_sp} returns a \code{SingleCellExperiment}
+\item{\code{mockSP} returns a \code{SingleCellExperiment}
   with rows = genes, columns = single cells, and cell metadata
   (\code{colData}) column \code{type} containing group identifiers.}
-\item{\code{.get_mgs} returns a \code{data.frame} with \code{nt*n_top}
+\item{\code{getMGS} returns a \code{data.frame} with \code{nt*n_top}
   rows and 3 columns: gene and type (group) identifier, as well as the
   gene's weight = the proportion of counts accounted for by that type.}
 }
 }
 \description{
-\code{.mock_sc/sp()} are designed to generate synthetic single-cell and
+\code{mockSC/mockSP()} are designed to generate synthetic single-cell and
 spatial mixture data. These data are not meant to represent biologically
 meaningful use-cases, but are solely intended for use in examples, for
 unit-testing, and to demonstrate \code{SPOTlight}'s general functionality.
@@ -44,7 +44,7 @@ Finally, \code{.get_mgs()} implements a statistically naive way to select
 markers from single-cell data; again, please don't use it in real life.
 }
 \examples{
-sce <- .mock_sc()
-spe <- .mock_sp(sce)
-mgs <- .get_mgs(sce)
+sce <- mockSC()
+spe <- mockSP(sce)
+mgs <- getMGS(sce)
 }
