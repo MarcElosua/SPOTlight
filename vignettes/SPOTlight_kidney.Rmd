@@ -132,9 +132,9 @@ batch effects we are going to select cells all coming from the same age.
 
 ```{r sub-18m}
 # Keep cells from 18m mice
-sce <- subset(sce, , age == "18m")
+sce <- sce[, sce$age == "18m"]
 # Keep cells with clear cell type annotations
-sce <- subset(sce, , !free_annotation %in% c("nan", "CD45"))
+sce <- sce[, !sce$free_annotation %in% c("nan", "CD45")]
 ```
 
 # Workflow
