@@ -17,8 +17,3 @@ setGeneric(
 setGeneric(
     "plotSpatialScatterpie", function(x, y, ...) 
         standardGeneric("plotSpatialScatterpie"))
-
-#' @export
-setGeneric(
-    "plotCorrelationMatrix", function(x, ...) 
-        standardGeneric("plotCorrelationMatrix"))
