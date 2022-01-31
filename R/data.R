@@ -38,7 +38,7 @@ NULL
 #' @rdname data
 #' @importFrom SingleCellExperiment cbind SingleCellExperiment
 #' @importFrom stats rnbinom runif
-#' @export
+# #' @export
 .mock_sc <- function(ng = 200, nc = 50, nt = 3) {
     z <- lapply(seq_len(nt), \(t) {
         ms <- 2^runif(ng, 2, 10)
@@ -63,7 +63,7 @@ NULL
 #' @param x Single cell experiment object ç
 #' @importFrom Matrix rowSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
-#' @export
+# #' @export
 .mock_sp <- function(x, ns = 100) {
     z <- replicate(ns, {
         # sample number of cells
@@ -103,7 +103,7 @@ NULL
 #' @importFrom Matrix colSums rowSums
 #' @importFrom SingleCellExperiment counts
 #' @importFrom stats aggregate
-#' @export
+# #' @export
 .get_mgs <- function(x, n_top = 10) {
     # compute sum of counts by group
     y <- aggregate(t(counts(x)), list(x$type), sum)
