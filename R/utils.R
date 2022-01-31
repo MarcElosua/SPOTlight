@@ -223,7 +223,9 @@
 # to test if they are installed
 .test_installed <- function(x) {
     # Check which packages aren't installed
-    x <- x[!x %in% installed.packages()]
+    t <- vapply(x, function(i)
+        isFALSE(requireNamespace(i, quietly = TRUE)), numeric(1))
+    x <- x[t == 1]
 
     if (length(x) > 0) {
         x <- paste(x, collapse = ", ")
