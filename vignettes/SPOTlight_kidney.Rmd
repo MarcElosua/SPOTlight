@@ -100,20 +100,8 @@ subset to map it to the Visium slide.
 
 ## Loading the data
 
-Both datasets are available through Biocondcutor's `r Biocpkg("ExperimentHub")` and can be
-loaded into R as follows:
-
-```{r eh, message = FALSE}
-library(ExperimentHub)
-
-# initialize a Hub instance which stores a complete set of recordd
-eh <- ExperimentHub()
-
-# retrieve any records that match our keyword(s) of interest
-query(eh, "Tabula Muris Senis droplet Kidney")
-query(eh, "MouseKidneyCoronal")
-```
-
+Both datasets are available through Biocondcutor packages and can be loaded into R as follows. 
+`
 Load the spatial data:
 
 ```{r load-sp, message=FALSE}
