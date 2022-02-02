@@ -2,13 +2,13 @@
 % Please edit documentation in R/plotTopicProfiles.R
 \name{plotTopicProfiles}
 \alias{plotTopicProfiles}
-\alias{plotTopicProfiles,NMF,ANY-method}
-\alias{plotTopicProfiles,NMF,character-method}
+\alias{plotTopicProfiles,NMFfit,ANY-method}
+\alias{plotTopicProfiles,NMFfit,character-method}
 \title{Plot NMF topic profiles}
 \usage{
-\S4method{plotTopicProfiles}{NMF,ANY}(x, y, ...)
+\S4method{plotTopicProfiles}{NMFfit,ANY}(x, y, ...)
 
-\S4method{plotTopicProfiles}{NMF,character}(x, y, facet = FALSE, min_prop = 0.1, ncol = NULL)
+\S4method{plotTopicProfiles}{NMFfit,character}(x, y, facet = FALSE, min_prop = 0.1, ncol = NULL)
 }
 \arguments{
 \item{x}{\code{\link{NMFfit}} object}
