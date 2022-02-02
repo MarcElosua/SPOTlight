@@ -44,7 +44,7 @@ NULL
 #' @rdname plotTopicProfiles
 #' @export
 setMethod(
-    "plotTopicProfiles", c("NMF", "ANY"),
+    "plotTopicProfiles", c("NMFfit", "ANY"),
     function(x, y, ...) plotTopicProfiles(x, as.character(y), ...)
 )
 
@@ -55,7 +55,7 @@ setMethod(
 #' @export
 setMethod(
     "plotTopicProfiles",
-    c("NMF", "character"),
+    c("NMFfit", "character"),
     function(x, y,
     facet = FALSE,
     min_prop = 0.1,
