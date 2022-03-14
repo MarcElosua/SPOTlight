@@ -10,6 +10,11 @@ setGeneric(
 
 #' @export
 setGeneric(
+    "runDeconvolution", function(x, ...) 
+        standardGeneric("runDeconvolution"))
+
+#' @export
+setGeneric(
     "plotImage", function(x, ...) 
         standardGeneric("plotImage"))
 
