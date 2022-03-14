@@ -28,7 +28,8 @@
 #'   specifying the assay from which to extract the expression matrix.
 #'   By default "RNA".
 #' @param slot if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix.
+#'   specifying the slot from which to extract the expression matrix. If the
+#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
@@ -56,15 +57,8 @@
 #' @examples
 #' library(scater)
 #' library(scran)
-#' library(ExperimentHub)
+#' library(TabulaMurisSenisData)
 #' library(TENxVisiumData)
-#'
-#' # Initialize a Hub instance storing a complete set of records
-#' eh <- ExperimentHub()
-#'
-#' # Retrieve any records that match our keyword(s) of interest
-#' query(eh, "Tabula Muris Senis droplet Kidney")
-#' query(eh, "MouseKidneyCoronal")
 #'
 #' # Get Visium data from 'TENxVisiumData'
 #' spe <- MouseKidneyCoronal()
@@ -73,7 +67,6 @@
 #' rownames(spe) <- rowData(spe)$symbol
 #'
 #' # Load SCE data
-#' library(TabulaMurisSenisData)
 #' sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 #'
 #' # Keep cells from 18m mice with clear cell type annotations
@@ -107,8 +100,10 @@
 #'
 #' # split cell indices by identity
 #' idx <- split(seq(ncol(sce)), sce$free_annotation)
-#' # downsample to at most 20 cells per identity
-#' n_cells <- 20
+#' # downsample to at most 5 cells per identity
+#' # Note that 5 is for example purpose, n_cells should be for real life
+#' #  scenarios ~100
+#' n_cells <- 5
 #' cs_keep <- lapply(idx, function(i) {
 #'   n <- length(i)
 #'   if (n < n_cells)
@@ -264,15 +259,13 @@ setMethod("SPOTlight",
         stopifnot(groups %in% mgs[[group_id]])
 
         # train NMF model
-        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id,
+        mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
             weight_id, hvg, model, scale, verbose, ...)
 
-        # get topic profiles
-        ref <- .topic_profiles(mod, groups)
-
         # perform deconvolution
-        res <- .deconvolute(y, mod, ref, scale, min_prop, verbose)
+        res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
+            scale, min_prop, verbose)
 
         # return list of NMF model & deconvolution matrix
-        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod)
+        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod_ls[["mod"]])
     })

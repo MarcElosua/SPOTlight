@@ -9,12 +9,12 @@ res <- SPOTlight(x, y,
     verbose = FALSE)
 
 test_that("plotTopicProfiles common", {
-    p <- plotTopicProfiles(res[[3]], x$type, facet = FALSE)
+    p <- plotTopicProfiles(x = res[[3]], y = x$type, facet = FALSE)
     expect_is(p, "ggplot")
     expect_equal(nrow(p$data), 9)
     expect_equal(ncol(p$data), 3)
     g <- ggplot_build(p)
-    expect_equal(unique(g$data[[1]]$colour), c("#0000FF", "#D3D3D3"))
+    expect_equal(unique(g$data[[1]]$colour), c("#3D2BFF", "#D3D3D3"))
 })
 
 test_that("plotTopicProfiles facet", {
@@ -23,5 +23,5 @@ test_that("plotTopicProfiles facet", {
     expect_equal(nrow(p$data), 150)
     expect_equal(ncol(p$data), 4)
     g <- ggplot_build(p)
-    expect_equal(unique(g$data[[1]]$colour), c("#0000FF", "#D3D3D3"))
+    expect_equal(unique(g$data[[1]]$colour), c("#3D2BFF", "#D3D3D3"))
 })
