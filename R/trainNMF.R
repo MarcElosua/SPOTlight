@@ -3,10 +3,9 @@
 #'
 #' @aliases trainNMF
 #'
-#' @description This function takes in a matrix with the predicted proportions
-#'   for each spot and returns a heatmap \code{which = plotHeatmap} or a network
-#'    graph \code{which = plotNetwork} to show which cells are interacting
-#'    spatially.
+#' @description This is the training function used by SPOTLight. This function
+#'   takes in single cell expression data, trains the model and learns topic
+#'    profiles for each cell type
 #'  
 #' @param x,y single-cell and mixture dataset, respectively. Can be a
 #'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
@@ -33,32 +32,151 @@
 #' @param ... additional parameters.
 #'
 #'
-#' @return base R plot
+#' @return base a list where the first element is an \code{NMFfit} object and
+#'   the second is a matrix contatining the topic profiles learnt.
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
 #' @examples
+#' set.seed(321)
+#' mock up some single-cell, mixture & marker data
+#' sce <- mockSC(ng = 200, nc = 10, nt = 3)
+#' spe <- mockSP(sce)
+#' mgs <- getMGS(sce)
 #' 
-#' print("Run example")
-#' 
-#' @export
+#' res <- trainNMF(
+#'     x = sce,
+#'     y = spe,
+#'     groups = sce$type,
+#'     mgs = mgs,
+#'     weight_id = "weight",
+#'     group_id = "type",
+#'     gene_id = "gene")
+#' # Get NMF model
+#' res[["mod"]]
+#' # Get topic profiles
+#' res[["topic"]]
+NULL
 
+#' @rdname trainNMF
+#' @importFrom SingleCellExperiment colLabels
+#' @export
+setMethod("trainNMF",
+    c("SingleCellExperiment", "ANY"),
+    function(x, y, ...,
+        assay = "counts",
+        groups = colLabels(x, onAbsence = "error"))
+    {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        trainNMF(as.matrix(SummarizedExperiment::assay(x, assay)),
+            y, groups, ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "SingleCellExperiment"),
+    function(x, y, ...,
+        assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        trainNMF(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
+    })
+
+#' @rdname trainNMF
+#' @importFrom SeuratObject Idents GetAssayData
+#' @export
+setMethod("trainNMF",
+    c("Seurat", "ANY"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA",
+        groups = Idents(x)) {
+        .test_installed("SeuratObject")
+        trainNMF(GetAssayData(x, slot, assay), y, groups, ...)
+    })
+
+#' @rdname trainNMF
+#' @importFrom SeuratObject GetAssayData
+#' @export
+setMethod("trainNMF",
+    c("ANY", "Seurat"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        .test_installed("SeuratObject")
+        trainNMF(x, GetAssayData(y, slot, assay), ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "dgCMatrix"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        trainNMF(x, as.matrix(y), ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("dgCMatrix", "ANY"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        trainNMF(as.matrix(x), y, ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "DelayedMatrix"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        trainNMF(x, as.matrix(y), ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("DelayedMatrix", "ANY"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        trainNMF(as.matrix(x), y, ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "ANY"),
+    function(x, y, ...) {
+        stop("See ?trainNMF for valid x & y inputs")
+    })
+
+#' @rdname SPOTlight
 #' @importFrom Matrix rowSums
 #' @importFrom NMF nmf nmfModel
-trainNMF <- function(x, y,
-    groups,
-    mgs,
-    n_top = NULL,
-    gene_id = "gene",
-    group_id = "cluster",
-    weight_id = "weight",
-    hvg = NULL,
-    model = c("ns", "std"),
-    scale = TRUE,
-    verbose = TRUE,
-    ...) {
-    # check validity of input arguments
-    model <- match.arg(model)
+#' @export
+setMethod("trainNMF",
+    c("matrix", "matrix"),
+    function(x, y,
+        groups,
+        mgs,
+        n_top = NULL,
+        gene_id = "gene",
+        group_id = "cluster",
+        weight_id = "weight",
+        hvg = NULL,
+        model = c("ns", "std"),
+        scale = TRUE,
+        verbose = TRUE,
+        ...) {
+        # check validity of input arguments
+        model <- match.arg(model)
     
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
@@ -113,4 +231,4 @@ trainNMF <- function(x, y,
     topic <- .topic_profiles(mod, groups)
     
     return(list("mod" = mod, "topic" = topic))
-}
+})

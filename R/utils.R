@@ -59,9 +59,10 @@
         h[cs[[k]]] <- 1
         return(h)
     }, numeric(nc)))
-
-    dimnames(W) <- list(rownames(x), ks)
-    dimnames(H) <- list(ks, colnames(x))
+    
+    tp <- paste0("topic_", seq_len(length(ks)))
+    dimnames(W) <- list(rownames(x), tp)
+    dimnames(H) <- list(tp, colnames(x))
     return(list("W" = W, "H" = H))
 }
 
@@ -97,7 +98,7 @@
             colMedians(as.matrix(df)),
         numeric(ncol(df))
     )
-    rownames(res) <- names(dfs)
+    rownames(res) <- paste0("topic_", seq_len(nrow(res)))
     return(t(res))
 }
 

@@ -5,6 +5,11 @@ setGeneric(
 
 #' @export
 setGeneric(
+    "trainNMF", function(x, y, ...) 
+        standardGeneric("trainNMF"))
+
+#' @export
+setGeneric(
     "plotImage", function(x, ...) 
         standardGeneric("plotImage"))
 
