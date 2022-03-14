@@ -108,5 +108,9 @@ trainNMF <- function(x, y,
         dt <- round(difftime(t1, t0, units = "mins"), 2)
         message("Time for training: ", dt, "min")
     }
-    return(mod)
+    
+    # get topic profiles
+    topic <- .topic_profiles(mod, groups)
+    
+    return(list("mod" = mod, "topic" = topic))
 }

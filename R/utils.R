@@ -87,6 +87,20 @@
     return(x[i, ])
 }
 
+#' @importFrom matrixStats colMedians
+#' @importFrom NMF coef
+.topic_profiles <- function(mod, groups) {
+    df <- data.frame(t(coef(mod)))
+    dfs <- split(df, groups)
+    res <- vapply(
+        dfs, function(df)
+            colMedians(as.matrix(df)),
+        numeric(ncol(df))
+    )
+    rownames(res) <- names(dfs)
+    return(t(res))
+}
+
 #' @importFrom NMF basis
 #' @importFrom nnls nnls
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {

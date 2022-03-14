@@ -267,9 +267,6 @@ setMethod("SPOTlight",
         mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id,
             weight_id, hvg, model, scale, verbose, ...)
 
-        # get topic profiles
-        ref <- .topic_profiles(mod, groups)
-
         # perform deconvolution
         res <- .deconvolute(y, mod, ref, scale, min_prop, verbose)
 
