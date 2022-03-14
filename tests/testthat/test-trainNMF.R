@@ -22,7 +22,7 @@ mgs <- getMGS(sce)
 # ----  Check trainNMF x, y inputs  -------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-# .trainNMF with SCE ----
+# trainNMF with SCE ----
 test_that("trainNMF x SCE", {
     res <- trainNMF(
         x = sce,
@@ -37,7 +37,7 @@ test_that("trainNMF x SCE", {
     .checks(res, sce)
 })
 
-# .trainNMF with SPE ----
+# trainNMF with SPE ----
 test_that("trainNMF x SPE", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),
@@ -53,7 +53,7 @@ test_that("trainNMF x SPE", {
 })
 
 
-# .trainNMF with sparse matrix sc ----
+# trainNMF with sparse matrix sc ----
 test_that("trainNMF x dgCMatrix SC", {
     res <- trainNMF(
         x = Matrix::Matrix(counts(sce), sparse = TRUE),
@@ -67,7 +67,7 @@ test_that("trainNMF x dgCMatrix SC", {
     .checks(res, sce)
 })
 
-# .trainNMF with sparse matrix sp ----
+# trainNMF with sparse matrix sp ----
 test_that("trainNMF x dgCMatrix SP", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),
@@ -82,7 +82,7 @@ test_that("trainNMF x dgCMatrix SP", {
     .checks(res, sce)
 })
 
-# .trainNMF with sparse matrix sc ----
+# trainNMF with sparse matrix sc ----
 test_that("trainNMF x DelayedMatrix SC", {
     res <- trainNMF(
         x = DelayedArray::DelayedArray(counts(sce)),
@@ -96,7 +96,7 @@ test_that("trainNMF x DelayedMatrix SC", {
     .checks(res, sce)
 })
 
-# .trainNMF with sparse matrix sp ----
+# trainNMF with sparse matrix sp ----
 test_that("trainNMF x DelayedMatrix SP", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),
@@ -111,7 +111,7 @@ test_that("trainNMF x DelayedMatrix SP", {
     .checks(res, sce)
 })
 
-# .trainNMF with matrices in both ----
+# trainNMF with matrices in both ----
 test_that("trainNMF x matrices", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),
@@ -126,7 +126,7 @@ test_that("trainNMF x matrices", {
     .checks(res, sce)
 })
 
-# .trainNMF with matrices in both and HVG----
+# trainNMF with matrices in both and HVG----
 test_that("trainNMF x hvg", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),

@@ -1,3 +1,4 @@
+#' @name trainNMF
 #' @rdname trainNMF
 #' @title train NMF model
 #'

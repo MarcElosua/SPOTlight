@@ -264,12 +264,13 @@ setMethod("SPOTlight",
         stopifnot(groups %in% mgs[[group_id]])
 
         # train NMF model
-        mod <- .train_nmf(x, y, groups, mgs, n_top, gene_id, group_id,
+        mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
             weight_id, hvg, model, scale, verbose, ...)
 
         # perform deconvolution
-        res <- .deconvolute(y, mod, ref, scale, min_prop, verbose)
+        res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
+            scale, min_prop, verbose)
 
         # return list of NMF model & deconvolution matrix
-        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod)
+        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod_ls[["mod"]])
     })

@@ -27,10 +27,10 @@ test_that("NMF", {
     x <- counts(sce)
     y <- counts(spe)
     groups <- sce$type
-    group_ids <- levels(groups)
+    group_ids <- paste0("topic_", seq_len(length(levels(sce$type))))
     n_groups <- length(group_ids)
-
-    # + .train_nmf ----
+    
+    # + trainNMF ----
     # undetected genes should be filtered out
     # and pass silently (i.e., without error)
     i <- sample(rownames(x), 5)
@@ -40,42 +40,46 @@ test_that("NMF", {
     y. <- y
     y.[j, ] <- 0
     args <- c(defs, list(x., y., groups, mgs))
-    fit <- expect_silent(do.call(.train_nmf, args))
-    expect_is(fit, "NMF")
-    expect_true(!all(c(i, j) %in% rownames(fit)))
+    fit <- expect_silent(do.call(trainNMF, args))
+    mod <- fit[["mod"]]
+    expect_is(mod, "NMF")
+    expect_true(!all(c(i, j) %in% rownames(mod)))
     # Only marker genes should be present - we don't use hvg here
-    expect_true(all(rownames(fit) %in% mgs$gene))
+    expect_true(all(rownames(mod) %in% mgs$gene))
     # valid call should give an object of class 'NMF'
     # and dimension (#genes) x (#cells) x (#groups)
     args <- c(defs, list(x, y, groups, mgs))
-    fit <- expect_silent(do.call(.train_nmf, args))
-    expect_is(fit, "NMF")
+    fit <- expect_silent(do.call(trainNMF, args))
+    mod <- fit[["mod"]]
+    expect_is(mod, "NMF")
     # Remove genes since these can change depending on 
     # filtering, mgs, hvg, all 0...
-    expect_identical(dimnames(fit)[2:3], c(dimnames(x)[2], list(group_ids)))
-
+    expect_identical(
+        dimnames(mod)[2:3],
+        c(dimnames(x)[2], list(group_ids)))
+    
     # + .topic_profiles ----
     # should give a square numeric matrix
     # of dimension (#groups) x (#groups)
-    ref <- .topic_profiles(fit, groups)
+    ref <- .topic_profiles(mod, groups)
     expect_is(ref, "matrix")
     expect_equal(dim(ref), rep(n_groups, 2))
-    expect_identical(rownames(ref), group_ids)
+    expect_identical(rownames(ref), paste0("type", 1:nrow(ref)))
     expect_identical(colnames(ref), group_ids)
-
+    
     # + .pred_prop ----
-    fqs <- .pred_prop(x, fit)
+    fqs <- .pred_prop(x, mod)
     expect_is(fqs, "matrix")
     expect_true(is.numeric(x))
     expect_true(all(fqs >= 0))
     expect_equal(dim(fqs), c(n_groups, ncol(x)))
     expect_identical(dimnames(fqs), list(group_ids, colnames(x)))
-
-    # + .deconvolute ----
+    
+    # + runDeconvolution ----
     # should give a numeric matrix
     # of dimension (#groups) x (#spots)
     # with proportions (i.e., values in [0, 1])
-    res <- .deconvolute(y, fit, ref)
+    res <- runDeconvolution(y, mod, ref)
     mat <- res[[1]]
     err <- res[[2]]
     expect_is(mat, "matrix")

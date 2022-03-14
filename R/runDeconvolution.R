@@ -1,35 +1,26 @@
-#' @rdname trainNMF
-#' @title train NMF model
+#' @name runDeconvolution
+#' @rdname runDeconvolution
+#' @title Run Deconvolution using NNLS model
 #'
-#' @aliases trainNMF
+#' @aliases runDeconvolution
 #'
-#' @description This is the training function used by SPOTLight. This function
-#'   takes in single cell expression data, trains the model and learns topic
-#'    profiles for each cell type
+#' @description This function takes in the mixture data, the trained model & the
+#'   topic profiles and returns the proportion of each cell type within each
+#'    mixture
 #'  
-#' @param x,y single-cell and mixture dataset, respectively. Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
-#' @param groups vector of group labels for cells in \code{x}.
-#'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels} and \code{Idents(x)}, respectively.
-#' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
-#'   Must contain columns holding gene identifiers, group labels and
-#'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
-#' @param hvg character vector containing hvg to include in the model.
-#'   By default NULL.
-#' @param gene_id,group_id,weight_id character specifying the column
-#'   in \code{mgs} containing gene identifiers, group labels and weights,
-#'   respectively.
+#' @param x mixture dataset. Can be a numeric matrix,
+#'   \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#' @param mod object of class NMFfit as obtained from trainNMF. 
+#' @param ref bject of class matrix containing the topic profiles for each cell
+#'  type as obtained from trainNMF. 
 #' @param scale logical specifying whether to scale single-cell counts to unit
 #'   variance. This gives the user the option to normalize the data beforehand
 #'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 #'   slot from where to extract the count data.
-#' @param n_top integer scalar specifying the number of markers to select per
-#'  group. By default NULL uses all the marker genes to initialize the model.
-#' @param model character string indicating which model to use when running NMF.
-#' Either "ns" (default) or "std".
+#' @param min_prop scalar in [0,1] setting the minimum contribution
+#'   expected from a cell type in \code{x} to observations in \code{y}.
+#'   By default 0.
 #' @param verbose logical. Should information on progress be reported?
-#' @param ... additional parameters.
 #'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
@@ -52,10 +43,11 @@
 #'     weight_id = "weight",
 #'     group_id = "type",
 #'     gene_id = "gene")
-#' # Get NMF model
-#' res[["mod"]]
-#' # Get topic profiles
-#' res[["topic"]]
+#' # Run deconvolution
+#' decon <- runDeconvolution(
+#'     x = spe,
+#'     mod = res[["mod"]],
+#'     ref = res[["topic"]])
 NULL
 
 #' @rdname runDeconvolution
@@ -96,7 +88,7 @@ setMethod("runDeconvolution", "ANY",
     })
 
 #' @importFrom nnls nnls
-#' #' @rdname runDeconvolution
+#' @rdname runDeconvolution
 #' @export
 setMethod("runDeconvolution", "matrix",
     function(x, mod,

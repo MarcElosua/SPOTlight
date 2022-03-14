@@ -65,12 +65,12 @@ setMethod(
         stopifnot(
             methods::is(x, "NMF"),
             length(y) == ncol(coef(x)),
-            setequal(rownames(coef(x)), y),
+            setequal(colnames(basis(x)), paste0("topic_", seq_len(length(unique(y))))),
             is.logical(facet), length(facet) == 1,
             is.numeric(min_prop), length(min_prop) == 1)
 
-        y <- as.character(y)
-        stopifnot(y %in% colnames(basis(x)))
+        # y <- as.character(y)
+        # stopifnot(y %in% colnames(basis(x)))
 
         # get group proportions
         mat <- prop.table(t(coef(x)), 1)
@@ -112,7 +112,7 @@ setMethod(
             f + geom_point() +
             guides(col = guide_legend(override.aes = list(size = 2))) +
             scale_size_continuous(range = c(0, 3)) +
-            scale_color_continuous(low = "lightgrey", high = "blue") +
+            scale_color_continuous(low = "lightgrey", high = "#3d2bff") +
             xlab(if (facet) x) +
             theme_bw() +
             theme(
