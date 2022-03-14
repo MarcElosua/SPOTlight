@@ -29,6 +29,13 @@
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
 #' Either "ns" (default) or "std".
+#' @param assay if the object is of Class \code{Seurat}, character string
+#'   specifying the assay from which to extract the expression matrix.
+#'     By default "RNA".
+#' @param slot if the object is of Class \code{Seurat}, character string
+#'   specifying the slot from which to extract the expression matrix. If the
+#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
+#'   By default "counts".
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
 #'
@@ -40,7 +47,7 @@
 #'
 #' @examples
 #' set.seed(321)
-#' mock up some single-cell, mixture & marker data
+#' # mock up some single-cell, mixture & marker data
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
 #' mgs <- getMGS(sce)

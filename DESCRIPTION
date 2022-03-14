@@ -46,6 +46,7 @@ Suggests:
   Seurat,
   SpatialExperiment,
   SummarizedExperiment,
+  S4Vectors,
   TabulaMurisSenisData,
   TENxVisiumData,
   testthat

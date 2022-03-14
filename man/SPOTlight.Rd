@@ -87,7 +87,8 @@ When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
 defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
 
 \item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix.
+specifying the slot from which to extract the expression matrix. If the
+object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
@@ -141,15 +142,8 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 \examples{
 library(scater)
 library(scran)
-library(ExperimentHub)
+library(TabulaMurisSenisData)
 library(TENxVisiumData)
-
-# Initialize a Hub instance storing a complete set of records
-eh <- ExperimentHub()
-
-# Retrieve any records that match our keyword(s) of interest
-query(eh, "Tabula Muris Senis droplet Kidney")
-query(eh, "MouseKidneyCoronal")
 
 # Get Visium data from 'TENxVisiumData'
 spe <- MouseKidneyCoronal()
@@ -158,7 +152,6 @@ spe <- MouseKidneyCoronal()
 rownames(spe) <- rowData(spe)$symbol
 
 # Load SCE data
-library(TabulaMurisSenisData)
 sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
 
 # Keep cells from 18m mice with clear cell type annotations
@@ -192,8 +185,10 @@ mgs_df <- do.call(rbind, mgs_ls)
 
 # split cell indices by identity
 idx <- split(seq(ncol(sce)), sce$free_annotation)
-# downsample to at most 20 cells per identity
-n_cells <- 20
+# downsample to at most 5 cells per identity
+# Note that 5 is for example purpose, n_cells should be for real life
+#  scenarios ~100
+n_cells <- 5
 cs_keep <- lapply(idx, function(i) {
   n <- length(i)
   if (n < n_cells)

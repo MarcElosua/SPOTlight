@@ -20,7 +20,15 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
+#' @param assay if the object is of Class \code{Seurat}, character string
+#'   specifying the assay from which to extract the expression matrix.
+#'     By default "RNA".
+#' @param slot if the object is of Class \code{Seurat}, character string
+#'   specifying the slot from which to extract the expression matrix. If the
+#'   object is of class \code{SpatialExperiment} indicates matrix to use.
+#'   By default "counts".
 #' @param verbose logical. Should information on progress be reported?
+#' @param ... additional parameters.
 #'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
@@ -30,7 +38,7 @@
 #'
 #' @examples
 #' set.seed(321)
-#' mock up some single-cell, mixture & marker data
+#' # mock up some single-cell, mixture & marker data
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
 #' mgs <- getMGS(sce)
@@ -62,7 +70,7 @@ setMethod("runDeconvolution", "SingleCellExperiment",
 #' @rdname runDeconvolution
 #' @export
 setMethod("runDeconvolution", "Seurat",
-    function(x, slot = "counts", assay = "RNA", ...) {
+    function(x, slot = "counts", assay = "RNA") {
         runDeconvolution(GetAssayData(x, slot, assay), ...)
     })
 
@@ -95,7 +103,9 @@ setMethod("runDeconvolution", "matrix",
         ref,
         scale = TRUE,
         min_prop = 0.01,
-        verbose = TRUE) {
+        verbose = TRUE,
+        assay = "RNA",
+        slot = "counts") {
         
         # Get topic profiles for mixtures
         mat <- .pred_prop(x, mod, scale)
