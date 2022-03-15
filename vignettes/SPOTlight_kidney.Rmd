@@ -234,7 +234,9 @@ use 20 cells per cell identity:
 # split cell indices by identity
 idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 per identity & subset
-n_cells <- 2
+# We are using 5 here to speed up the process but set to 75-100 for your real
+# life analysis
+n_cells <- 5
 cs_keep <- lapply(idx, function(i) {
     n <- length(i)
     if (n < n_cells)
@@ -387,8 +389,9 @@ See [here](https://www.r-graph-gallery.com/network.html) for additional
 graphical parameters.
 
 ```{r plotInteractions, fig.width=9, fig.height=9}
-plotInteractions(mat, "heatmap")
-plotInteractions(mat, "network")
+plotInteractions(mat, which = "heatmap")
+plotInteractions(mat, which = "heatmap", metric = "jaccard")
+plotInteractions(mat, which = "network")
 ```
 
 ## Scatterpie

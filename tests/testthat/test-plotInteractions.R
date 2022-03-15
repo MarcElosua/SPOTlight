@@ -19,8 +19,17 @@ x[, 8] <- 1
 x[, 9] <- 1
 x[, 10] <- -1
 
-test_that("plotInteractions(), which = 'heatmap'", {
+test_that("plotInteractions(), which = 'heatmap', metric = default", {
     p <- plotInteractions(x, "heatmap")
+    expect_is(p, "ggplot")
+    expect_true(all(p$data$p >= 0))
+    expect_true(all(p$data$p <= 1))
+    expect_true(is.integer(p$data$n))
+    expect_true(nrow(p$data) == m * (m - 1) / 2)
+})
+
+test_that("plotInteractions(), which = 'heatmap', metric = 'jaccard'", {
+    p <- plotInteractions(x, "heatmap", "jaccard")
     expect_is(p, "ggplot")
     expect_true(all(p$data$p >= 0))
     expect_true(all(p$data$p <= 1))
@@ -53,8 +62,14 @@ test_that("plotInteractions(), which = 'heatmap', tunning", {
 })
 
 
-test_that("plotInteractions(), which = 'network'", {
+test_that("plotInteractions(), which = 'network', metric = 'default'", {
     p <- .(plotInteractions(x, "network"))
+    expect_is(p, "recordedplot")
+    p[[1]][[6]][[2]]$col
+})
+
+test_that("plotInteractions(), which = 'network', metric = 'jaccard'", {
+    p <- .(plotInteractions(x, "network", "jaccard"))
     expect_is(p, "recordedplot")
     p[[1]][[6]][[2]]$col
 })
