@@ -6,7 +6,13 @@
 \alias{plotNetwork}
 \title{Plot group interactions}
 \usage{
-plotInteractions(x, which = c("heatmap", "network"), min_prop = 0, ...)
+plotInteractions(
+  x,
+  which = c("heatmap", "network"),
+  metric = c("prop", "jaccard"),
+  min_prop = 0,
+  ...
+)
 }
 \arguments{
 \item{x}{numeric matrix with rows = samples and columns = groups.
@@ -14,6 +20,9 @@ Must have at least one row and column, and at least two columns.}
 
 \item{which}{character string specifying the type of
 visualization: one of "heatmap" or "network".}
+
+\item{metric}{character string specifying which metric to show:
+one of "prop" or "jaccard".}
 
 \item{min_prop}{scalar specifying the value above which
 a group is considered to be contributing to a given sample.

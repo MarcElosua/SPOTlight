@@ -1,5 +1,5 @@
 Package: SPOTlight
-Version: 0.99.5
+Version: 0.99.7
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
 Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
@@ -57,6 +57,6 @@ biocViews:
 License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.1.2
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 URL: https://github.com/MarcElosua/SPOTlight
 BugReports: https://github.com/MarcElosua/SPOTlight/issues
