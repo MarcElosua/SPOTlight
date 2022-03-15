@@ -16,6 +16,8 @@
 #'   a group is considered to be contributing to a given sample.
 #'   An interaction between groups i and j is counted for sample s
 #'   only when both x[s, i] and x[s, j] fall above \code{min_prop}.
+#' @param metric character string specifying which metric to show:
+#'   one of "prop" or "jaccard".
 #' @param ... additional graphical parameters passed
 #'   to \code{plot.igraph} when \code{which = "network"}
 #'   (see \code{?igraph.plotting}).
@@ -56,9 +58,11 @@
 
 plotInteractions <- function(x,
     which = c("heatmap", "network"),
+    metric = c("prop", "jaccard"),
     min_prop = 0, ...) {
     # check validity of input arguments
     which <- match.arg(which)
+    metric <- match.arg(metric)
     stopifnot(
         is.matrix(x), is.numeric(x),
         all(dim(x) > 0), ncol(x) > 1,
@@ -69,10 +73,11 @@ plotInteractions <- function(x,
         colnames(x) <- seq_len(ncol(x))
     }
     df <- .count_interactions(x, min_prop)
+    df <- .statistics_interaction(x, df)
 
     switch(which,
-        heatmap = .plot_heatmap(x, df),
-        network = .plot_network(x, df, ...))
+        heatmap = .plot_heatmap(x, df, metric),
+        network = .plot_network(x, df, metric, ...))
 }
 
 #' @importFrom matrixStats rowAlls
@@ -86,17 +91,16 @@ plotInteractions <- function(x,
     # construct 'data.frame'
     df <- data.frame(t(ij), y)
     names(df) <- c("from", "to", "n")
-    return(df)
-}
-
-#' @import ggplot2
-#' @importFrom Matrix colSums
-.plot_heatmap <- function(x, df) {
+    
     # assure are properly ordered
     y <- colnames(x)
     df$i <- factor(df$from, y)
     df$j <- factor(df$to, rev(y))
+    
+    return(df)
+}
 
+.statistics_interaction <- function(x, df) {
     # compute proportion of samples that have all groups
     t <- colSums(x > 0)
     i <- match(df$from, y)
@@ -105,10 +109,32 @@ plotInteractions <- function(x,
     df$tj <- t[j]
     df$pi <- df$n / df$ti
     df$pj <- df$n / df$tj
+    # As suggested by @astrid12345
+    # https://github.com/MarcElosua/SPOTlight/issues/42
+    df$jaccard <- df$n / (df$ti + df$tj - df$n)
+    return(df)
+}
+#' @import ggplot2
+#' @importFrom Matrix colSums
+.plot_heatmap <- function(x, df, metric) {
+    
+    # Initialize ggplot
+    p <- ggplot(df)
+    
+    # Add pertinent layers
+    if (metric == "prop") {
 
-    ggplot(df) +
-        geom_tile(aes_string("i", "j", fill = "pi")) +
-        geom_tile(aes_string("j", "i", fill = "pj")) +
+        # Add tile layers
+        p <- p + geom_tile(aes_string("i", "j", fill = "pi")) +
+            geom_tile(aes_string("j", "i", fill = "pj"))
+            
+    } else if (metric == "jaccard") {
+        # Add tile layers - Jaccard
+        p <- p + geom_tile(aes_string("i", "j", fill = "jaccard"))
+    }
+
+    # Prettify the plot :)
+    p +
         scale_fill_viridis_c("proportion", limits = c(0, NA)) +
         scale_y_discrete(limits = function(.) rev(.)) +
         coord_fixed(expand = FALSE) +
@@ -119,11 +145,14 @@ plotInteractions <- function(x,
             axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
-.plot_network <- function(x, df, ...) {
+.plot_network <- function(x, df, metric, ...) {
     # Check necessary packages are installed and if not STOP
     .test_installed("igraph")
-
-    w <- scale(df$n, 1)
+    
+    w <- switch(metric,
+        prop = scale(df[, "n"], 1),
+        jaccard = df[, "jaccard"])
+    
     g <- igraph::graph_from_data_frame(df,
         vertices = colnames(x),
         directed = FALSE)
