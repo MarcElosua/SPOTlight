@@ -102,6 +102,7 @@ plotInteractions <- function(x,
 
 .statistics_interaction <- function(x, df) {
     # compute proportion of samples that have all groups
+    y <- colnames(x)
     t <- colSums(x > 0)
     i <- match(df$from, y)
     j <- match(df$to, y)

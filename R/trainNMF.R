@@ -165,7 +165,7 @@ setMethod("trainNMF",
         stop("See ?trainNMF for valid x & y inputs")
     })
 
-#' @rdname SPOTlight
+#' @rdname trainNMF
 #' @importFrom Matrix rowSums
 #' @importFrom NMF nmf nmfModel
 #' @export

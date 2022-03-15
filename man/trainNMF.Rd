@@ -11,6 +11,7 @@
 \alias{trainNMF,ANY,DelayedMatrix-method}
 \alias{trainNMF,DelayedMatrix,ANY-method}
 \alias{trainNMF,ANY,ANY-method}
+\alias{trainNMF,matrix,matrix-method}
 \title{train NMF model}
 \usage{
 \S4method{trainNMF}{SingleCellExperiment,ANY}(
@@ -36,6 +37,22 @@
 \S4method{trainNMF}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{trainNMF}{ANY,ANY}(x, y, ...)
+
+\S4method{trainNMF}{matrix,matrix}(
+  x,
+  y,
+  groups,
+  mgs,
+  n_top = NULL,
+  gene_id = "gene",
+  group_id = "cluster",
+  weight_id = "weight",
+  hvg = NULL,
+  model = c("ns", "std"),
+  scale = TRUE,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
@@ -60,23 +77,23 @@ By default "counts".}
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
-\item{hvg}{character vector containing hvg to include in the model.
-By default NULL.}
+\item{n_top}{integer scalar specifying the number of markers to select per
+group. By default NULL uses all the marker genes to initialize the model.}
 
 \item{gene_id, group_id, weight_id}{character specifying the column
 in \code{mgs} containing gene identifiers, group labels and weights,
 respectively.}
 
+\item{hvg}{character vector containing hvg to include in the model.
+By default NULL.}
+
+\item{model}{character string indicating which model to use when running NMF.
+Either "ns" (default) or "std".}
+
 \item{scale}{logical specifying whether to scale single-cell counts to unit
 variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
-
-\item{n_top}{integer scalar specifying the number of markers to select per
-group. By default NULL uses all the marker genes to initialize the model.}
-
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
 
 \item{verbose}{logical. Should information on progress be reported?}
 }

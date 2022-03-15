@@ -40,6 +40,7 @@ Suggests:
   knitr,
   methods,
   png,
+  rmarkdown,
   scater,
   scatterpie,
   scran,

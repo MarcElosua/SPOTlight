@@ -68,6 +68,7 @@ setMethod("runDeconvolution", "SingleCellExperiment",
     })
 
 #' @rdname runDeconvolution
+#' @importFrom SeuratObject GetAssayData
 #' @export
 setMethod("runDeconvolution", "Seurat",
     function(x, slot = "counts", assay = "RNA") {
@@ -95,8 +96,8 @@ setMethod("runDeconvolution", "ANY",
         stop("See ?runDeconvolution for valid x & y inputs")
     })
 
-#' @importFrom nnls nnls
 #' @rdname runDeconvolution
+#' @importFrom nnls nnls
 #' @export
 setMethod("runDeconvolution", "matrix",
     function(x, mod,

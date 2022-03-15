@@ -389,7 +389,7 @@ See [here](https://www.r-graph-gallery.com/network.html) for additional
 graphical parameters.
 
 ```{r plotInteractions, fig.width=9, fig.height=9}
-plotInteractions(mat, which = "heatmap")
+plotInteractions(mat, which = "heatmap", metric = "prop")
 plotInteractions(mat, which = "heatmap", metric = "jaccard")
 plotInteractions(mat, which = "network")
 ```
