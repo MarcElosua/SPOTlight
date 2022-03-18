@@ -91,7 +91,13 @@
 #' @importFrom matrixStats colMedians
 #' @importFrom NMF coef
 .topic_profiles <- function(mod, groups) {
-    df <- data.frame(t(coef(mod)))
+    # Treat mod differently if it comes from NMF or RcppML
+    if (class(mod) == "NMFfit") {
+        df <- data.frame(t(coef(mod)))
+    } else if (is.list(mod)) {
+        df <- data.frame(t(mod$h))
+    }
+    
     dfs <- split(df, groups)
     res <- vapply(
         dfs, function(df)
@@ -105,12 +111,20 @@
 #' @importFrom NMF basis
 #' @importFrom nnls nnls
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
-    W <- basis(mod)
+    # Keep basis sparse
+    if (class(mod) == "NMFfit") {
+        W <- data.frame(basis(mod))
+    } else if (is.list(mod)) {
+        W <- data.frame(mod$w)
+    }
+    
     x <- x[rownames(W), ]
     if (scale) {
         x <- .scale_uv(x)
     }
-
+    # TODO go from here
+    # Error in nnls(W, x[, i]) : 
+    # 'list' object cannot be coerced to type 'double'
     y <- vapply(
         seq_len(ncol(x)), 
         function(i) nnls(W, x[, i])$x,

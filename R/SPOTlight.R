@@ -12,6 +12,8 @@
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
+#' @param pnmf character vector specifying which from which package to grab
+#'   \code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.
 #' @param hvg character vector containing hvg to include in the model.
 #'   By default NULL.
 #' @param gene_id,group_id,weight_id character specifying the column
@@ -228,6 +230,7 @@ setMethod("SPOTlight",
         groups,
         # markers
         mgs,
+        pnmf = c("RcppML", "NMF"),
         n_top = NULL,
         gene_id = "gene",
         group_id = "cluster",
@@ -242,6 +245,7 @@ setMethod("SPOTlight",
         verbose = TRUE,
         ...) {
         # check validity if input arguments
+        pnmf <- match.arg(pnmf)
         model <- match.arg(model)
         if (is.null(n_top))
             n_top <- max(table(mgs[[group_id]]))
@@ -259,8 +263,8 @@ setMethod("SPOTlight",
         stopifnot(groups %in% mgs[[group_id]])
 
         # train NMF model
-        mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
-            weight_id, hvg, model, scale, verbose, ...)
+        mod_ls <- trainNMF(x, y, groups, mgs, pnmf = pnmf, n_top, gene_id,
+            group_id, weight_id, hvg, model, scale, verbose, ...)
 
         # perform deconvolution
         res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],

@@ -16,6 +16,8 @@
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
+#' @param pnmf character vector specifying which from which package to grab
+#'   \code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.
 #' @param hvg character vector containing hvg to include in the model.
 #'   By default NULL.
 #' @param gene_id,group_id,weight_id character specifying the column
@@ -27,8 +29,8 @@
 #'   slot from where to extract the count data.
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
-#' @param model character string indicating which model to use when running NMF.
-#' Either "ns" (default) or "std".
+#' @param model character string indicating which model to use when running nmf
+#'   from the NMF. Either "ns" (default) or "std".
 #' @param assay if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
 #'     By default "RNA".
@@ -174,6 +176,7 @@ setMethod("trainNMF",
     function(x, y,
         groups,
         mgs,
+        pnmf = c("RcppML", "NMF"),
         n_top = NULL,
         gene_id = "gene",
         group_id = "cluster",
@@ -183,60 +186,70 @@ setMethod("trainNMF",
         scale = TRUE,
         verbose = TRUE,
         ...) {
+        
         # check validity of input arguments
+        pnmf <- match.arg(pnmf)
         model <- match.arg(model)
-    
-    # select genes in mgs or hvg
-    if (!is.null(hvg)) {
-        # Select union of genes between markers and HVG
-        mod_genes <- union(unique(mgs[, gene_id]), hvg)
-    } else {
-        # Select genes from the marker genes
-        mod_genes <- unique(mgs[, gene_id])
-    }
-    
-    # Select intersection between interest and present in x (sce) & y (spe)
-    mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y)))
-    
-    # drop features that are undetected
-    # in single-cell and/or mixture data
-    x <- .filter(x[mod_genes, ], y[mod_genes, ])
-    mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
-    
-    # scale to unit variance (optional)
-    if (scale) {
-        if (verbose) message("Scaling count matrix")
-        x <- .scale_uv(x)
-    }
-    
-    # capture start time
-    t0 <- Sys.time()
-    
-    # set model rank to number of groups
-    rank <- length(unique(groups))
-    
-    # get seeding matrices (optional)
-    seed <- if (TRUE) {
-        if (verbose) message("Seeding initial matrices")
-        hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
-        nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
-    }
-    
-    # train NMF model
-    if (verbose) message("Training NMF model")
-    mod <- nmf(x, rank, paste0(model, "NMF"), seed, ...)
-    
-    # capture stop time
-    t1 <- Sys.time()
-    
-    # print runtimes
-    if (verbose) {
-        dt <- round(difftime(t1, t0, units = "mins"), 2)
-        message("Time for training: ", dt, "min")
-    }
-    
-    # get topic profiles
-    topic <- .topic_profiles(mod, groups)
-    
-    return(list("mod" = mod, "topic" = topic))
+        
+        # select genes in mgs or hvg
+        if (!is.null(hvg)) {
+            # Select union of genes between markers and HVG
+            mod_genes <- union(unique(mgs[, gene_id]), hvg)
+        } else {
+            # Select genes from the marker genes
+            mod_genes <- unique(mgs[, gene_id])
+        }
+        
+        # Select intersection between interest and present in x (sce) & y (spe)
+        mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y)))
+        
+        # drop features that are undetected
+        # in single-cell and/or mixture data
+        x <- .filter(x[mod_genes, ], y[mod_genes, ])
+        mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
+        
+        # scale to unit variance (optional)
+        if (scale) {
+            if (verbose) message("Scaling count matrix")
+            x <- .scale_uv(x)
+        }
+        
+        # capture start time
+        t0 <- Sys.time()
+        
+        # set model rank to number of groups
+        rank <- length(unique(groups))
+        
+        if (pnmf == "NMF") {
+            if (verbose) message("Seeding initial matrices")
+            hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
+            seed <- nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
+            # train NMF model
+            if (verbose) message("Training NMF model")
+            mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
+        } else if (pnmf == "RcppML") {
+            if (verbose) message("Training NMF model") 
+            # TODO add flexibility for k, tol, l1 + parallelization
+            mod <- RcppML::nmf(A = x, k = rank, tol = 1e-05, verbose = verbose, L1 = 0.5)
+            # Add rownames and colnames to basis and coeficient
+            # TODO ask Zach if this can be automated
+            rownames(mod$w) <- rownames(x)
+            colnames(mod$w) <- paste0("topic_", seq_len(rank))
+            rownames(mod$h) <- paste0("topic_", seq_len(rank))
+            colnames(mod$h) <- colnames(x)
+        }
+        
+        # capture stop time
+        t1 <- Sys.time()
+        
+        # print runtimes
+        if (verbose) {
+            dt <- round(difftime(t1, t0, units = "mins"), 2)
+            message("Time for training: ", dt, "min")
+        }
+        
+        # get topic profiles
+        topic <- .topic_profiles(mod, groups)
+        
+        return(list("mod" = mod, "topic" = topic))
 })

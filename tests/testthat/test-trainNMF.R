@@ -16,6 +16,17 @@ mgs <- getMGS(sce)
     expect_identical(nrow(mtr), nrow(coef(mod)))
 }
 
+.checks_rcpp <- function(res, sce) {
+    mod <- res[[1]]
+    mtr <- res[[2]]
+    expect_is(res, "list")
+    expect_is(mtr, "matrix")
+    expect_is(mod, "list")
+    expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(nrow(mtr), ncol(mod$w))
+    expect_identical(nrow(mtr), nrow(mod$h))
+}
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
