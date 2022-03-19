@@ -4,14 +4,15 @@
 \alias{trainNMF}
 \alias{trainNMF,SingleCellExperiment,ANY-method}
 \alias{trainNMF,ANY,SingleCellExperiment-method}
+\alias{trainNMF,ANY,SpatialExperiment-method}
 \alias{trainNMF,Seurat,ANY-method}
 \alias{trainNMF,ANY,Seurat-method}
-\alias{trainNMF,ANY,dgCMatrix-method}
-\alias{trainNMF,dgCMatrix,ANY-method}
+\alias{trainNMF,ANY,matrix-method}
+\alias{trainNMF,matrix,ANY-method}
 \alias{trainNMF,ANY,DelayedMatrix-method}
 \alias{trainNMF,DelayedMatrix,ANY-method}
 \alias{trainNMF,ANY,ANY-method}
-\alias{trainNMF,matrix,matrix-method}
+\alias{trainNMF,dgCMatrix,dgCMatrix-method}
 \title{train NMF model}
 \usage{
 \S4method{trainNMF}{SingleCellExperiment,ANY}(
@@ -24,13 +25,15 @@
 
 \S4method{trainNMF}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
 
+\S4method{trainNMF}{ANY,SpatialExperiment}(x, y, ..., assay = "counts")
+
 \S4method{trainNMF}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
 
 \S4method{trainNMF}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
 
-\S4method{trainNMF}{ANY,dgCMatrix}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{trainNMF}{ANY,matrix}(x, y, ..., slot = "counts", assay = "RNA")
 
-\S4method{trainNMF}{dgCMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{trainNMF}{matrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{trainNMF}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
 
@@ -38,11 +41,12 @@
 
 \S4method{trainNMF}{ANY,ANY}(x, y, ...)
 
-\S4method{trainNMF}{matrix,matrix}(
+\S4method{trainNMF}{dgCMatrix,dgCMatrix}(
   x,
   y,
   groups,
   mgs,
+  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   gene_id = "gene",
   group_id = "cluster",
@@ -77,6 +81,9 @@ By default "counts".}
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
+\item{pnmf}{character vector specifying which from which package to grab
+\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
+
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
 
@@ -87,8 +94,8 @@ respectively.}
 \item{hvg}{character vector containing hvg to include in the model.
 By default NULL.}
 
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
+\item{model}{character string indicating which model to use when running nmf
+from the NMF. Either "ns" (default) or "std".}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
 variance. This gives the user the option to normalize the data beforehand

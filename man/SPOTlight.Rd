@@ -4,14 +4,15 @@
 \alias{SPOTlight}
 \alias{SPOTlight,SingleCellExperiment,ANY-method}
 \alias{SPOTlight,ANY,SingleCellExperiment-method}
+\alias{SPOTlight,ANY,SpatialExperiment-method}
 \alias{SPOTlight,Seurat,ANY-method}
 \alias{SPOTlight,ANY,Seurat-method}
-\alias{SPOTlight,ANY,dgCMatrix-method}
-\alias{SPOTlight,dgCMatrix,ANY-method}
 \alias{SPOTlight,ANY,DelayedMatrix-method}
 \alias{SPOTlight,DelayedMatrix,ANY-method}
+\alias{SPOTlight,ANY,matrix-method}
+\alias{SPOTlight,matrix,ANY-method}
 \alias{SPOTlight,ANY,ANY-method}
-\alias{SPOTlight,matrix,matrix-method}
+\alias{SPOTlight,dgCMatrix,dgCMatrix-method}
 \title{Deconvolution of mixture using single-cell data}
 \usage{
 \S4method{SPOTlight}{SingleCellExperiment,ANY}(
@@ -24,25 +25,28 @@
 
 \S4method{SPOTlight}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
 
+\S4method{SPOTlight}{ANY,SpatialExperiment}(x, y, ..., assay = "counts")
+
 \S4method{SPOTlight}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
 
 \S4method{SPOTlight}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{ANY,dgCMatrix}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{dgCMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{SPOTlight}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
 
 \S4method{SPOTlight}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
+\S4method{SPOTlight}{ANY,matrix}(x, y, ..., slot = "counts", assay = "RNA")
+
+\S4method{SPOTlight}{matrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+
 \S4method{SPOTlight}{ANY,ANY}(x, y, ...)
 
-\S4method{SPOTlight}{matrix,matrix}(
+\S4method{SPOTlight}{dgCMatrix,dgCMatrix}(
   x,
   y,
   groups,
   mgs,
+  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   gene_id = "gene",
   group_id = "cluster",
@@ -77,6 +81,9 @@ By default "counts".}
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
+
+\item{pnmf}{character vector specifying which from which package to grab
+\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}

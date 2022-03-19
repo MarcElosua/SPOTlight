@@ -85,6 +85,7 @@ setMethod("runDeconvolution", "Seurat",
     })
 
 #' @rdname runDeconvolution
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("runDeconvolution", "matrix",
     function(x, ...) {
@@ -92,6 +93,7 @@ setMethod("runDeconvolution", "matrix",
     })
 
 #' @rdname runDeconvolution
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("runDeconvolution", "DelayedMatrix",
     function(x, ...) {

@@ -3,24 +3,27 @@
 \name{runDeconvolution}
 \alias{runDeconvolution}
 \alias{runDeconvolution,SingleCellExperiment-method}
+\alias{runDeconvolution,SpatialExperiment-method}
 \alias{runDeconvolution,Seurat-method}
-\alias{runDeconvolution,dgCMatrix-method}
+\alias{runDeconvolution,matrix-method}
 \alias{runDeconvolution,DelayedMatrix-method}
 \alias{runDeconvolution,ANY-method}
-\alias{runDeconvolution,matrix-method}
+\alias{runDeconvolution,dgCMatrix-method}
 \title{Run Deconvolution using NNLS model}
 \usage{
 \S4method{runDeconvolution}{SingleCellExperiment}(x, ..., assay = "counts")
 
+\S4method{runDeconvolution}{SpatialExperiment}(x, ..., assay = "counts")
+
 \S4method{runDeconvolution}{Seurat}(x, slot = "counts", assay = "RNA")
 
-\S4method{runDeconvolution}{dgCMatrix}(x, ...)
+\S4method{runDeconvolution}{matrix}(x, ...)
 
 \S4method{runDeconvolution}{DelayedMatrix}(x, ...)
 
 \S4method{runDeconvolution}{ANY}(x, ...)
 
-\S4method{runDeconvolution}{matrix}(
+\S4method{runDeconvolution}{dgCMatrix}(
   x,
   mod,
   ref,

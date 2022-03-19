@@ -21,7 +21,6 @@ Authors@R: c(
 Depends: R (>= 4.1)
 Imports:
   ggplot2,
-  NMF,
   RcppML,
   Matrix,
   matrixStats,
@@ -40,6 +39,7 @@ Suggests:
   jpeg,
   knitr,
   methods,
+  NMF,
   png,
   scater,
   scatterpie,
