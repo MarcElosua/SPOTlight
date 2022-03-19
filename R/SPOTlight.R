@@ -215,7 +215,7 @@ setMethod("SPOTlight",
                 sparse = TRUE,
                 nrow = nrow(x),
                 ncol = ncol(x),
-                dimnames = c(rownames(x), colnames(x))),
+                dimnames = list(rownames(x), colnames(x))),
             ...)
     })
 

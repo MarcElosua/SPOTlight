@@ -31,9 +31,9 @@
 
 \S4method{trainNMF}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
 
-\S4method{trainNMF}{ANY,matrix}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{trainNMF}{ANY,matrix}(x, y, ...)
 
-\S4method{trainNMF}{matrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{trainNMF}{matrix,ANY}(x, y, ...)
 
 \S4method{trainNMF}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
 

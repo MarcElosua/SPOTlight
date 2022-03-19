@@ -35,9 +35,9 @@
 
 \S4method{SPOTlight}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
 
-\S4method{SPOTlight}{ANY,matrix}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{SPOTlight}{ANY,matrix}(x, y, ...)
 
-\S4method{SPOTlight}{matrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
+\S4method{SPOTlight}{matrix,ANY}(x, y, ...)
 
 \S4method{SPOTlight}{ANY,ANY}(x, y, ...)
 

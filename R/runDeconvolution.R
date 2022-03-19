@@ -103,7 +103,7 @@ setMethod("runDeconvolution", "DelayedMatrix",
                 sparse = TRUE,
                 nrow = nrow(x),
                 ncol = ncol(x),
-                dimnames = c(rownames(x), colnames(x))),
+                dimnames = list(rownames(x), colnames(x))),
             ...)
     })
 
@@ -140,7 +140,7 @@ setMethod("runDeconvolution", "dgCMatrix",
         
         # If working with NMF package, which returns an NMFfit object
         # convert ST matrix to dense
-        if (is(mod, "NMFfit"))
+        if (is(mod[[1]], "NMFfit"))
             x <- as.matrix(x)
         
         # Get topic profiles for mixtures

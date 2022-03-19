@@ -160,7 +160,7 @@ setMethod("trainNMF",
                 sparse = TRUE,
                 nrow = nrow(y),
                 ncol = ncol(y),
-                dimnames = c(rownames(y), colnames(y))),
+                dimnames = list(rownames(y), colnames(y))),
             ...)
     })
 
@@ -177,7 +177,7 @@ setMethod("trainNMF",
                 sparse = TRUE,
                 nrow = nrow(x),
                 ncol = ncol(x),
-                dimnames = c(rownames(x), colnames(x))),
+                dimnames = list(rownames(x), colnames(x))),
             y,
             ...)
     })
@@ -231,7 +231,7 @@ setMethod("trainNMF",
         stopifnot(groups %in% mgs[[group_id]])
         
         # If working with NMF package convert SC matrix to dense
-        if (model == "NMF")
+        if (pnmf == "NMF")
             x <- as.matrix(x)
 
         # select genes in mgs or hvg

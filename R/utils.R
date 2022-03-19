@@ -1,7 +1,13 @@
 #' @importFrom sparseMatrixStats rowSds
+#' @importFrom Matrix t
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
-    t(scale(t(x), center = FALSE, scale = sds))
+    # TODO find a more efficient way of scaling the matrix
+    # t1 <- t(scale(t(x), center = FALSE, scale = sds))
+    t1 <- t(t(x) / sds)
+    print(t1[1:5, 1:5])
+    print(is(t1))
+    t1
 }
 
 .init_nmf <- function(x,
