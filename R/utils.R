@@ -1,4 +1,4 @@
-#' @importFrom matrixStats rowSds
+#' @importFrom sparseMatrixStats rowSds
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
     t(scale(t(x), center = FALSE, scale = sds))
@@ -88,11 +88,11 @@
     return(x[i, ])
 }
 
-#' @importFrom matrixStats colMedians
+#' @importFrom sparseMatrixStats colMedians
 #' @importFrom NMF coef
 .topic_profiles <- function(mod, groups) {
     # Treat mod differently if it comes from NMF or RcppML
-    if (class(mod) == "NMFfit") {
+    if (is(mod, "NMFfit")) {
         df <- data.frame(t(coef(mod)))
     } else if (is.list(mod)) {
         df <- data.frame(t(mod$h))
@@ -112,7 +112,7 @@
 #' @importFrom nnls nnls
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
     # Keep basis sparse
-    if (class(mod) == "NMFfit") {
+    if (class(mod, "NMFfit")) {
         W <- data.frame(basis(mod))
     } else if (is.list(mod)) {
         W <- data.frame(mod$w)

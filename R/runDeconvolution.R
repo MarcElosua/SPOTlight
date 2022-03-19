@@ -97,7 +97,14 @@ setMethod("runDeconvolution", "matrix",
 #' @export
 setMethod("runDeconvolution", "DelayedMatrix",
     function(x, ...) {
-        runDeconvolution(Matrix(x, sparse = TRUE), ...)
+        runDeconvolution(
+            x = Matrix(
+                x,
+                sparse = TRUE,
+                nrow = nrow(x),
+                ncol = ncol(x),
+                dimnames = c(rownames(x), colnames(x))),
+            ...)
     })
 
 #' @rdname runDeconvolution
@@ -125,7 +132,7 @@ setMethod("runDeconvolution", "dgCMatrix",
         ids <- c(gene_id, group_id, weight_id)
         
         stopifnot(
-            is.numeric(x) | isClass(x, "dgCMatrix"), 
+            is.numeric(x) | is(x, "dgCMatrix"), 
             is.numeric(min_prop), length(min_prop) == 1,
             min_prop >= 0, min_prop <= 1,
             is.logical(scale), length(scale) == 1,
@@ -133,7 +140,7 @@ setMethod("runDeconvolution", "dgCMatrix",
         
         # If working with NMF package, which returns an NMFfit object
         # convert ST matrix to dense
-        if (isClass(mod, "NMFfit"))
+        if (is(mod, "NMFfit"))
             x <- as.matrix(x)
         
         # Get topic profiles for mixtures

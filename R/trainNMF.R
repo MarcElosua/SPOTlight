@@ -134,9 +134,7 @@ setMethod("trainNMF",
 #' @export
 setMethod("trainNMF",
     c("ANY", "matrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
+    function(x, y, ...) {
         trainNMF(x, Matrix(y, sparse = TRUE), ...)
     })
 
@@ -145,9 +143,7 @@ setMethod("trainNMF",
 #' @export
 setMethod("trainNMF",
     c("matrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
+    function(x, y, ...) {
         trainNMF(Matrix(x, sparse = TRUE), y, ...)
     })
 
@@ -158,7 +154,14 @@ setMethod("trainNMF",
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        trainNMF(x, as.matrix(y), ...)
+        trainNMF(
+            x,
+            y = Matrix(y,
+                sparse = TRUE,
+                nrow = nrow(y),
+                ncol = ncol(y),
+                dimnames = c(rownames(y), colnames(y))),
+            ...)
     })
 
 #' @rdname trainNMF
@@ -168,7 +171,15 @@ setMethod("trainNMF",
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        trainNMF(as.matrix(x), y, ...)
+        trainNMF(
+            x = Matrix(
+                x,
+                sparse = TRUE,
+                nrow = nrow(x),
+                ncol = ncol(x),
+                dimnames = c(rownames(x), colnames(x))),
+            y,
+            ...)
     })
 
 #' @rdname trainNMF
@@ -181,7 +192,7 @@ setMethod("trainNMF",
 
 #' @rdname trainNMF
 #' @importFrom Matrix rowSums
-#' @importFrom NMF nmf nmfModel
+#' @importFrom RcppML nmf
 #' @export
 setMethod("trainNMF",
     c("dgCMatrix", "dgCMatrix"),
@@ -209,12 +220,10 @@ setMethod("trainNMF",
         ids <- c(gene_id, group_id, weight_id)
         
         stopifnot(
-            is.numeric(x) | isClass(x, "dgCMatrix"), 
-            is.numeric(y) | isClass(y, "dgCMatrix"),
+            is.numeric(x) | is(x, "dgCMatrix"), 
+            is.numeric(y) | is(y, "dgCMatrix"),
             is.character(ids), length(ids) == 3, ids %in% names(mgs),
             is.null(groups) | length(groups) == ncol(x),
-            is.numeric(min_prop), length(min_prop) == 1,
-            min_prop >= 0, min_prop <= 1,
             is.logical(scale), length(scale) == 1,
             is.logical(verbose), length(verbose) == 1)
         
@@ -264,7 +273,12 @@ setMethod("trainNMF",
         } else if (pnmf == "RcppML") {
             if (verbose) message("Training NMF model") 
             # TODO add flexibility for k, tol, l1 + parallelization
-            mod <- RcppML::nmf(A = x, k = rank, tol = 1e-05, verbose = verbose, L1 = 0.5)
+            mod <- RcppML::nmf(
+                A = x,
+                k = rank,
+                tol = 1e-05,
+                verbose = verbose,
+                L1 = 0.5)
             # Add rownames and colnames to basis and coeficient
             # TODO ask Zach if this can be automated
             rownames(mod$w) <- rownames(x)

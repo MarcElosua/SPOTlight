@@ -23,10 +23,11 @@ Imports:
   ggplot2,
   RcppML,
   Matrix,
-  matrixStats,
   nnls,
+  NMF,
   SeuratObject,
   SingleCellExperiment,
+  sparseMatrixStats,
   stats
 Suggests:
   BiocStyle,
@@ -39,7 +40,6 @@ Suggests:
   jpeg,
   knitr,
   methods,
-  NMF,
   png,
   scater,
   scatterpie,

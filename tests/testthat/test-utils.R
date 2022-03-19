@@ -11,7 +11,7 @@ test_that(".scale_uv()", {
     expect_is(y, "matrix")
     expect_identical(dim(y), dim(x))
     expect_identical(dimnames(y), dimnames(x))
-    expect_true(all(abs(1 - matrixStats::rowVars(y)) < 1e-12))
+    expect_true(all(abs(1 - sparseMatrixStats::rowVars(y)) < 1e-12))
 })
 
 # default parameters

@@ -208,7 +208,15 @@ setMethod("SPOTlight",
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        SPOTlight(x, Matrix(y, sparse = TRUE), ...)
+        SPOTlight(
+            x,
+            y = Matrix(
+                y,
+                sparse = TRUE,
+                nrow = nrow(x),
+                ncol = ncol(x),
+                dimnames = c(rownames(x), colnames(x))),
+            ...)
     })
 
 #' @rdname SPOTlight
@@ -219,7 +227,15 @@ setMethod("SPOTlight",
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        SPOTlight(Matrix(x, sparse = TRUE), y, ...)
+        SPOTlight(
+            x = Matrix(
+                x,
+                sparse = TRUE,
+                nrow = nrow(x),
+                ncol = ncol(x),
+                dimnames = c(rownames(x), colnames(x))),
+            y,
+            ...)
     })
 
 #' @rdname SPOTlight
@@ -227,9 +243,7 @@ setMethod("SPOTlight",
 #' @export
 setMethod("SPOTlight",
     c("ANY", "matrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
+    function(x, y, ...) {
         SPOTlight(x, Matrix(y, sparse = TRUE), ...)
     })
 
@@ -238,9 +252,7 @@ setMethod("SPOTlight",
 #' @export
 setMethod("SPOTlight",
     c("matrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
+    function(x, y, ...) {
         SPOTlight(Matrix(x, sparse = TRUE), y, ...)
     })
 
@@ -283,8 +295,8 @@ setMethod("SPOTlight",
         ids <- c(gene_id, group_id, weight_id)
         
         stopifnot(
-            is.numeric(x) | isClass(x, "dgCMatrix"), 
-            is.numeric(y) | isClass(y, "dgCMatrix"),
+            is.numeric(x) | is(x, "dgCMatrix"), 
+            is.numeric(y) | is(y, "dgCMatrix"),
             is.character(ids), length(ids) == 3, ids %in% names(mgs),
             is.null(groups) | length(groups) == ncol(x),
             is.numeric(min_prop), length(min_prop) == 1,
@@ -304,5 +316,8 @@ setMethod("SPOTlight",
             scale, min_prop, verbose)
 
         # return list of NMF model & deconvolution matrix
-        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod_ls[["mod"]])
+        list(
+            "mat" = res[["mat"]],
+            "res_ss" = res[["res_ss"]],
+            "NMF" = mod_ls[["mod"]])
     })

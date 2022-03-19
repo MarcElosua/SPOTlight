@@ -282,9 +282,11 @@ You can visualize the above explanation in the following workflow scheme:
 ![](workflow.png)
 
 ```{r SPOTlight}
+x <- Matrix(counts(sce), sparse = TRUE)
+y <- Matrix(counts(spe), sparse = TRUE)
 res <- SPOTlight(
-    x = sce,
-    y = spe,
+    x = counts(sce),
+    y = counts(spe),
     groups = sce$free_annotation,
     mgs = mgs_df,
     hvg = hvg,
@@ -296,13 +298,16 @@ res <- SPOTlight(
 Alternatively you can run `SPOTlight` in two steps so that you can have the trained model. Having the trained model allows you to reuse with other datasets you also want to deconvolute with the same reference. This allows you to skip the training step, the most time consuming and computationally expensive.
 
 ```{r SPOTligh2, eval=FALSE}
+devtools::load_all()
 mod_ls <- trainNMF(
     x = sce,
     y = spe,
+    pnmf = "RcppML",
     groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
+    mgs = mgs_df,
+    hvg = hvg,
+    weight_id = "mean.AUC",
+    group_id = "cluster",
     gene_id = "gene")
 
  # Run deconvolution
