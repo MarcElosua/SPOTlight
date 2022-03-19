@@ -127,7 +127,6 @@ NULL
 
 #' @rdname SPOTlight
 #' @importFrom SingleCellExperiment colLabels
-#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("SingleCellExperiment", "ANY"),
@@ -146,7 +145,6 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "SingleCellExperiment"),
@@ -161,7 +159,6 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "SpatialExperiment"),
@@ -177,7 +174,6 @@ setMethod("SPOTlight",
 
 #' @rdname SPOTlight
 #' @importFrom SeuratObject Idents GetAssayData
-#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("Seurat", "ANY"),
@@ -193,7 +189,6 @@ setMethod("SPOTlight",
 
 #' @rdname SPOTlight
 #' @importFrom SeuratObject GetAssayData
-#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "Seurat"),
@@ -284,9 +279,12 @@ setMethod("SPOTlight",
         model <- match.arg(model)
         if (is.null(n_top))
             n_top <- max(table(mgs[[group_id]]))
+        
         ids <- c(gene_id, group_id, weight_id)
+        
         stopifnot(
-            is.numeric(x), is.numeric(y),
+            is.numeric(x) | isClass(x, "dgCMatrix"), 
+            is.numeric(y) | isClass(y, "dgCMatrix"),
             is.character(ids), length(ids) == 3, ids %in% names(mgs),
             is.null(groups) | length(groups) == ncol(x),
             is.numeric(min_prop), length(min_prop) == 1,

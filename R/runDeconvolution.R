@@ -64,7 +64,16 @@ setMethod("runDeconvolution", "SingleCellExperiment",
     function(x, ..., assay = "counts") {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        runDeconvolution(as.matrix(SummarizedExperiment::assay(x, assay)), ...)
+        runDeconvolution(SummarizedExperiment::assay(x, assay), ...)
+    })
+
+#' @rdname runDeconvolution
+#' @export
+setMethod("runDeconvolution", "SpatialExperiment",
+    function(x, ..., assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        runDeconvolution(SummarizedExperiment::assay(x, assay), ...)
     })
 
 #' @rdname runDeconvolution
@@ -77,29 +86,29 @@ setMethod("runDeconvolution", "Seurat",
 
 #' @rdname runDeconvolution
 #' @export
-setMethod("runDeconvolution", "dgCMatrix",
+setMethod("runDeconvolution", "matrix",
     function(x, ...) {
-        runDeconvolution(as.matrix(x), ...)
+        runDeconvolution(Matrix(x, sparse = TRUE), ...)
     })
 
 #' @rdname runDeconvolution
 #' @export
 setMethod("runDeconvolution", "DelayedMatrix",
     function(x, ...) {
-        runDeconvolution(as.matrix(x), ...)
+        runDeconvolution(Matrix(x, sparse = TRUE), ...)
     })
 
 #' @rdname runDeconvolution
 #' @export
 setMethod("runDeconvolution", "ANY",
     function(x, ...) {
-        stop("See ?runDeconvolution for valid x & y inputs")
+        stop("See ?runDeconvolution for valid x inputs")
     })
 
 #' @rdname runDeconvolution
 #' @importFrom nnls nnls
 #' @export
-setMethod("runDeconvolution", "matrix",
+setMethod("runDeconvolution", "dgCMatrix",
     function(x, mod,
         ref,
         scale = TRUE,
@@ -107,6 +116,23 @@ setMethod("runDeconvolution", "matrix",
         verbose = TRUE,
         assay = "RNA",
         slot = "counts") {
+        
+        if (is.null(n_top))
+            n_top <- max(table(mgs[[group_id]]))
+        
+        ids <- c(gene_id, group_id, weight_id)
+        
+        stopifnot(
+            is.numeric(x) | isClass(x, "dgCMatrix"), 
+            is.numeric(min_prop), length(min_prop) == 1,
+            min_prop >= 0, min_prop <= 1,
+            is.logical(scale), length(scale) == 1,
+            is.logical(verbose), length(verbose) == 1)
+        
+        # If working with NMF package, which returns an NMFfit object
+        # convert ST matrix to dense
+        if (isClass(mod, "NMFfit"))
+            x <- as.matrix(x)
         
         # Get topic profiles for mixtures
         mat <- .pred_prop(x, mod, scale)

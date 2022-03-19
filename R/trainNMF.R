@@ -79,8 +79,7 @@ setMethod("trainNMF",
     {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        trainNMF(as.matrix(SummarizedExperiment::assay(x, assay)),
-            y, groups, ...)
+        trainNMF(SummarizedExperiment::assay(x, assay), y, groups, ...)
     })
 
 #' @rdname trainNMF
@@ -91,7 +90,18 @@ setMethod("trainNMF",
         assay = "counts") {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        trainNMF(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
+        trainNMF(x, SummarizedExperiment::assay(y, assay), ...)
+    })
+
+#' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "SpatialExperiment"),
+    function(x, y, ...,
+        assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        trainNMF(x, SummarizedExperiment::assay(y, assay), ...)
     })
 
 #' @rdname trainNMF
@@ -120,23 +130,25 @@ setMethod("trainNMF",
     })
 
 #' @rdname trainNMF
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("trainNMF",
-    c("ANY", "dgCMatrix"),
+    c("ANY", "matrix"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        trainNMF(x, as.matrix(y), ...)
+        trainNMF(x, Matrix(y, sparse = TRUE), ...)
     })
 
 #' @rdname trainNMF
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("trainNMF",
-    c("dgCMatrix", "ANY"),
+    c("matrix", "ANY"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        trainNMF(as.matrix(x), y, ...)
+        trainNMF(Matrix(x, sparse = TRUE), y, ...)
     })
 
 #' @rdname trainNMF
@@ -172,7 +184,7 @@ setMethod("trainNMF",
 #' @importFrom NMF nmf nmfModel
 #' @export
 setMethod("trainNMF",
-    c("matrix", "matrix"),
+    c("dgCMatrix", "dgCMatrix"),
     function(x, y,
         groups,
         mgs,
@@ -191,6 +203,28 @@ setMethod("trainNMF",
         pnmf <- match.arg(pnmf)
         model <- match.arg(model)
         
+        if (is.null(n_top))
+            n_top <- max(table(mgs[[group_id]]))
+        
+        ids <- c(gene_id, group_id, weight_id)
+        
+        stopifnot(
+            is.numeric(x) | isClass(x, "dgCMatrix"), 
+            is.numeric(y) | isClass(y, "dgCMatrix"),
+            is.character(ids), length(ids) == 3, ids %in% names(mgs),
+            is.null(groups) | length(groups) == ncol(x),
+            is.numeric(min_prop), length(min_prop) == 1,
+            min_prop >= 0, min_prop <= 1,
+            is.logical(scale), length(scale) == 1,
+            is.logical(verbose), length(verbose) == 1)
+        
+        groups <- as.character(groups)
+        stopifnot(groups %in% mgs[[group_id]])
+        
+        # If working with NMF package convert SC matrix to dense
+        if (model == "NMF")
+            x <- as.matrix(x)
+
         # select genes in mgs or hvg
         if (!is.null(hvg)) {
             # Select union of genes between markers and HVG
