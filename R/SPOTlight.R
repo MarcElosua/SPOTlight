@@ -127,6 +127,7 @@ NULL
 
 #' @rdname SPOTlight
 #' @importFrom SingleCellExperiment colLabels
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("SingleCellExperiment", "ANY"),
@@ -136,11 +137,16 @@ setMethod("SPOTlight",
         {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)),
-            y, groups, ...)
+        
+        SPOTlight(
+            x = Matrix(SummarizedExperiment::assay(x, assay), sparse = TRUE),
+            y,
+            groups,
+            ...)
     })
 
 #' @rdname SPOTlight
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "SingleCellExperiment"),
@@ -148,11 +154,30 @@ setMethod("SPOTlight",
         assay = "counts") {
         # Check necessary packages are installed and if not STOP
         .test_installed("SummarizedExperiment")
-        SPOTlight(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
+        SPOTlight(
+            x,
+            y = Matrix(SummarizedExperiment::assay(y, assay), sparse = TRUE),
+            ...)
+    })
+
+#' @rdname SPOTlight
+#' @importFrom Matrix Matrix
+#' @export
+setMethod("SPOTlight",
+    c("ANY", "SpatialExperiment"),
+    function(x, y, ...,
+        assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        SPOTlight(
+            x,
+            y = Matrix(SummarizedExperiment::assay(y, assay), sparse = TRUE),
+            ...)
     })
 
 #' @rdname SPOTlight
 #' @importFrom SeuratObject Idents GetAssayData
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("Seurat", "ANY"),
@@ -160,58 +185,68 @@ setMethod("SPOTlight",
         slot = "counts",
         assay = "RNA",
         groups = Idents(x)) {
-        SPOTlight(GetAssayData(x, slot, assay), y, groups, ...)
+        SPOTlight(
+            x = Matrix(GetAssayData(x, slot, assay), sparse = TRUE),
+            y,
+            ...)
     })
 
 #' @rdname SPOTlight
 #' @importFrom SeuratObject GetAssayData
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "Seurat"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        SPOTlight(x, GetAssayData(y, slot, assay), ...)
+        SPOTlight(
+            x, y = Matrix(GetAssayData(y, slot, assay), sparse = TRUE),
+            ...)
     })
 
 #' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "dgCMatrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        SPOTlight(x, as.matrix(y), ...)
-        })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("dgCMatrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-    SPOTlight(as.matrix(x), y, ...)
-        })
-
-#' @rdname SPOTlight
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("ANY", "DelayedMatrix"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        SPOTlight(x, as.matrix(y), ...)
+        SPOTlight(x, Matrix(y, sparse = TRUE), ...)
     })
 
 #' @rdname SPOTlight
+#' @importFrom Matrix Matrix
 #' @export
 setMethod("SPOTlight",
     c("DelayedMatrix", "ANY"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA") {
-        SPOTlight(as.matrix(x), y, ...)
+        SPOTlight(Matrix(x, sparse = TRUE), y, ...)
+    })
+
+#' @rdname SPOTlight
+#' @importFrom Matrix Matrix
+#' @export
+setMethod("SPOTlight",
+    c("ANY", "matrix"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        SPOTlight(x, Matrix(y, sparse = TRUE), ...)
+    })
+
+#' @rdname SPOTlight
+#' @importFrom Matrix Matrix
+#' @export
+setMethod("SPOTlight",
+    c("matrix", "ANY"),
+    function(x, y, ...,
+        slot = "counts",
+        assay = "RNA") {
+        SPOTlight(Matrix(x, sparse = TRUE), y, ...)
     })
 
 #' @rdname SPOTlight
@@ -225,7 +260,7 @@ setMethod("SPOTlight",
 #' @rdname SPOTlight
 #' @export
 setMethod("SPOTlight",
-    c("matrix", "matrix"),
+    c("dgCMatrix", "dgCMatrix"),
     function(x, y,
         groups,
         # markers
