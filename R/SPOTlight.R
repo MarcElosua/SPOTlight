@@ -139,7 +139,7 @@ setMethod("SPOTlight",
         .test_installed("SummarizedExperiment")
         
         SPOTlight(
-            x = Matrix(SummarizedExperiment::assay(x, assay), sparse = TRUE),
+            x = SummarizedExperiment::assay(x, assay),
             y,
             groups,
             ...)
@@ -156,7 +156,7 @@ setMethod("SPOTlight",
         .test_installed("SummarizedExperiment")
         SPOTlight(
             x,
-            y = Matrix(SummarizedExperiment::assay(y, assay), sparse = TRUE),
+            y = SummarizedExperiment::assay(y, assay),
             ...)
     })
 
@@ -171,7 +171,7 @@ setMethod("SPOTlight",
         .test_installed("SummarizedExperiment")
         SPOTlight(
             x,
-            y = Matrix(SummarizedExperiment::assay(y, assay), sparse = TRUE),
+            y = SummarizedExperiment::assay(y, assay),
             ...)
     })
 
@@ -186,7 +186,7 @@ setMethod("SPOTlight",
         assay = "RNA",
         groups = Idents(x)) {
         SPOTlight(
-            x = Matrix(GetAssayData(x, slot, assay), sparse = TRUE),
+            x = GetAssayData(x, slot, assay),
             y,
             ...)
     })
@@ -201,7 +201,7 @@ setMethod("SPOTlight",
         slot = "counts",
         assay = "RNA") {
         SPOTlight(
-            x, y = Matrix(GetAssayData(y, slot, assay), sparse = TRUE),
+            x, y = GetAssayData(y, slot, assay),
             ...)
     })
 
