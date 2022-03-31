@@ -123,7 +123,7 @@ setMethod(
         # Extract spatial coordinates
         x <- as.matrix(GetTissueCoordinates(x, image = slice))
 
-        plotSpatialScatterpie(x, y, img = img)
+        plotSpatialScatterpie(x, y, img = img, ...)
     }
 )
 
@@ -158,7 +158,7 @@ setMethod(
         rownames(x) <- barcodes
         colnames(x) <- c("imagecol", "imagerow")
 
-        plotSpatialScatterpie(x, y)
+        plotSpatialScatterpie(x, y, ...)
     }
 )
 
@@ -166,14 +166,14 @@ setMethod(
 #' @export
 setMethod(
     "plotSpatialScatterpie", c("data.frame", "ANY"),
-    function(x, y, ...) plotSpatialScatterpie(as.matrix(x), y)
+    function(x, y, ...) plotSpatialScatterpie(as.matrix(x), y, ...)
 )
 
 #' @rdname plotSpatialScatterpie
 #' @export
 setMethod(
     "plotSpatialScatterpie", c("ANY", "data.frame"),
-    function(x, y, ...) plotSpatialScatterpie(x, as.matrix(y))
+    function(x, y, ...) plotSpatialScatterpie(x, as.matrix(y), ...)
 )
 
 #' @rdname plotSpatialScatterpie
