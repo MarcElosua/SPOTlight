@@ -416,7 +416,7 @@ names(pal) <- ct
 plotSpatialScatterpie(
     x = spe,
     y = mat,
-    cell_types = colnames(y),
+    cell_types = colnames(mat),
     img = FALSE,
     scatterpie_alpha = 1,
     pie_scale = 0.4) +
