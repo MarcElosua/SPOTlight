@@ -54,8 +54,8 @@
 #'     vertex.color = "pink",
 #'     vertex.label.font = 2,
 #'     vertex.label.color = "maroon")
-#' @export
 
+#' @export
 plotInteractions <- function(x,
     which = c("heatmap", "network"),
     metric = c("prop", "jaccard"),
