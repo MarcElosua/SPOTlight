@@ -74,6 +74,7 @@ setMethod(
                 coord_fixed()
             ymax <- 0
         } else {
+            # TODO helper function here to deal with Seurat and SP?
             p <- plotImage(x = img) + scale_y_reverse()
             ymax <- max(p$coordinates$limits$y)
         }

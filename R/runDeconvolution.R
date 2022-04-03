@@ -9,7 +9,8 @@
 #'    mixture
 #'  
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or 
+#'   \code{SeuratObjecy}.
 #' @param mod object of class NMFfit as obtained from trainNMF. 
 #' @param ref bject of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF. 
@@ -68,11 +69,20 @@ setMethod("runDeconvolution", "SingleCellExperiment",
     })
 
 #' @rdname runDeconvolution
+#' @export
+setMethod("runDeconvolution", "SpatialExperiment",
+    function(x, ..., assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        runDeconvolution(as.matrix(SummarizedExperiment::assay(x, assay)), ...)
+    })
+
+#' @rdname runDeconvolution
 #' @importFrom SeuratObject GetAssayData
 #' @export
 setMethod("runDeconvolution", "Seurat",
-    function(x, slot = "counts", assay = "RNA") {
-        runDeconvolution(GetAssayData(x, slot, assay), ...)
+    function(x, ..., slot = "counts", assay = "RNA") {
+        runDeconvolution(as.matrix(GetAssayData(x, slot, assay)), ...)
     })
 
 #' @rdname runDeconvolution

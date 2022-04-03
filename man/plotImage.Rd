@@ -2,23 +2,7 @@
 % Please edit documentation in R/plotImage.R
 \name{plotImage}
 \alias{plotImage}
-\alias{plotImage,character-method}
-\alias{plotImage,Seurat-method}
-\alias{plotImage,SpatialExperiment-method}
-\alias{plotImage,array-method}
-\alias{plotImage,ANY-method}
 \title{Plot JP(E)G/PNG/Raster/RGB images}
-\usage{
-\S4method{plotImage}{character}(x)
-
-\S4method{plotImage}{Seurat}(x, slice = Images(x)[1])
-
-\S4method{plotImage}{SpatialExperiment}(x, slice = imgData(x)[1, "sample_id"])
-
-\S4method{plotImage}{array}(x, alpha = NULL)
-
-\S4method{plotImage}{ANY}(x)
-}
 \arguments{
 \item{x}{A variety of objects can be passed: character string corresponding
 to an image file path, valid file types are JPG, JPEG and PNG. It can also
@@ -29,9 +13,6 @@ image will be extracted.}
 \item{slice}{Character string indicating which image slice to use when
 SpatialExperiment or Seurat objects are passed. By default uses the first
 slice available.}
-
-\item{alpha}{NOT IMPLEMENTED - single numeric between 0 and 1 determining the
-image opacity. Lower values correspond to more transparency.}
 }
 \value{
 \code{ggplot} object
@@ -46,18 +27,15 @@ This function takes in an image-related object - path to
 path <- file.path(
   system.file(package = "SPOTlight"), 
   "extdata/SPOTlight.png")
-plotImage(x = path)
+plotImage2(x = path)
 # array
 png_img <- png::readPNG(path)
-plotImage(png_img)
+plotImage2(png_img)
 # Seurat Object
 # library(SeuratData)
 # so <- LoadData("stxBrain", type = "anterior1")
-# plotImage(so)
+# plotImage2(so)
 # SpatialExperiment
-library(TENxVisiumData)
-spe <- MouseKidneyCoronal()
-plotImage(spe)
 }
 \author{
 Marc Elosua Bayes & Helena L Crowell

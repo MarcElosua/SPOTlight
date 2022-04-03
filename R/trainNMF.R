@@ -93,6 +93,17 @@ setMethod("trainNMF",
     })
 
 #' @rdname trainNMF
+#' @export
+setMethod("trainNMF",
+    c("ANY", "SpatialExperiment"),
+    function(x, y, ...,
+        assay = "counts") {
+        # Check necessary packages are installed and if not STOP
+        .test_installed("SummarizedExperiment")
+        trainNMF(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
+    })
+
+#' @rdname trainNMF
 #' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("trainNMF",

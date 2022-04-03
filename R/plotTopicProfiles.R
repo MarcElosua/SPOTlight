@@ -65,7 +65,9 @@ setMethod(
         stopifnot(
             methods::is(x, "NMF"),
             length(y) == ncol(coef(x)),
-            setequal(colnames(basis(x)), paste0("topic_", seq_len(length(unique(y))))),
+            setequal(
+                colnames(basis(x)), paste0("topic_", seq_len(length(unique(y))))
+                ),
             is.logical(facet), length(facet) == 1,
             is.numeric(min_prop), length(min_prop) == 1)
 

@@ -267,5 +267,8 @@ setMethod("SPOTlight",
             scale, min_prop, verbose)
 
         # return list of NMF model & deconvolution matrix
-        list("mat" = res[["mat"]], "res_ss" = res[["res_ss"]], "NMF" = mod_ls[["mod"]])
+        list(
+            "mat" = res[["mat"]],
+            "res_ss" = res[["res_ss"]],
+            "NMF" = mod_ls[["mod"]])
     })

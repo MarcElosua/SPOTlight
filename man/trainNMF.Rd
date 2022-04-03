@@ -4,6 +4,7 @@
 \alias{trainNMF}
 \alias{trainNMF,SingleCellExperiment,ANY-method}
 \alias{trainNMF,ANY,SingleCellExperiment-method}
+\alias{trainNMF,ANY,SpatialExperiment-method}
 \alias{trainNMF,Seurat,ANY-method}
 \alias{trainNMF,ANY,Seurat-method}
 \alias{trainNMF,ANY,dgCMatrix-method}
@@ -23,6 +24,8 @@
 )
 
 \S4method{trainNMF}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
+
+\S4method{trainNMF}{ANY,SpatialExperiment}(x, y, ..., assay = "counts")
 
 \S4method{trainNMF}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
 
