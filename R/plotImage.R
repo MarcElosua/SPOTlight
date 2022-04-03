@@ -33,7 +33,7 @@
 #' # plotImage(so)
 #' # SpatialExperiment
 NULL
-
+#' @export
 plotImage <- function(x, slice = NULL) {
     # check validity of input arguments
     stopifnot(
