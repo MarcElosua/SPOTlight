@@ -3,6 +3,9 @@ set.seed(321)
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
 mgs <- getMGS(sce)
+# Create SpatialExperiment
+spe1 <- SpatialExperiment::SpatialExperiment(
+    assay = list(counts = counts(spe)), colData = colData(spe))
 
 # Create dummy Seurat object
 sec <- SeuratObject::CreateSeuratObject(counts = counts(sce))
@@ -42,7 +45,7 @@ test_that("SPOTlight x SCE", {
 })
 
 # .SPOTlight with SPE ----
-test_that("SPOTlight x SPE", {
+test_that("SPOTlight x SCE spatial", {
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = spe,
@@ -53,6 +56,21 @@ test_that("SPOTlight x SPE", {
         gene_id = "gene"
     )
 
+    .checks(res, sce)
+})
+
+# .SPOTlight with SPE ----
+test_that("SPOTlight x SCE spatial", {
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = spe1,
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
     .checks(res, sce)
 })
 

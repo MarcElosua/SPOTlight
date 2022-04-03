@@ -3,6 +3,9 @@ set.seed(321)
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
 mgs <- getMGS(sce)
+# Create SpatialExperiment
+spe1 <- SpatialExperiment::SpatialExperiment(
+    assay = list(counts = counts(spe)), colData = colData(spe))
 
 # Create dummy Seurat object
 sec <- SeuratObject::CreateSeuratObject(counts = counts(sce))
@@ -35,7 +38,7 @@ res <- trainNMF(
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # runDeconvolution with SCE ----
-test_that("runDeconvolution x SPE", {
+test_that("runDeconvolution x SCE", {
     decon <- runDeconvolution(
         x = spe,
         mod = res[["mod"]],
@@ -45,7 +48,17 @@ test_that("runDeconvolution x SPE", {
     .checks(decon, sce)
 })
 
-# runDeconvolution with Seurat Satial ----
+test_that("runDeconvolution x SPE", {
+    decon <- runDeconvolution(
+        x = spe1,
+        mod = res[["mod"]],
+        ref = res[["topic"]]
+    )
+    
+    .checks(decon, sce)
+})
+
+# runDeconvolution with Seurat ----
 test_that("runDeconvolution x SEP", {
     decon <- runDeconvolution(
         x = sep,
