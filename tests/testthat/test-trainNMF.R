@@ -4,6 +4,10 @@ sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
 mgs <- getMGS(sce)
 
+# Create dummy Seurat object
+sec <- SeuratObject::CreateSeuratObject(counts = counts(sce))
+sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
+
 # Function to run the checks
 .checks <- function(res, sce) {
     mod <- res[[1]]
@@ -42,6 +46,36 @@ test_that("trainNMF x SPE", {
     res <- trainNMF(
         x = as.matrix(counts(sce)),
         y = spe,
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
+    .checks(res, sce)
+})
+
+# trainNMF with SPE ----
+test_that("trainNMF x SEC", {
+    res <- trainNMF(
+        x = sec,
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
+    .checks(res, sce)
+})
+
+# trainNMF with SEP ----
+test_that("trainNMF x SEP", {
+    res <- trainNMF(
+        x = as.matrix(counts(sce)),
+        y = sep,
         groups = sce$type,
         mgs = mgs,
         weight_id = "weight",
