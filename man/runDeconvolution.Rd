@@ -3,6 +3,7 @@
 \name{runDeconvolution}
 \alias{runDeconvolution}
 \alias{runDeconvolution,SingleCellExperiment-method}
+\alias{runDeconvolution,SpatialExperiment-method}
 \alias{runDeconvolution,Seurat-method}
 \alias{runDeconvolution,dgCMatrix-method}
 \alias{runDeconvolution,DelayedMatrix-method}
@@ -12,7 +13,9 @@
 \usage{
 \S4method{runDeconvolution}{SingleCellExperiment}(x, ..., assay = "counts")
 
-\S4method{runDeconvolution}{Seurat}(x, slot = "counts", assay = "RNA")
+\S4method{runDeconvolution}{SpatialExperiment}(x, ..., assay = "counts")
+
+\S4method{runDeconvolution}{Seurat}(x, ..., slot = "counts", assay = "RNA")
 
 \S4method{runDeconvolution}{dgCMatrix}(x, ...)
 
@@ -33,7 +36,8 @@
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment} or \code{SeuratObjecy}.}
+\code{SingleCellExperiment}, \code{SpatialExperiment} or 
+\code{SeuratObjecy}.}
 
 \item{...}{additional parameters.}
 

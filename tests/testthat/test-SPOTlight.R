@@ -5,7 +5,8 @@ spe <- mockSP(sce)
 mgs <- getMGS(sce)
 # Create SpatialExperiment
 spe1 <- SpatialExperiment::SpatialExperiment(
-    assay = list(counts = counts(spe)), colData = colData(spe))
+    assay = list(counts = counts(spe)),
+    colData = SummarizedExperiment::colData(spe))
 
 # Create dummy Seurat object
 sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
