@@ -27,14 +27,14 @@ This function takes in an image-related object - path to
 path <- file.path(
   system.file(package = "SPOTlight"), 
   "extdata/SPOTlight.png")
-plotImage2(x = path)
+plotImage(x = path)
 # array
 png_img <- png::readPNG(path)
-plotImage2(png_img)
+plotImage(png_img)
 # Seurat Object
 # library(SeuratData)
 # so <- LoadData("stxBrain", type = "anterior1")
-# plotImage2(so)
+# plotImage(so)
 # SpatialExperiment
 }
 \author{
