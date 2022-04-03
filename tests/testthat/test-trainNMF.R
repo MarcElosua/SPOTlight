@@ -5,7 +5,7 @@ spe <- mockSP(sce)
 mgs <- getMGS(sce)
 
 # Create dummy Seurat object
-sec <- SeuratObject::CreateSeuratObject(counts = counts(sce))
+sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
 sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
 
 # Function to run the checks
