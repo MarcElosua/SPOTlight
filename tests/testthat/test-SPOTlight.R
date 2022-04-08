@@ -193,3 +193,4 @@ test_that("SPOTlight x hvg", {
 
     .checks(res, sce)
 })
+

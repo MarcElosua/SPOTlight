@@ -43,14 +43,9 @@ plotImage <- function(x, slice = NULL) {
         # Check for valid slice classes
         is.null(slice) | is.character(slice))
     
-    
-    if (is.array(x)) {
-        # Plot image
-        plt <- .plot_image(x)
-    } else {
-        # Extract image
+    if (!is.array(x))
         x <- .extract_image(x)
-        # Plot image
-        plt <- .plot_image(x)
-    }
+        
+    # Plot image
+    plt <- .plot_image(x)
 }

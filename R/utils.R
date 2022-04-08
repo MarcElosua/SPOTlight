@@ -263,3 +263,35 @@
     }
     return(x)
 }
+
+# When assigning cells to groups in trainNMF and SPOTlight if groups is set to
+# NULL use the cell identities/labels. If it is not a Seurat or SCE return error
+.set_groups_if_null <- function(x) {
+    ## Seurat ##
+    if (is(x, "Seurat")) {
+        # Extract idents
+        idents <- SeuratObject::Idents(x)
+        if (is.null(idents)) {
+            stop("SeuratObject::Idents(x) is NULL")
+        } else {
+            warning("Grouping cells into celltypes by Idents(x)")
+            groups <- as.character(idents)
+        }
+        
+    ## SCE ##
+    } else if (is(x, "SingleCellExperiment")) {
+        # Extract idents
+        idents <- SingleCellExperiment::colLabels(x)
+        if (is.null(idents)) {
+            stop("SingleCellExperiment::colLabels(x) is NULL")
+        } else {
+            warning("Grouping cells into celltypes
+                    by SingleCellExperiment::colLabels(x)")
+            groups <- as.character(idents)
+        }
+    ## other ##
+    } else {
+        stop("Parameter groups needs to be defined.")
+    }
+    groups
+}

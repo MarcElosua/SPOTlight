@@ -12,7 +12,7 @@
 #'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
 #' @param groups vector of group labels for cells in \code{x}.
 #'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels} and \code{Idents(x)}, respectively.
+#'   defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
@@ -67,140 +67,58 @@
 NULL
 
 #' @rdname trainNMF
-#' @importFrom SingleCellExperiment colLabels
-#' @export
-setMethod("trainNMF",
-    c("SingleCellExperiment", "ANY"),
-    function(x, y, ...,
-        assay = "counts",
-        groups = colLabels(x, onAbsence = "error"))
-    {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        trainNMF(as.matrix(SummarizedExperiment::assay(x, assay)),
-            y, groups, ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "SingleCellExperiment"),
-    function(x, y, ...,
-        assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        trainNMF(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "SpatialExperiment"),
-    function(x, y, ...,
-        assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        trainNMF(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("Seurat", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA",
-        groups = SeuratObject::Idents(x)) {
-        .test_installed("SeuratObject")
-        trainNMF(SeuratObject::GetAssayData(x, slot, assay), y, groups, ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "Seurat"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        .test_installed("SeuratObject")
-        trainNMF(x, SeuratObject::GetAssayData(y, slot, assay), ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "dgCMatrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        trainNMF(x, as.matrix(y), ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("dgCMatrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        trainNMF(as.matrix(x), y, ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "DelayedMatrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        trainNMF(x, as.matrix(y), ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("DelayedMatrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        trainNMF(as.matrix(x), y, ...)
-    })
-
-#' @rdname trainNMF
-#' @export
-setMethod("trainNMF",
-    c("ANY", "ANY"),
-    function(x, y, ...) {
-        stop("See ?trainNMF for valid x & y inputs")
-    })
-
-#' @rdname trainNMF
 #' @importFrom Matrix rowSums
 #' @importFrom NMF nmf nmfModel
 #' @export
-setMethod("trainNMF",
-    c("matrix", "matrix"),
-    function(x, y,
-        groups,
-        mgs,
-        n_top = NULL,
-        gene_id = "gene",
-        group_id = "cluster",
-        weight_id = "weight",
-        hvg = NULL,
-        model = c("ns", "std"),
-        scale = TRUE,
-        verbose = TRUE,
-        ...) {
-        # check validity of input arguments
-        model <- match.arg(model)
+trainNMF <- function(
+    x,
+    y,
+    groups = NULL,
+    mgs,
+    n_top = NULL,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "weight",
+    hvg = NULL,
+    model = c("ns", "std"),
+    scale = TRUE,
+    verbose = TRUE,
+    ...) {
+    # check validity of input arguments
+    model <- match.arg(model)
+    
+    if (is.null(n_top))
+        n_top <- max(table(mgs[[group_id]]))
+    ids <- c(gene_id, group_id, weight_id)
+    
+    stopifnot(
+        is.character(ids), length(ids) == 3, ids %in% names(mgs),
+        is.null(groups) | length(groups) == ncol(x),
+        is.numeric(min_prop), length(min_prop) == 1,
+        min_prop >= 0, min_prop <= 1,
+        is.logical(scale), length(scale) == 1,
+        is.logical(verbose), length(verbose) == 1)
+    
+    # Set groups if x is SCE or SE and groups is NULL 
+    if (is.null(groups))
+        .set_groups_if_null(x)
+    
+    # Stop if at least one of the groups doesn't have marker genes
+    stopifnot(groups %in% mgs[[group_id]])
+    
+    # Extract expression matrices for x and y
+    if (!is.matrix(x))
+        x <- .extract_counts(x, assay, slot)
+    
+    if (!is.matrix(y))
+        y <- .extract_counts(y, assay, slot)
     
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
         mod_genes <- union(unique(mgs[, gene_id]), hvg)
     } else {
-        # Select genes from the marker genes
+        # Select genes from the marker genes only
         mod_genes <- unique(mgs[, gene_id])
     }
     
@@ -248,4 +166,4 @@ setMethod("trainNMF",
     topic <- .topic_profiles(mod, groups)
     
     return(list("mod" = mod, "topic" = topic))
-})
+}

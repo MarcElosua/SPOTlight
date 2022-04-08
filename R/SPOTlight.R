@@ -101,8 +101,8 @@
 #' # split cell indices by identity
 #' idx <- split(seq(ncol(sce)), sce$free_annotation)
 #' # downsample to at most 5 cells per identity
-#' # Note that 5 is for example purpose, n_cells should be for real life
-#' #  scenarios ~100
+#' # Note that 5 is for example purpose, in real life scenarios n_cells
+#' # should be ~100
 #' n_cells <- 5
 #' cs_keep <- lapply(idx, function(i) {
 #'   n <- length(i)
@@ -124,106 +124,8 @@
 NULL
 
 #' @rdname SPOTlight
-#' @importFrom SingleCellExperiment colLabels
 #' @export
-setMethod("SPOTlight",
-    c("SingleCellExperiment", "ANY"),
-    function(x, y, ...,
-        assay = "counts",
-        groups = colLabels(x, onAbsence = "error"))
-        {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        SPOTlight(as.matrix(SummarizedExperiment::assay(x, assay)),
-            y, groups, ...)
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "SingleCellExperiment"),
-    function(x, y, ...,
-        assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        SPOTlight(x, as.matrix(SummarizedExperiment::assay(y, assay)), ...)
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("Seurat", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA",
-        groups = SeuratObject::Idents(x)) {
-        SPOTlight(SeuratObject::GetAssayData(x, slot, assay), y, groups, ...)
-    })
-
-#' @rdname SPOTlight
-#' @importFrom SeuratObject GetAssayData
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "Seurat"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        SPOTlight(x, GetAssayData(y, slot, assay), ...)
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "dgCMatrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        SPOTlight(x, as.matrix(y), ...)
-        })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("dgCMatrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-    SPOTlight(as.matrix(x), y, ...)
-        })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "DelayedMatrix"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        SPOTlight(x, as.matrix(y), ...)
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("DelayedMatrix", "ANY"),
-    function(x, y, ...,
-        slot = "counts",
-        assay = "RNA") {
-        SPOTlight(as.matrix(x), y, ...)
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("ANY", "ANY"),
-    function(x, y, ...) {
-        stop("See ?SPOTlight for valid x & y inputs")
-    })
-
-#' @rdname SPOTlight
-#' @export
-setMethod("SPOTlight",
-    c("matrix", "matrix"),
-    function(x, y,
+SPOTlight <- function(x, y,
         groups,
         # markers
         mgs,
@@ -240,34 +142,18 @@ setMethod("SPOTlight",
         # other
         verbose = TRUE,
         ...) {
-        # check validity if input arguments
-        model <- match.arg(model)
-        if (is.null(n_top))
-            n_top <- max(table(mgs[[group_id]]))
-        ids <- c(gene_id, group_id, weight_id)
-        stopifnot(
-            is.numeric(x), is.numeric(y),
-            is.character(ids), length(ids) == 3, ids %in% names(mgs),
-            is.null(groups) | length(groups) == ncol(x),
-            is.numeric(min_prop), length(min_prop) == 1,
-            min_prop >= 0, min_prop <= 1,
-            is.logical(scale), length(scale) == 1,
-            is.logical(verbose), length(verbose) == 1)
+    
+    # train NMF model
+    mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
+        weight_id, hvg, model, scale, verbose, ...)
 
-        groups <- as.character(groups)
-        stopifnot(groups %in% mgs[[group_id]])
+    # perform deconvolution
+    res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
+        scale, min_prop, verbose)
 
-        # train NMF model
-        mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
-            weight_id, hvg, model, scale, verbose, ...)
-
-        # perform deconvolution
-        res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
-            scale, min_prop, verbose)
-
-        # return list of NMF model & deconvolution matrix
-        list(
-            "mat" = res[["mat"]],
-            "res_ss" = res[["res_ss"]],
-            "NMF" = mod_ls[["mod"]])
-    })
+    # return list of NMF model & deconvolution matrix
+    list(
+        "mat" = res[["mat"]],
+        "res_ss" = res[["res_ss"]],
+        "NMF" = mod_ls[["mod"]])
+    }
