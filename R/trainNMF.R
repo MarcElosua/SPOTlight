@@ -104,20 +104,18 @@ setMethod("trainNMF",
     })
 
 #' @rdname trainNMF
-#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("trainNMF",
     c("Seurat", "ANY"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA",
-        groups = Idents(x)) {
+        groups = SeuratObject::Idents(x)) {
         .test_installed("SeuratObject")
-        trainNMF(GetAssayData(x, slot, assay), y, groups, ...)
+        trainNMF(SeuratObject::GetAssayData(x, slot, assay), y, groups, ...)
     })
 
 #' @rdname trainNMF
-#' @importFrom SeuratObject GetAssayData
 #' @export
 setMethod("trainNMF",
     c("ANY", "Seurat"),
@@ -125,7 +123,7 @@ setMethod("trainNMF",
         slot = "counts",
         assay = "RNA") {
         .test_installed("SeuratObject")
-        trainNMF(x, GetAssayData(y, slot, assay), ...)
+        trainNMF(x, SeuratObject::GetAssayData(y, slot, assay), ...)
     })
 
 #' @rdname trainNMF

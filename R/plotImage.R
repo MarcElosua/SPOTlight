@@ -80,7 +80,6 @@ plotImage <- function(x, slice = NULL) {
 }
 
 # Extract image and convert it to array from allowed classes
-#' @importFrom SeuratObject GetImage Images
 .extract_image <- function(x, slice = NULL) {
     # Iterate over all the accepted classes and conver the image to array
     if (is.character(x)) {
@@ -106,15 +105,15 @@ plotImage <- function(x, slice = NULL) {
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(Images(x)),
-            slice %in% Images(x))
+            !is.null(SeuratObject::Images(x)),
+            slice %in% SeuratObject::Images(x))
         
         # If image is null use the first slice
         if (is.null(slice)) 
-            slice <- Images(x)[1]
+            slice <- SeuratObject::Images(x)[1]
         
         # Extract Image in raster format
-        x <- GetImage(x, image = slice, mode = "raster")
+        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
         # Conver to matrix
         x <- as.matrix(x)
         

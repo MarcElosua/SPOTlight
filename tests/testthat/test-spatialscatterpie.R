@@ -2,7 +2,7 @@ set.seed(321)
 # Coordinates
 x <- matrix(nrow = 10, data = c(seq_len(10), 10:1))
 rownames(x) <- paste0("spot", seq_len(nrow(x)))
-colnames(x) <- c("imagecol", "imagerow")
+colnames(x) <- c("coord_x", "coord_y")
 # Proportions
 y <- replicate(m <- 5, runif(10, 0, 1))
 y <- y / rowSums(y)
@@ -12,7 +12,17 @@ colnames(y) <- paste0("type", seq_len(ncol(y)))
 img <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
 
 # plotSpatialScatterpie() ----
-test_that("plotSpatialScatterpie", {
+test_that("plotSpatialScatterpie with matrix and bad colnames", {
+    plt <- plotSpatialScatterpie(
+        x = x,
+        y = y
+    )
+    expect_equal(class(plt)[1], "gg")
+})
+
+colnames(x) <- c("imagecol", "imagerow")
+# plotSpatialScatterpie() ----
+test_that("plotSpatialScatterpie with matrix and bad colnames", {
     plt <- plotSpatialScatterpie(
         x = x,
         y = y
@@ -61,3 +71,4 @@ test_that("plotSpatialScatterpie - pie_scale", {
     )
     expect_equal(class(plt)[1], "gg")
 })
+

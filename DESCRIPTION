@@ -25,7 +25,6 @@ Imports:
   Matrix,
   matrixStats,
   nnls,
-  SeuratObject,
   SingleCellExperiment,
   stats
 Suggests:
@@ -44,6 +43,7 @@ Suggests:
   scatterpie,
   scran,
   Seurat,
+  SeuratObject,
   SpatialExperiment,
   SummarizedExperiment,
   S4Vectors,

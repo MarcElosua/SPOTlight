@@ -150,15 +150,14 @@ setMethod("SPOTlight",
     })
 
 #' @rdname SPOTlight
-#' @importFrom SeuratObject Idents GetAssayData
 #' @export
 setMethod("SPOTlight",
     c("Seurat", "ANY"),
     function(x, y, ...,
         slot = "counts",
         assay = "RNA",
-        groups = Idents(x)) {
-        SPOTlight(GetAssayData(x, slot, assay), y, groups, ...)
+        groups = SeuratObject::Idents(x)) {
+        SPOTlight(SeuratObject::GetAssayData(x, slot, assay), y, groups, ...)
     })
 
 #' @rdname SPOTlight

@@ -78,11 +78,11 @@ setMethod("runDeconvolution", "SpatialExperiment",
     })
 
 #' @rdname runDeconvolution
-#' @importFrom SeuratObject GetAssayData
 #' @export
 setMethod("runDeconvolution", "Seurat",
     function(x, ..., slot = "counts", assay = "RNA") {
-        runDeconvolution(as.matrix(GetAssayData(x, slot, assay)), ...)
+        runDeconvolution(
+            as.matrix(SeuratObject::GetAssayData(x, slot, assay)), ...)
     })
 
 #' @rdname runDeconvolution
