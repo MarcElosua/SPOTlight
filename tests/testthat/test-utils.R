@@ -95,3 +95,47 @@ test_that("NMF", {
     mse <- mean((mat - sim)^2)
     expect_true(mse < 0.1)
 })
+
+
+# image
+library(ExperimentHub)
+eh <- ExperimentHub() # initialize hub instance
+q <- query(eh, "TENxVisium") # retrieve 'TENxVisiumData' records
+id <- q$ah_id[1] # specify dataset ID to load
+spe <- eh[[id]]
+colLabels(spe) <- spe$sample_id
+
+# .extract_counts
+test_that(".extract_counts()", {
+    x <- .extract_counts(spe, slot = "counts")
+    expect_identical(dim(counts(spe)), dim(x))
+    expect_identical(dimnames(spe), dimnames(x))
+})
+
+# .extract_image
+test_that(".extract_image()", {
+    x <- counts(sce)
+    y <- .scale_uv(x)
+    expect_is(y, "matrix")
+    expect_identical(dim(y), dim(x))
+    expect_identical(dimnames(y), dimnames(x))
+    expect_true(all(abs(1 - matrixStats::rowVars(y)) < 1e-12))
+})
+
+# .plot_image
+x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
+test_that(".plot_image() SPE", {
+    img <- .extract_image(x_path)
+    plt <- .plot_image(img)
+    expect_true(is.array(img))
+    expect_equal(class(plt)[1], "gg")
+})
+
+test_that(".plot_image() SPE", {
+    img <- .extract_image(spe)
+    plt <- .plot_image(img)
+    expect_equal(class(plt)[1], "gg")
+    expect_true(is.matrix(img))
+})
+
+

@@ -38,7 +38,7 @@ By default 0.}
 
 \item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
-  By default "RNA".}
+By default "RNA". Ignore for the rest of x input classes.}
 
 \item{slot}{if the object is of Class \code{Seurat}, character string
 specifying the slot from which to extract the expression matrix. If the
