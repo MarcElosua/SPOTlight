@@ -83,6 +83,8 @@ trainNMF <- function(
     model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE,
+    assay = "RNA",
+    slot = "counts",
     ...) {
     # check validity of input arguments
     model <- match.arg(model)
@@ -94,14 +96,12 @@ trainNMF <- function(
     stopifnot(
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
         is.null(groups) | length(groups) == ncol(x),
-        is.numeric(min_prop), length(min_prop) == 1,
-        min_prop >= 0, min_prop <= 1,
         is.logical(scale), length(scale) == 1,
         is.logical(verbose), length(verbose) == 1)
     
     # Set groups if x is SCE or SE and groups is NULL 
     if (is.null(groups))
-        .set_groups_if_null(x)
+        groups <- .set_groups_if_null(x)
     
     # Stop if at least one of the groups doesn't have marker genes
     stopifnot(groups %in% mgs[[group_id]])

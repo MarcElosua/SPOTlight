@@ -126,22 +126,24 @@ NULL
 #' @rdname SPOTlight
 #' @export
 SPOTlight <- function(x, y,
-        groups,
-        # markers
-        mgs,
-        n_top = NULL,
-        gene_id = "gene",
-        group_id = "cluster",
-        weight_id = "weight",
-        hvg = NULL,
-        # NMF
-        scale = TRUE,
-        model = c("ns", "std"),
-        # deconvolution
-        min_prop = 0.01,
-        # other
-        verbose = TRUE,
-        ...) {
+    groups,
+    # markers
+    mgs,
+    n_top = NULL,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "weight",
+    hvg = NULL,
+    # NMF
+    scale = TRUE,
+    model = c("ns", "std"),
+    # deconvolution
+    min_prop = 0.01,
+    # other
+    verbose = TRUE,
+    assay = "RNA",
+    slot = "counts",
+    ...) {
     
     # train NMF model
     mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,

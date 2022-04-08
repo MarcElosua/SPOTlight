@@ -17,6 +17,8 @@ trainNMF(
   model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
+  assay = "RNA",
+  slot = "counts",
   ...
 )
 }
@@ -52,8 +54,6 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{...}{additional parameters.}
-
 \item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
   By default "RNA".}
@@ -62,6 +62,8 @@ specifying the assay from which to extract the expression matrix.
 specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
+
+\item{...}{additional parameters.}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and

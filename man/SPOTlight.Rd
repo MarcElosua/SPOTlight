@@ -18,6 +18,8 @@ SPOTlight(
   model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
+  assay = "RNA",
+  slot = "counts",
   ...
 )
 }
@@ -57,8 +59,6 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{...}{additional parameters.}
-
 \item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
 By default "RNA".}
@@ -67,6 +67,8 @@ By default "RNA".}
 specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
+
+\item{...}{additional parameters.}
 }
 \value{
 a numeric matrix with rows corresponding to samples

@@ -82,14 +82,16 @@ runDeconvolution <- function(
         # check ref
         is.matrix(ref),
         # Check assay name
-        is.character(assay),
+        is.character(assay), length(assay) == 1,
         # Check slot name
-        is.character(slot),
+        is.character(slot), length(slot) == 1,
         # Check scale and verbose
-        is.logical(scale),
-        is.logical(verbose),
+        is.logical(scale), length(scale) == 1,
+        is.logical(verbose), length(verbose) == 1,
         # Check min_prop numeric
-        is.numeric(min_prop)
+        is.numeric(min_prop), length(min_prop) == 1,
+        min_prop >= 0, min_prop <= 1
+        
     )
     
     # Extract expression matrix
