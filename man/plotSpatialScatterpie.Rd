@@ -2,49 +2,28 @@
 % Please edit documentation in R/plotSpatialScatterpie.R
 \name{plotSpatialScatterpie}
 \alias{plotSpatialScatterpie}
-\alias{plotSpatialScatterpie,matrix,matrix-method}
-\alias{plotSpatialScatterpie,Seurat,ANY-method}
-\alias{plotSpatialScatterpie,SpatialExperiment,ANY-method}
-\alias{plotSpatialScatterpie,data.frame,ANY-method}
-\alias{plotSpatialScatterpie,ANY,data.frame-method}
-\alias{plotSpatialScatterpie,ANY,ANY-method}
 \title{Spatial scatterpie}
 \usage{
-\S4method{plotSpatialScatterpie}{matrix,matrix}(
+plotSpatialScatterpie(
   x,
   y,
-  ...,
   cell_types = colnames(y),
   img = FALSE,
+  slice = NULL,
   scatterpie_alpha = 1,
-  pie_scale = 0.4
+  pie_scale = 0.4,
+  ...
 )
-
-\S4method{plotSpatialScatterpie}{Seurat,ANY}(x, y, ..., slice = Images(x)[1], img = FALSE)
-
-\S4method{plotSpatialScatterpie}{SpatialExperiment,ANY}(
-  x,
-  y,
-  ...,
-  slice = imgData(x)[1, "sample_id"],
-  img = FALSE
-)
-
-\S4method{plotSpatialScatterpie}{data.frame,ANY}(x, y, ...)
-
-\S4method{plotSpatialScatterpie}{ANY,data.frame}(x, y, ...)
-
-\S4method{plotSpatialScatterpie}{ANY,ANY}(x, y, ...)
 }
 \arguments{
 \item{x}{Object containig the spots coordinates, it can be an object of class
 SpatialExperiment, Seurat, dataframe or matrix. For the latter two
-rownames should have the spot barcodes to match x.}
+rownames should have the spot barcodes to match x. If a matrix it has to
+of dimensions nrow(y) x 2 where the columns are the x and y coordinates
+in that order.}
 
 \item{y}{Matrix or dataframe containing the deconvoluted spots. rownames
-hould have the spot barcodes to match x.}
-
-\item{...}{additional parameters to geom_scatterpie}
+need to be the spot barcodes to match to x.}
 
 \item{cell_types}{Vector of cell type names to plot. By default uses the
 column names of y.}
@@ -53,14 +32,16 @@ column names of y.}
 Objects of classes accepted by \code{plotImage} can also be passed and
 that image will be used. By default FALSE.}
 
+\item{slice}{Character string indicating which slice to plot if img is TRUE.
+By default uses the first image.}
+
 \item{scatterpie_alpha}{Numeric scalar to set the alpha of the pie charts.
 By default 1.}
 
 \item{pie_scale}{Numeric scalar to set the size of the pie charts.
 By default 0.4.}
 
-\item{slice}{Character string indicating which slice to plot if img is TRUE.
-By default uses the first image.}
+\item{...}{additional parameters to geom_scatterpie}
 }
 \value{
 \code{ggplot} object

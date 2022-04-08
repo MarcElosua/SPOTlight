@@ -23,13 +23,12 @@
 #'   By default 0.
 #' @param assay if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'     By default "RNA".
+#'   By default "RNA". Ignore for the rest of x input classes.
 #' @param slot if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SpatialExperiment} indicates matrix to use.
 #'   By default "counts".
 #' @param verbose logical. Should information on progress be reported?
-#' @param ... additional parameters.
 #'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
@@ -60,58 +59,6 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "SingleCellExperiment",
-    function(x, ..., assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        runDeconvolution(as.matrix(SummarizedExperiment::assay(x, assay)), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "SpatialExperiment",
-    function(x, ..., assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        runDeconvolution(as.matrix(SummarizedExperiment::assay(x, assay)), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "Seurat",
-    function(x, ..., slot = "counts", assay = "RNA") {
-        runDeconvolution(
-            as.matrix(SeuratObject::GetAssayData(x, slot, assay)), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "dgCMatrix",
-    function(x, ...) {
-        runDeconvolution(as.matrix(x), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "DelayedMatrix",
-    function(x, ...) {
-        runDeconvolution(as.matrix(x), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "ANY",
-    function(x, ...) {
-        stop("See ?runDeconvolution for valid x & y inputs")
-    })
-
-# Helper function to extract count/expression matrix
-.extract_counts <- function(x, assay, slot) {
-    
-}
-
-#' @rdname runDeconvolution
 #' @importFrom nnls nnls
 #' @export
 runDeconvolution <- function(
@@ -123,6 +70,31 @@ runDeconvolution <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts") {
+    
+    # Class checks
+    stopifnot(
+        # Check x inputs
+        is.matrix(x) | is(x, "DelayedMatrix") | is(x, "dgCMatrix") |
+            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "SpatialExperiment"),
+        # Check mod inputs
+        is(mod, "NMFfit"),
+        # check ref
+        is.matrix(ref),
+        # Check assay name
+        is.character(assay),
+        # Check slot name
+        is.character(slot),
+        # Check scale and verbose
+        is.logical(scale),
+        is.logical(verbose),
+        # Check min_prop numeric
+        is.numeric(min_prop)
+    )
+    
+    # Extract expression matrix
+    if (!is.matrix(x))
+        x <- .extract_counts(x, assay, slot)
     
     # Get topic profiles for mixtures
     mat <- .pred_prop(x, mod, scale)

@@ -24,7 +24,14 @@
 
 \S4method{SPOTlight}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
 
-\S4method{SPOTlight}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
+\S4method{SPOTlight}{Seurat,ANY}(
+  x,
+  y,
+  ...,
+  slot = "counts",
+  assay = "RNA",
+  groups = SeuratObject::Idents(x)
+)
 
 \S4method{SPOTlight}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
 

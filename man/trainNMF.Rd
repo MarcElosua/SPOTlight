@@ -27,7 +27,14 @@
 
 \S4method{trainNMF}{ANY,SpatialExperiment}(x, y, ..., assay = "counts")
 
-\S4method{trainNMF}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
+\S4method{trainNMF}{Seurat,ANY}(
+  x,
+  y,
+  ...,
+  slot = "counts",
+  assay = "RNA",
+  groups = SeuratObject::Idents(x)
+)
 
 \S4method{trainNMF}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
 
