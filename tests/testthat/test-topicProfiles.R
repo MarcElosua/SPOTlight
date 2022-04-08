@@ -20,8 +20,8 @@ test_that("plotTopicProfiles common", {
 test_that("plotTopicProfiles facet", {
     p <- plotTopicProfiles(res[[3]], x$type, facet = TRUE)
     expect_is(p, "ggplot")
-    expect_equal(nrow(p$data), 150)
+    expect_equal(nrow(p$data), 151)
     expect_equal(ncol(p$data), 4)
     g <- ggplot_build(p)
-    expect_equal(unique(g$data[[1]]$colour), c("#3D2BFF", "#D3D3D3"))
+    expect_equal(unique(g$data[[1]]$colour), c("#3D2BFF", "#4931FE", "#D3D3D3"))
 })

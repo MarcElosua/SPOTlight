@@ -19,11 +19,11 @@ setGeneric(
 #'         standardGeneric("plotImage"))
 
 #' @export
-setGeneric(
-    "plotTopicProfiles", function(x, y, ...) 
-        standardGeneric("plotTopicProfiles"))
+# setGeneric(
+#     "plotTopicProfiles", function(x, y, ...) 
+#         standardGeneric("plotTopicProfiles"))
 
 #' @export
-setGeneric(
-    "plotSpatialScatterpie", function(x, y, ...) 
-        standardGeneric("plotSpatialScatterpie"))
+# setGeneric(
+#     "plotSpatialScatterpie", function(x, y, ...) 
+#         standardGeneric("plotSpatialScatterpie"))
