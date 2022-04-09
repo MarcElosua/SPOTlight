@@ -125,8 +125,10 @@ NULL
 
 #' @rdname SPOTlight
 #' @export
-SPOTlight <- function(x, y,
-    groups,
+SPOTlight <- function(
+    x,
+    y,
+    groups = NULL,
     # markers
     mgs,
     n_top = NULL,

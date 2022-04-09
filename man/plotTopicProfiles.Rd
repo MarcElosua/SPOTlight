@@ -21,8 +21,6 @@ If \code{TRUE}, cell-specific weights will be shown
 only cells with a weight > \code{min_prop} will be included.}
 
 \item{ncol}{integer scalar specifying the number of facet columns.}
-
-\item{...}{additional parameters}
 }
 \value{
 \code{ggplot} object

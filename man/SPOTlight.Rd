@@ -7,7 +7,7 @@
 SPOTlight(
   x,
   y,
-  groups,
+  groups = NULL,
   mgs,
   n_top = NULL,
   gene_id = "gene",

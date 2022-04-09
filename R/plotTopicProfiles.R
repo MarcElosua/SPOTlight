@@ -17,7 +17,6 @@
 #' @param min_prop scalar in [0,1]. When \code{facet = TRUE},
 #'   only cells with a weight > \code{min_prop} will be included.
 #' @param ncol integer scalar specifying the number of facet columns.
-#' @param ... additional parameters
 #' 
 #' @return \code{ggplot} object
 #'

@@ -26,9 +26,10 @@ trainNMF(
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
-\item{groups}{vector of group labels for cells in \code{x}.
+\item{groups}{character vector of group labels for cells in \code{x}.
 When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.}
+defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
+Make sure groups is not a Factor.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
