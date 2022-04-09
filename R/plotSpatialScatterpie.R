@@ -82,7 +82,7 @@ plotSpatialScatterpie <- function(
     
     # Extract coordinate matrix from x
     if (!is.matrix(x))
-        x <- .extract_coord(x = x, slice = slice)
+        x <- .extract_coord(x = x, slice = slice, img = img)
     # Check colnames
     x <- .x_cnames(x)
     
@@ -147,7 +147,7 @@ plotSpatialScatterpie <- function(
 
 # Coordinates and return a matrix object where each row is a spot and the
 # columns are the x and y coordinates
-.extract_coord <- function(x, slice) {
+.extract_coord <- function(x, slice, img) {
     # Iterate over all the accepted classes and return spot coordinates
     if (is.data.frame(x)) {
         # Convert to matrix
