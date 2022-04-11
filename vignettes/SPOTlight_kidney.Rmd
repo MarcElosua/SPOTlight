@@ -291,11 +291,6 @@ res <- SPOTlight(
     weight_id = "mean.AUC",
     group_id = "cluster",
     gene_id = "gene")
-
-   # Error in mgs[[k]] : subscript out of bounds
-   # Calls: SPOTlight -> trainNMF -> .init_nmf -> lapply -> FUN
-   # Execution halted
-
 ```
 
 Alternatively you can run `SPOTlight` in two steps so that you can have the trained model. Having the trained model allows you to reuse with other datasets you also want to deconvolute with the same reference. This allows you to skip the training step, the most time consuming and computationally expensive.

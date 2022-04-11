@@ -63,10 +63,7 @@ plotTopicProfiles <- function(
             ),
         is.logical(facet), length(facet) == 1,
         is.numeric(min_prop), length(min_prop) == 1)
-
-    # y <- as.character(y)
-    # stopifnot(y %in% colnames(basis(x)))
-
+    
     # get group proportions
     mat <- prop.table(t(coef(x)), 1)
 
@@ -87,11 +84,12 @@ plotTopicProfiles <- function(
     } else {
         # get topic medians
         df <- aggregate(mat, list(y), median)[, -1]
-
+        rownames(df) <- unique(y)
+        
         # stretch for plotting
         df <- data.frame(
             weight = unlist(df),
-            group = rep(colnames(df), each = nrow(df)),
+            group = rep(rownames(df), each = nrow(df)),
             topic = rep(seq_len(nrow(df)), ncol(df)))
 
         # set aesthetics
