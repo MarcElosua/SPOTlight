@@ -27,7 +27,7 @@ test_that("NMF", {
     x <- counts(sce)
     y <- counts(spe)
     groups <- sce$type
-    group_ids <- paste0("topic_", seq_len(length(levels(sce$type))))
+    group_ids <- sort(unique(as.character(sce$type)))
     n_groups <- length(group_ids)
     
     # + trainNMF ----
@@ -56,7 +56,7 @@ test_that("NMF", {
     # filtering, mgs, hvg, all 0...
     expect_identical(
         dimnames(mod)[2:3],
-        c(dimnames(x)[2], list(group_ids)))
+        c(dimnames(x)[2], list(paste0("topic_", 1:ncol(basis(mod))))))
     
     # + .topic_profiles ----
     # should give a square numeric matrix
@@ -64,8 +64,8 @@ test_that("NMF", {
     ref <- .topic_profiles(mod, groups)
     expect_is(ref, "matrix")
     expect_equal(dim(ref), rep(n_groups, 2))
-    expect_identical(rownames(ref), paste0("type", 1:nrow(ref)))
-    expect_identical(colnames(ref), group_ids)
+    expect_identical(rownames(ref), group_ids)
+    expect_identical(colnames(ref), paste0("topic_", 1:nrow(ref)))
     
     # + .pred_prop ----
     fqs <- .pred_prop(x, mod)
@@ -73,7 +73,9 @@ test_that("NMF", {
     expect_true(is.numeric(x))
     expect_true(all(fqs >= 0))
     expect_equal(dim(fqs), c(n_groups, ncol(x)))
-    expect_identical(dimnames(fqs), list(group_ids, colnames(x)))
+    expect_identical(
+        dimnames(fqs),
+        list(paste0("topic_", 1:nrow(ref)), colnames(x)))
     
     # + runDeconvolution ----
     # should give a numeric matrix
@@ -91,7 +93,7 @@ test_that("NMF", {
     expect_identical(rownames(mat), names(err))
     # actually check the estimates are legit
     # (MSE < 0.1 compared to simulated truth)
-    sim <- metadata(spe)[[1]]
+    sim <- S4Vectors::metadata(spe)[[1]]
     mse <- mean((mat - sim)^2)
     expect_true(mse < 0.1)
 })
