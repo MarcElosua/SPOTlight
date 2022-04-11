@@ -16,7 +16,7 @@ sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
     expect_is(mtr, "matrix")
     expect_is(mod, "NMFfit")
     expect_identical(ncol(mtr), length(unique(sce$type)))
-    expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
+    expect_identical(sort(rownames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), ncol(basis(mod)))
     expect_identical(nrow(mtr), nrow(coef(mod)))
 }
@@ -176,3 +176,4 @@ test_that("trainNMF x hvg", {
     
     .checks(res, sce)
 })
+
