@@ -165,7 +165,7 @@ trainNMF <- function(
         message("Time for training: ", dt, "min")
     }
     
-    # get topic profiles
+    # get topic profiles per cell type
     topic <- .topic_profiles(mod, groups)
     
     return(list("mod" = mod, "topic" = topic))

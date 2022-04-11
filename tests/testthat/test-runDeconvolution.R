@@ -22,7 +22,9 @@ sep <- SeuratObject::CreateSeuratObject(
     expect_is(mtr, "matrix")
     expect_is(rss, "numeric")
     expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), length(rss))
+    expect_identical(sort(rownames(mtr)), sort(names(rss)))
 }
 
 # Train NMF

@@ -117,7 +117,8 @@ runDeconvolution <- function(
     }, numeric(ncol(ref) + 1))
     
     # set dimension names
-    rownames(res) <- c(dimnames(mod)[[3]], "res_ss")
+    # rownames come from the reference
+    rownames(res) <- c(rownames(ref), "res_ss")
     colnames(res) <- colnames(mat)
     
     # Separate residuals from proportions
