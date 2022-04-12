@@ -112,7 +112,10 @@ sce <- subset(sce, , ! free_annotation \%in\% c("nan", "CD45"))
 # Get the top 3000 highly variable genes
 sce <- logNormCounts(sce)
 dec <- modelGeneVar(sce)
-hvg <- getTopHVGs(dec, n = 3000)
+# For the purpose of the example we will set hvg to NULL but using
+# 2000-3000 HVG is recommended.
+# hvg <- getTopHVGs(dec, n = 3000)
+hvg <- NULL
 colLabels(sce) <- colData(sce)$free_annotation
 
 # Get vector indicating which genes
@@ -137,9 +140,9 @@ mgs_df <- do.call(rbind, mgs_ls)
 # split cell indices by identity
 idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 5 cells per identity
-# Note that 5 is for example purpose, in real life scenarios n_cells
+# Note that 3 is for example purpose, in real life scenarios n_cells
 # should be ~100
-n_cells <- 5
+n_cells <- 3
 cs_keep <- lapply(idx, function(i) {
   n <- length(i)
   if (n < n_cells)
