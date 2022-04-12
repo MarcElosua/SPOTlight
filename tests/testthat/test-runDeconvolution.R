@@ -5,11 +5,14 @@ spe <- mockSP(sce)
 mgs <- getMGS(sce)
 # Create SpatialExperiment
 spe1 <- SpatialExperiment::SpatialExperiment(
-    assay = list(counts = counts(spe)), colData = colData(spe))
+    assay = list(counts = SingleCellExperiment::counts(spe)),
+    colData = SummarizedExperiment::colData(spe))
 
 # Create dummy Seurat object
-sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
-sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
+sec <- suppressWarnings(SeuratObject::CreateSeuratObject(
+    counts = SingleCellExperiment::counts(sce)))
+sep <- SeuratObject::CreateSeuratObject(
+    counts = SingleCellExperiment::counts(spe))
 
 # Function to run the checks
 .checks <- function(decon, sce) {
@@ -19,7 +22,9 @@ sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
     expect_is(mtr, "matrix")
     expect_is(rss, "numeric")
     expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), length(rss))
+    expect_identical(sort(rownames(mtr)), sort(names(rss)))
 }
 
 # Train NMF
@@ -34,7 +39,7 @@ res <- trainNMF(
 )
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-# ----  Check SPOTlight x, y inputs  -------------------------------------------
+# ----  Check runDeconvolution x, y inputs  ------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # runDeconvolution with SCE ----

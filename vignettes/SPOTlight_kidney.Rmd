@@ -285,7 +285,7 @@ You can visualize the above explanation in the following workflow scheme:
 res <- SPOTlight(
     x = sce,
     y = spe,
-    groups = sce$free_annotation,
+    groups = as.character(sce$free_annotation),
     mgs = mgs_df,
     hvg = hvg,
     weight_id = "mean.AUC",

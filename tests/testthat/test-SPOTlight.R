@@ -22,7 +22,9 @@ sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
     expect_is(rss, "numeric")
     expect_is(mod, "NMFfit")
     expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), length(rss))
+    expect_identical(sort(rownames(mtr)), sort(names(rss)))
 }
 
 # ------------------------------------------------------------------------------
@@ -193,3 +195,4 @@ test_that("SPOTlight x hvg", {
 
     .checks(res, sce)
 })
+

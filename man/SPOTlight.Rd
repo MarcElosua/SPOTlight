@@ -2,46 +2,12 @@
 % Please edit documentation in R/SPOTlight.R
 \name{SPOTlight}
 \alias{SPOTlight}
-\alias{SPOTlight,SingleCellExperiment,ANY-method}
-\alias{SPOTlight,ANY,SingleCellExperiment-method}
-\alias{SPOTlight,Seurat,ANY-method}
-\alias{SPOTlight,ANY,Seurat-method}
-\alias{SPOTlight,ANY,dgCMatrix-method}
-\alias{SPOTlight,dgCMatrix,ANY-method}
-\alias{SPOTlight,ANY,DelayedMatrix-method}
-\alias{SPOTlight,DelayedMatrix,ANY-method}
-\alias{SPOTlight,ANY,ANY-method}
-\alias{SPOTlight,matrix,matrix-method}
 \title{Deconvolution of mixture using single-cell data}
 \usage{
-\S4method{SPOTlight}{SingleCellExperiment,ANY}(
+SPOTlight(
   x,
   y,
-  ...,
-  assay = "counts",
-  groups = colLabels(x, onAbsence = "error")
-)
-
-\S4method{SPOTlight}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
-
-\S4method{SPOTlight}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
-
-\S4method{SPOTlight}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{ANY,dgCMatrix}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{dgCMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{SPOTlight}{ANY,ANY}(x, y, ...)
-
-\S4method{SPOTlight}{matrix,matrix}(
-  x,
-  y,
-  groups,
+  groups = NULL,
   mgs,
   n_top = NULL,
   gene_id = "gene",
@@ -52,6 +18,8 @@
   model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
+  assay = "RNA",
+  slot = "counts",
   ...
 )
 }
@@ -59,20 +27,9 @@
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
-\item{...}{additional parameters.}
-
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA".}
-
 \item{groups}{vector of group labels for cells in \code{x}.
 When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
 defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
-
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -101,6 +58,17 @@ expected from a cell type in \code{x} to observations in \code{y}.
 By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
+
+\item{assay}{if the object is of Class \code{Seurat}, character string
+specifying the assay from which to extract the expression matrix.
+By default "RNA".}
+
+\item{slot}{if the object is of Class \code{Seurat}, character string
+specifying the slot from which to extract the expression matrix. If the
+object is of class \code{SingleCellExperiment} indicates matrix to use.
+By default "counts".}
+
+\item{...}{additional parameters.}
 }
 \value{
 a numeric matrix with rows corresponding to samples
@@ -169,8 +137,8 @@ mgs_df <- do.call(rbind, mgs_ls)
 # split cell indices by identity
 idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 5 cells per identity
-# Note that 5 is for example purpose, n_cells should be for real life
-#  scenarios ~100
+# Note that 5 is for example purpose, in real life scenarios n_cells
+# should be ~100
 n_cells <- 5
 cs_keep <- lapply(idx, function(i) {
   n <- length(i)
