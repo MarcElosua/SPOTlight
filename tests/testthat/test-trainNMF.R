@@ -50,7 +50,7 @@ test_that("trainNMF x SCE", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with SPE ----
@@ -65,7 +65,7 @@ test_that("trainNMF x SPE", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with SPE ----
@@ -80,7 +80,7 @@ test_that("trainNMF x SEC", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with SEP ----
@@ -95,7 +95,7 @@ test_that("trainNMF x SEP", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 
@@ -110,7 +110,7 @@ test_that("trainNMF x dgCMatrix SC", {
         group_id = "type",
         gene_id = "gene"
     )
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with sparse matrix sp ----
@@ -125,7 +125,7 @@ test_that("trainNMF x dgCMatrix SP", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with sparse matrix sc ----
@@ -139,7 +139,7 @@ test_that("trainNMF x DelayedMatrix SC", {
         group_id = "type",
         gene_id = "gene"
     )
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with sparse matrix sp ----
@@ -154,7 +154,7 @@ test_that("trainNMF x DelayedMatrix SP", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with matrices in both ----
@@ -169,7 +169,7 @@ test_that("trainNMF x matrices", {
         gene_id = "gene"
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
 # trainNMF with matrices in both and HVG----
@@ -185,6 +185,7 @@ test_that("trainNMF x hvg", {
         hvg = row.names(sce)[seq_len(50)]
     )
     
-    .checks(res, sce)
+    .checks_rcpp(res, sce)
 })
 
+devtools::test()

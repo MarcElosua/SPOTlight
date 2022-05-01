@@ -71,7 +71,7 @@ NULL
 
 #' @rdname trainNMF
 
-#' @importFrom Matrix rowSums
+#' @importFrom Matrix rowSums Matrix
 #' @importFrom RcppML nmf
 #' @export
 trainNMF <- function(
@@ -100,8 +100,12 @@ trainNMF <- function(
     ids <- c(gene_id, group_id, weight_id)
     
     stopifnot(
-        is.numeric(x) | is(x, "dgCMatrix"), 
-        is.numeric(y) | is(y, "dgCMatrix"),
+        is.numeric(x) | is(x, "dgCMatrix") |
+            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "DelayedMatrix"), 
+        is.numeric(y) | is(y, "dgCMatrix") |
+            is(y, "Seurat") | is(y, "SingleCellExperiment") |
+            is(y, "DelayedMatrix"),
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
@@ -121,7 +125,7 @@ trainNMF <- function(
     if (!is.matrix(x) | is(x, "dgCMatrix"))
         x <- .extract_counts(x, assay, slot)
     
-    if (!is.matrix(y))
+    if (!is.matrix(y) | is(y, "dgCMatrix"))
         y <- .extract_counts(y, assay, slot)
     
     if (is.matrix(x)) {
@@ -164,16 +168,18 @@ trainNMF <- function(
     rank <- length(unique(groups))
     
     if (pnmf == "NMF") {
-        if (verbose) message("Seeding initial matrices")
+        if (verbose) message("Seeding initial matrices...")
         hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
         seed <- nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
         # train NMF model
-        if (verbose) message("Training NMF model")
+        if (verbose) message("Training NMF model...")
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
     } else if (pnmf == "RcppML") {
-        if (verbose) message("Training NMF model") 
+        if (verbose) message("Training NMF model...") 
         # TODO add flexibility for k, tol, l1 + parallelization
         # TODO add seeding from RcppML github
+        # TODO change library Matrix
+        require(Matrix)
         mod <- RcppML::nmf(
             A = x,
             k = rank,

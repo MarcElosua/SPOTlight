@@ -5,8 +5,6 @@
     # TODO find a more efficient way of scaling the matrix
     # t1 <- t(scale(t(x), center = FALSE, scale = sds))
     t1 <- t(t(x) / sds)
-    print(t1[1:5, 1:5])
-    print(is(t1))
     t1
 }
 
@@ -163,7 +161,11 @@
     # Iterate over all the accepted classes and return expression matrix
     if (is(x, "DelayedMatrix")) {
         # Convert to matrix
-        x <- Matrix(x, sparse = TRUE)
+        rn <- rownames(x)
+        cn <- colnames(x)
+        x <- Matrix(x, sparse = TRUE, nrow = nrow(x), ncol = ncol(x))
+        rownames(x) <- rn
+        colnames(x) <- cn
     } else if (is(x, "Seurat")) {
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
@@ -174,7 +176,7 @@
             assay %in% SeuratObject::Assays(x)
         )
         
-        # Extract spatial coordinates
+        # Extract Seurat coordinates
         x <- SeuratObject::GetAssayData(x, slot, assay)
     } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
@@ -188,12 +190,14 @@
             # Return error if there are no colnames in the object
             !is.null(colnames(x))
         )
-        ## Extract spatial coordinates
+        ## Extract SCE-SE coordinates
         x <- SummarizedExperiment::assay(x, slot)
+    } else if (is(x, "dgCMatrix") | is.matrix(x)) {
+        x
     } else {
-        stop("Couldn't extract image coordinates.
-            Please check class(x) is SpatialExperiment, Seurat,
-            dataframe or matrix")
+        stop("Couldn't extract counts. Please check class(x) is a
+        SingleCellExpriment, SpatialExperiment, Seurat, matrix, DelayedMatrix
+        or dgCMatrix.")
     }
     return(x)
     
