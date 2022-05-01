@@ -9,6 +9,7 @@ trainNMF(
   y,
   groups = NULL,
   mgs,
+  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   gene_id = "gene",
   group_id = "cluster",
@@ -34,6 +35,9 @@ Make sure groups is not a Factor.}
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
+
+\item{pnmf}{character vector specifying which from which package to grab
+\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
@@ -65,9 +69,6 @@ object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
 
 \item{...}{additional parameters.}
-
-\item{pnmf}{character vector specifying which from which package to grab
-\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and
