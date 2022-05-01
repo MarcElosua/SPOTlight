@@ -2,20 +2,14 @@
 % Please edit documentation in R/plotTopicProfiles.R
 \name{plotTopicProfiles}
 \alias{plotTopicProfiles}
-\alias{plotTopicProfiles,NMFfit,ANY-method}
-\alias{plotTopicProfiles,NMFfit,character-method}
 \title{Plot NMF topic profiles}
 \usage{
-\S4method{plotTopicProfiles}{NMFfit,ANY}(x, y, ...)
-
-\S4method{plotTopicProfiles}{NMFfit,character}(x, y, facet = FALSE, min_prop = 0.1, ncol = NULL)
+plotTopicProfiles(x, y, facet = FALSE, min_prop = 0.01, ncol = NULL)
 }
 \arguments{
 \item{x}{\code{\link{NMFfit}} object}
 
 \item{y}{vector of group labels. Should be of length \code{ncol(coef(x))}.}
-
-\item{...}{additional parameters}
 
 \item{facet}{logical indicating whether to stratify by group.
 If \code{FALSE} (default), weights will be the median across cells

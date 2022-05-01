@@ -283,9 +283,9 @@ You can visualize the above explanation in the following workflow scheme:
 
 ```{r SPOTlight}
 res <- SPOTlight(
-    x = counts(sce),
-    y = counts(spe),
-    groups = sce$free_annotation,
+    x = sce,
+    y = spe,
+    groups = as.character(sce$free_annotation),
     mgs = mgs_df,
     hvg = hvg,
     weight_id = "mean.AUC",
@@ -418,7 +418,7 @@ names(pal) <- ct
 plotSpatialScatterpie(
     x = spe,
     y = mat,
-    cell_types = colnames(y),
+    cell_types = colnames(mat),
     img = FALSE,
     scatterpie_alpha = 1,
     pie_scale = 0.4) +

@@ -2,51 +2,13 @@
 % Please edit documentation in R/trainNMF.R
 \name{trainNMF}
 \alias{trainNMF}
-\alias{trainNMF,SingleCellExperiment,ANY-method}
-\alias{trainNMF,ANY,SingleCellExperiment-method}
-\alias{trainNMF,ANY,SpatialExperiment-method}
-\alias{trainNMF,Seurat,ANY-method}
-\alias{trainNMF,ANY,Seurat-method}
-\alias{trainNMF,ANY,matrix-method}
-\alias{trainNMF,matrix,ANY-method}
-\alias{trainNMF,ANY,DelayedMatrix-method}
-\alias{trainNMF,DelayedMatrix,ANY-method}
-\alias{trainNMF,ANY,ANY-method}
-\alias{trainNMF,dgCMatrix,dgCMatrix-method}
 \title{train NMF model}
 \usage{
-\S4method{trainNMF}{SingleCellExperiment,ANY}(
+trainNMF(
   x,
   y,
-  ...,
-  assay = "counts",
-  groups = colLabels(x, onAbsence = "error")
-)
-
-\S4method{trainNMF}{ANY,SingleCellExperiment}(x, y, ..., assay = "counts")
-
-\S4method{trainNMF}{ANY,SpatialExperiment}(x, y, ..., assay = "counts")
-
-\S4method{trainNMF}{Seurat,ANY}(x, y, ..., slot = "counts", assay = "RNA", groups = Idents(x))
-
-\S4method{trainNMF}{ANY,Seurat}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{trainNMF}{ANY,matrix}(x, y, ...)
-
-\S4method{trainNMF}{matrix,ANY}(x, y, ...)
-
-\S4method{trainNMF}{ANY,DelayedMatrix}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{trainNMF}{DelayedMatrix,ANY}(x, y, ..., slot = "counts", assay = "RNA")
-
-\S4method{trainNMF}{ANY,ANY}(x, y, ...)
-
-\S4method{trainNMF}{dgCMatrix,dgCMatrix}(
-  x,
-  y,
-  groups,
+  groups = NULL,
   mgs,
-  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   gene_id = "gene",
   group_id = "cluster",
@@ -55,6 +17,8 @@
   model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
+  assay = "RNA",
+  slot = "counts",
   ...
 )
 }
@@ -62,27 +26,14 @@
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
 numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
 
-\item{...}{additional parameters.}
-
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-  By default "RNA".}
-
-\item{groups}{vector of group labels for cells in \code{x}.
+\item{groups}{character vector of group labels for cells in \code{x}.
 When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
-
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
+defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
+Make sure groups is not a Factor.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
-
-\item{pnmf}{character vector specifying which from which package to grab
-\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
@@ -103,6 +54,20 @@ as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
+
+\item{assay}{if the object is of Class \code{Seurat}, character string
+specifying the assay from which to extract the expression matrix.
+  By default "RNA".}
+
+\item{slot}{if the object is of Class \code{Seurat}, character string
+specifying the slot from which to extract the expression matrix. If the
+object is of class \code{SingleCellExperiment} indicates matrix to use.
+By default "counts".}
+
+\item{...}{additional parameters.}
+
+\item{pnmf}{character vector specifying which from which package to grab
+\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and

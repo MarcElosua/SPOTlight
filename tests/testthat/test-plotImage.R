@@ -27,7 +27,7 @@ test_that("plotImage array", {
 #     # image
 #     if (!"stxBrain.SeuratData" %in% suppressWarnings(SeuratData::InstalledData()$Dataset))
 #         suppressWarnings(SeuratData::InstallData(ds = "stxBrain.SeuratData"))
-#     
+# 
 #     x <- suppressWarnings(SeuratData::LoadData(
 #         ds = "stxBrain",
 #         type = "anterior1"))

@@ -155,3 +155,163 @@
         stop("Please install package/s: ", x)
     }
 }
+
+# Helper function to substitute the S4 method.
+# This function takes in an object of class accepted in SPOTlight, it
+# extracts the count/expression matrix specified and returns a matrix
+.extract_counts <- function(x, assay, slot) {
+    # Iterate over all the accepted classes and return expression matrix
+    if (is(x, "DelayedMatrix")) {
+        # Convert to matrix
+        x <- Matrix(x, sparse = TRUE)
+    } else if (is(x, "Seurat")) {
+        .test_installed(c("SeuratObject"))
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(
+            # Stop if there are no images
+            !is.null(SeuratObject::Assays(x)),
+            # Stop if the assay doesn't exist
+            assay %in% SeuratObject::Assays(x)
+        )
+        
+        # Extract spatial coordinates
+        x <- SeuratObject::GetAssayData(x, slot, assay)
+    } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
+        .test_installed(c("SummarizedExperiment"))
+        
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(
+            # Stop if there are no images
+            !is.null(SummarizedExperiment::assayNames(x)),
+            # Stop if the image doesn't exist
+            slot %in% SummarizedExperiment::assayNames(x),
+            # Return error if there are no colnames in the object
+            !is.null(colnames(x))
+        )
+        ## Extract spatial coordinates
+        x <- SummarizedExperiment::assay(x, slot)
+    } else {
+        stop("Couldn't extract image coordinates.
+            Please check class(x) is SpatialExperiment, Seurat,
+            dataframe or matrix")
+    }
+    return(x)
+    
+}
+
+# Take an array representing an image and plot it with ggplot2
+#' @import ggplot2
+.plot_image <- function(x) {
+    # Check necessary packages are installed and if not STOP
+    .test_installed(c("grid", "ggplot2"))
+    
+    x <- grid::rasterGrob(x,
+        interpolate = FALSE,
+        width = grid::unit(1, "npc"),
+        height = grid::unit(1, "npc"))
+    
+    ggplot() +
+        annotation_custom(
+            grob = x,
+            xmin = 0,
+            xmax = ncol(x$raster),
+            ymin = 0,
+            ymax = nrow(x$raster)) + 
+        coord_fixed(
+            xlim = c(0, ncol(x$raster)),
+            ylim = c(0, nrow(x$raster))) + 
+        theme_void()
+}
+
+# Extract image and convert it to array from allowed classes
+.extract_image <- function(x, slice = NULL) {
+    # Iterate over all the accepted classes and convert the image to array
+    if (is.character(x)) {
+        .test_installed(c("jpeg", "png"))
+        
+        # Check if the file exists
+        stopifnot(file.exists(x))
+        
+        # Check the file is in the right format
+        typ <- c("jpg", "jpeg", "png")
+        pat <- paste0(".", typ, "$")
+        idx <- vapply(pat, grepl, x = x, logical(1), ignore.case = TRUE)
+        if (!any(idx)) {
+            stop("'x' should be of file type JPG, JPEG or PNG")
+        }
+        
+        # Read file
+        x <- switch(typ[idx],
+            png = png::readPNG(x),
+            jpeg::readJPEG(x))
+        
+    } else if (is(x, "Seurat")) {
+        .test_installed(c("SeuratObject"))
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(
+            !is.null(SeuratObject::Images(x)),
+            slice %in% SeuratObject::Images(x))
+        
+        # If image is null use the first slice
+        if (is.null(slice)) 
+            slice <- SeuratObject::Images(x)[1]
+        
+        # Extract Image in raster format
+        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
+        # Conver to matrix
+        x <- as.matrix(x)
+        
+    } else if (is(x, "SpatialExperiment")) {
+        
+        .test_installed(c("SpatialExperiment"))
+        
+        # Stop if there are no images or the name selected doesn't exist
+        stopifnot(
+            !is.null(SpatialExperiment::getImg(x)),
+            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"]
+        )
+        
+        # If image is null use the first slice
+        if (is.null(slice)) 
+            slice <- SpatialExperiment::imgData(x)[1, "sample_id"]
+        
+        # Convert to raster
+        x <- SpatialExperiment::imgRaster(x, sample_id = slice)
+        x <- as.matrix(x)
+    } else {
+        stop("Couldn't extract image, See ?plotImage for valid image inputs.")
+    }
+    return(x)
+}
+
+# When assigning cells to groups in trainNMF and SPOTlight if groups is set to
+# NULL use the cell identities/labels. If it is not a Seurat or SCE return error
+.set_groups_if_null <- function(x) {
+    ## Seurat ##
+    if (is(x, "Seurat")) {
+        # Extract idents
+        idents <- SeuratObject::Idents(x)
+        if (is.null(idents)) {
+            stop("SeuratObject::Idents(x) is NULL")
+        } else {
+            warning("Grouping cells into celltypes by Idents(x)")
+            groups <- as.character(idents)
+        }
+        
+    ## SCE ##
+    } else if (is(x, "SingleCellExperiment")) {
+        # Extract idents
+        idents <- SingleCellExperiment::colLabels(x)
+        if (is.null(idents)) {
+            stop("SingleCellExperiment::colLabels(x) is NULL")
+        } else {
+            warning("Grouping cells into celltypes
+                    by SingleCellExperiment::colLabels(x)")
+            groups <- as.character(idents)
+        }
+    ## other ##
+    } else {
+        stop("Parameter groups needs to be defined.")
+    }
+    groups
+}

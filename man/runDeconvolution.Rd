@@ -2,28 +2,9 @@
 % Please edit documentation in R/runDeconvolution.R
 \name{runDeconvolution}
 \alias{runDeconvolution}
-\alias{runDeconvolution,SingleCellExperiment-method}
-\alias{runDeconvolution,SpatialExperiment-method}
-\alias{runDeconvolution,Seurat-method}
-\alias{runDeconvolution,matrix-method}
-\alias{runDeconvolution,DelayedMatrix-method}
-\alias{runDeconvolution,ANY-method}
-\alias{runDeconvolution,dgCMatrix-method}
 \title{Run Deconvolution using NNLS model}
 \usage{
-\S4method{runDeconvolution}{SingleCellExperiment}(x, ..., assay = "counts")
-
-\S4method{runDeconvolution}{SpatialExperiment}(x, ..., assay = "counts")
-
-\S4method{runDeconvolution}{Seurat}(x, slot = "counts", assay = "RNA")
-
-\S4method{runDeconvolution}{matrix}(x, ...)
-
-\S4method{runDeconvolution}{DelayedMatrix}(x, ...)
-
-\S4method{runDeconvolution}{ANY}(x, ...)
-
-\S4method{runDeconvolution}{dgCMatrix}(
+runDeconvolution(
   x,
   mod,
   ref,
@@ -36,18 +17,8 @@
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment} or \code{SeuratObjecy}.}
-
-\item{...}{additional parameters.}
-
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-  By default "RNA".}
-
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SpatialExperiment} indicates matrix to use.
-By default "counts".}
+\code{SingleCellExperiment}, \code{SpatialExperiment} or 
+\code{SeuratObjecy}.}
 
 \item{mod}{object of class NMFfit as obtained from trainNMF.}
 
@@ -64,6 +35,15 @@ expected from a cell type in \code{x} to observations in \code{y}.
 By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
+
+\item{assay}{if the object is of Class \code{Seurat}, character string
+specifying the assay from which to extract the expression matrix.
+By default "RNA". Ignore for the rest of x input classes.}
+
+\item{slot}{if the object is of Class \code{Seurat}, character string
+specifying the slot from which to extract the expression matrix. If the
+object is of class \code{SpatialExperiment} indicates matrix to use.
+By default "counts".}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and

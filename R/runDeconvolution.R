@@ -9,7 +9,8 @@
 #'    mixture
 #'  
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or 
+#'   \code{SeuratObjecy}.
 #' @param mod object of class NMFfit as obtained from trainNMF. 
 #' @param ref bject of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF. 
@@ -22,13 +23,12 @@
 #'   By default 0.
 #' @param assay if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'     By default "RNA".
+#'   By default "RNA". Ignore for the rest of x input classes.
 #' @param slot if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SpatialExperiment} indicates matrix to use.
 #'   By default "counts".
 #' @param verbose logical. Should information on progress be reported?
-#' @param ... additional parameters.
 #'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
@@ -59,117 +59,72 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "SingleCellExperiment",
-    function(x, ..., assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        runDeconvolution(SummarizedExperiment::assay(x, assay), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "SpatialExperiment",
-    function(x, ..., assay = "counts") {
-        # Check necessary packages are installed and if not STOP
-        .test_installed("SummarizedExperiment")
-        runDeconvolution(SummarizedExperiment::assay(x, assay), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @importFrom SeuratObject GetAssayData
-#' @export
-setMethod("runDeconvolution", "Seurat",
-    function(x, slot = "counts", assay = "RNA") {
-        runDeconvolution(GetAssayData(x, slot, assay), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @importFrom Matrix Matrix
-#' @export
-setMethod("runDeconvolution", "matrix",
-    function(x, ...) {
-        runDeconvolution(Matrix(x, sparse = TRUE), ...)
-    })
-
-#' @rdname runDeconvolution
-#' @importFrom Matrix Matrix
-#' @export
-setMethod("runDeconvolution", "DelayedMatrix",
-    function(x, ...) {
-        runDeconvolution(
-            x = Matrix(
-                x,
-                sparse = TRUE,
-                nrow = nrow(x),
-                ncol = ncol(x),
-                dimnames = list(rownames(x), colnames(x))),
-            ...)
-    })
-
-#' @rdname runDeconvolution
-#' @export
-setMethod("runDeconvolution", "ANY",
-    function(x, ...) {
-        stop("See ?runDeconvolution for valid x inputs")
-    })
-
-#' @rdname runDeconvolution
 #' @importFrom nnls nnls
 #' @export
-setMethod("runDeconvolution", "dgCMatrix",
-    function(x, mod,
-        ref,
-        scale = TRUE,
-        min_prop = 0.01,
-        verbose = TRUE,
-        assay = "RNA",
-        slot = "counts") {
-        
-        if (is.null(n_top))
-            n_top <- max(table(mgs[[group_id]]))
-        
-        ids <- c(gene_id, group_id, weight_id)
-        
-        stopifnot(
-            is.numeric(x) | is(x, "dgCMatrix"), 
-            is.numeric(min_prop), length(min_prop) == 1,
-            min_prop >= 0, min_prop <= 1,
-            is.logical(scale), length(scale) == 1,
-            is.logical(verbose), length(verbose) == 1)
-        
-        # If working with NMF package, which returns an NMFfit object
-        # convert ST matrix to dense
-        if (is(mod[[1]], "NMFfit"))
-            x <- as.matrix(x)
-        
-        # Get topic profiles for mixtures
-        mat <- .pred_prop(x, mod, scale)
-        
-        if (verbose) message("Deconvoluting mixture data")
-        
-        res <- vapply(seq_len(ncol(mat)), function(i) {
-            pred <- nnls::nnls(ref, mat[, i])
-            prop <- prop.table(pred$x)
-            # drop groups that fall below 'min_prop' & update
-            prop[prop < min_prop] <- 0
-            prop <- prop.table(prop)
-            # compute residual sum of squares
-            ss <- sum(mat[, i]^2)
-            # compute percentage of unexplained residuals
-            err <- pred$deviance / ss
-            c(prop, err)
-        }, numeric(ncol(ref) + 1))
-        
-        # set dimension names
-        rownames(res) <- c(dimnames(mod)[[3]], "res_ss")
-        colnames(res) <- colnames(mat)
-        
-        # Separate residuals from proportions
-        # Extract residuals
-        err <- res["res_ss", ]
-        # Extract only deconvolution matrices
-        res <- res[-nrow(res), ]
-        
-        return(list("mat" = t(res), "res_ss" = err))
-})
+runDeconvolution <- function(
+    x,
+    mod,
+    ref,
+    scale = TRUE,
+    min_prop = 0.01,
+    verbose = TRUE,
+    assay = "RNA",
+    slot = "counts") {
+    
+    # Class checks
+    stopifnot(
+        # Check x inputs
+        is.matrix(x) | is(x, "DelayedMatrix") | is(x, "dgCMatrix") |
+            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "SpatialExperiment"),
+        # Check mod inputs
+        is(mod, "NMFfit"),
+        # check ref
+        is.matrix(ref),
+        # Check assay name
+        is.character(assay), length(assay) == 1,
+        # Check slot name
+        is.character(slot), length(slot) == 1,
+        # Check scale and verbose
+        is.logical(scale), length(scale) == 1,
+        is.logical(verbose), length(verbose) == 1,
+        # Check min_prop numeric
+        is.numeric(min_prop), length(min_prop) == 1,
+        min_prop >= 0, min_prop <= 1
+    )
+    
+    # Extract expression matrix
+    if (!is.matrix(x))
+        x <- .extract_counts(x, assay, slot)
+    
+    # Get topic profiles for mixtures
+    mat <- .pred_prop(x, mod, scale)
+    
+    if (verbose) message("Deconvoluting mixture data")
+    
+    res <- vapply(seq_len(ncol(mat)), function(i) {
+        pred <- nnls::nnls(ref, mat[, i])
+        prop <- prop.table(pred$x)
+        # drop groups that fall below 'min_prop' & update
+        prop[prop < min_prop] <- 0
+        prop <- prop.table(prop)
+        # compute residual sum of squares
+        ss <- sum(mat[, i]^2)
+        # compute percentage of unexplained residuals
+        err <- pred$deviance / ss
+        c(prop, err)
+    }, numeric(ncol(ref) + 1))
+    
+    # set dimension names
+    # rownames come from the reference
+    rownames(res) <- c(rownames(ref), "res_ss")
+    colnames(res) <- colnames(mat)
+    
+    # Separate residuals from proportions
+    # Extract residuals
+    err <- res["res_ss", ]
+    # Extract only deconvolution matrices
+    res <- res[-nrow(res), ]
+    
+    return(list("mat" = t(res), "res_ss" = err))
+}

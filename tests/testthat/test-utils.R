@@ -27,7 +27,7 @@ test_that("NMF", {
     x <- counts(sce)
     y <- counts(spe)
     groups <- sce$type
-    group_ids <- paste0("topic_", seq_len(length(levels(sce$type))))
+    group_ids <- sort(unique(as.character(sce$type)))
     n_groups <- length(group_ids)
     
     # + trainNMF ----
@@ -56,7 +56,7 @@ test_that("NMF", {
     # filtering, mgs, hvg, all 0...
     expect_identical(
         dimnames(mod)[2:3],
-        c(dimnames(x)[2], list(group_ids)))
+        c(dimnames(x)[2], list(paste0("topic_", 1:ncol(basis(mod))))))
     
     # + .topic_profiles ----
     # should give a square numeric matrix
@@ -64,8 +64,8 @@ test_that("NMF", {
     ref <- .topic_profiles(mod, groups)
     expect_is(ref, "matrix")
     expect_equal(dim(ref), rep(n_groups, 2))
-    expect_identical(rownames(ref), paste0("type", 1:nrow(ref)))
-    expect_identical(colnames(ref), group_ids)
+    expect_identical(rownames(ref), group_ids)
+    expect_identical(colnames(ref), paste0("topic_", 1:nrow(ref)))
     
     # + .pred_prop ----
     fqs <- .pred_prop(x, mod)
@@ -73,7 +73,9 @@ test_that("NMF", {
     expect_true(is.numeric(x))
     expect_true(all(fqs >= 0))
     expect_equal(dim(fqs), c(n_groups, ncol(x)))
-    expect_identical(dimnames(fqs), list(group_ids, colnames(x)))
+    expect_identical(
+        dimnames(fqs),
+        list(paste0("topic_", 1:nrow(ref)), colnames(x)))
     
     # + runDeconvolution ----
     # should give a numeric matrix
@@ -91,7 +93,51 @@ test_that("NMF", {
     expect_identical(rownames(mat), names(err))
     # actually check the estimates are legit
     # (MSE < 0.1 compared to simulated truth)
-    sim <- metadata(spe)[[1]]
+    sim <- S4Vectors::metadata(spe)[[1]]
     mse <- mean((mat - sim)^2)
     expect_true(mse < 0.1)
 })
+
+
+# image
+library(ExperimentHub)
+eh <- ExperimentHub() # initialize hub instance
+q <- query(eh, "TENxVisium") # retrieve 'TENxVisiumData' records
+id <- q$ah_id[1] # specify dataset ID to load
+spe <- eh[[id]]
+colLabels(spe) <- spe$sample_id
+
+# .extract_counts
+test_that(".extract_counts()", {
+    x <- .extract_counts(spe, slot = "counts")
+    expect_identical(dim(counts(spe)), dim(x))
+    expect_identical(dimnames(spe), dimnames(x))
+})
+
+# .extract_image
+test_that(".extract_image()", {
+    x <- counts(sce)
+    y <- .scale_uv(x)
+    expect_is(y, "matrix")
+    expect_identical(dim(y), dim(x))
+    expect_identical(dimnames(y), dimnames(x))
+    expect_true(all(abs(1 - matrixStats::rowVars(y)) < 1e-12))
+})
+
+# .plot_image
+x_path <- paste0(system.file(package = "SPOTlight"), "/extdata/SPOTlight.png")
+test_that(".plot_image() SPE", {
+    img <- .extract_image(x_path)
+    plt <- .plot_image(img)
+    expect_true(is.array(img))
+    expect_equal(class(plt)[1], "gg")
+})
+
+test_that(".plot_image() SPE", {
+    img <- .extract_image(spe)
+    plt <- .plot_image(img)
+    expect_equal(class(plt)[1], "gg")
+    expect_true(is.matrix(img))
+})
+
+

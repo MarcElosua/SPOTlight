@@ -3,6 +3,14 @@ set.seed(321)
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
 mgs <- getMGS(sce)
+# Create SpatialExperiment
+spe1 <- SpatialExperiment::SpatialExperiment(
+    assay = list(counts = counts(spe)),
+    colData = SummarizedExperiment::colData(spe))
+
+# Create dummy Seurat object
+sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
+sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
 
 # Function to run the checks
 .checks <- function(res, sce) {
@@ -14,7 +22,9 @@ mgs <- getMGS(sce)
     expect_is(rss, "numeric")
     expect_is(mod, "NMFfit")
     expect_identical(ncol(mtr), length(unique(sce$type)))
+    expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), length(rss))
+    expect_identical(sort(rownames(mtr)), sort(names(rss)))
 }
 
 # ------------------------------------------------------------------------------
@@ -38,7 +48,7 @@ test_that("SPOTlight x SCE", {
 })
 
 # .SPOTlight with SPE ----
-test_that("SPOTlight x SPE", {
+test_that("SPOTlight x SCE spatial", {
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = spe,
@@ -52,6 +62,50 @@ test_that("SPOTlight x SPE", {
     .checks(res, sce)
 })
 
+# .SPOTlight with SPE ----
+test_that("SPOTlight x SCE spatial", {
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = spe1,
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
+    .checks(res, sce)
+})
+
+# .SPOTlight with Seurat SC ----
+test_that("SPOTlight x SEC", {
+    res <- SPOTlight(
+        x = sec,
+        y = as.matrix(counts(spe)),
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
+    .checks(res, sce)
+})
+
+# .SPOTlight with Seurat SP ----
+test_that("SPOTlight x SEP", {
+    res <- SPOTlight(
+        x = as.matrix(counts(sce)),
+        y = spe,
+        groups = sce$type,
+        mgs = mgs,
+        weight_id = "weight",
+        group_id = "type",
+        gene_id = "gene"
+    )
+    
+    .checks(res, sce)
+})
 
 # .SPOTlight with sparse matrix sc ----
 test_that("SPOTlight x dgCMatrix SC", {
@@ -141,3 +195,4 @@ test_that("SPOTlight x hvg", {
 
     .checks(res, sce)
 })
+
