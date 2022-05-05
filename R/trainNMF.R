@@ -43,8 +43,9 @@
 #' @param ... additional parameters.
 #'
 #'
-#' @return base a list where the first element is an \code{NMFfit} object and
-#'   the second is a matrix contatining the topic profiles learnt.
+#' @return a list where the first element is a list with the NMF model
+#'   information (see ?RcppML::nmf return value) and the second is a matrix
+#'    containing the topic profiles learnt per cell type.
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
@@ -72,7 +73,6 @@ NULL
 #' @rdname trainNMF
 
 #' @importFrom Matrix rowSums Matrix
-#' @importFrom RcppML nmf
 #' @export
 trainNMF <- function(
     x,
@@ -122,10 +122,10 @@ trainNMF <- function(
     
     # Extract expression matrices for x and y
     # TODO check this step
-    if (!is.matrix(x) | is(x, "dgCMatrix"))
+    if (!is.matrix(x) & !is(x, "dgCMatrix"))
         x <- .extract_counts(x, assay, slot)
     
-    if (!is.matrix(y) | is(y, "dgCMatrix"))
+    if (!is.matrix(y) & !is(y, "dgCMatrix"))
         y <- .extract_counts(y, assay, slot)
     
     if (is.matrix(x)) {
@@ -168,13 +168,15 @@ trainNMF <- function(
     rank <- length(unique(groups))
     
     if (pnmf == "NMF") {
+        .test_installed("NMF")
         if (verbose) message("Seeding initial matrices...")
         hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
-        seed <- nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
+        seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
         # train NMF model
         if (verbose) message("Training NMF model...")
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
     } else if (pnmf == "RcppML") {
+        .test_installed("RcppML")
         if (verbose) message("Training NMF model...") 
         # TODO add flexibility for k, tol, l1 + parallelization
         # TODO add seeding from RcppML github
@@ -200,6 +202,16 @@ trainNMF <- function(
     if (verbose) {
         dt <- round(difftime(t1, t0, units = "mins"), 2)
         message("Time for training: ", dt, "min")
+    }
+    
+    # Extract NMFfit to list for consistency with RcppML
+    if (is(mod, "NMFfit")) {
+        mod <- list(
+            "w" = NMF::basis(mod),
+            "d" = NULL,
+            "h" = NMF::coef(mod),
+            "tol" = NULL,
+            "iter" = mod@extra$iteration)
     }
     
     # get topic profiles per cell type
