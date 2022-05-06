@@ -95,7 +95,8 @@ trainNMF <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1 = c(0.5, 0.5),
+    L1 = 0.5,
+    L2 = 0,
     tol = 1e-05,
     ...) {
     # check validity of input arguments
