@@ -120,29 +120,30 @@
     return(t(res))
 }
 
-#' @importFrom NMF basis
-#' @importFrom nnls nnls
+
 .pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
     # Keep basis sparse
-    if (class(mod, "NMFfit")) {
-        W <- data.frame(basis(mod))
+    if (is(mod, "NMFfit")) {
+        .test_installed("NMF")
+        W <- NMF::basis(mod)
     } else if (is.list(mod)) {
-        W <- data.frame(mod$w)
+        W <- mod$w
     }
+    
     
     x <- x[rownames(W), ]
     if (scale) {
         x <- .scale_uv(x)
     }
-    # TODO go from here
-    # Error in nnls(W, x[, i]) : 
-    # 'list' object cannot be coerced to type 'double'
-    y <- vapply(
-        seq_len(ncol(x)), 
-        function(i) nnls(W, x[, i])$x,
+    
+    # TODO ask Zach why a needs to be symmetric?
+    # TODO implement nnls RcppML
+    y <- vapply(seq_len(ncol(x)), function(i)
+        nnls::nnls(W, x[, i, drop = FALSE])$x,
         numeric(ncol(W)))
     
-    rownames(y) <- dimnames(mod)[[3]]
+    # TODO check line below
+    rownames(y) <- rownames(mod$h)
     colnames(y) <- colnames(x)
     return(y)
 }
@@ -331,7 +332,7 @@
 # Helper function to extract elements of interest from objects NMFfit
 # (NMF package) and nmf (RcppML) and returns a list with relevant information
 # consistent between both of them
-.extract_nmf <- function(mod) {
+.extract_nmf <- function(mod, smtx) {
     if (is(mod, "NMFfit")) {
         mod <- list(
             "w" = NMF::basis(mod),
@@ -342,7 +343,7 @@
                 "iter" = mod@extra$iteration,
                 "runtime" = mod@runtime,
                 "mse" = NULL,
-                "w_init" = hw$W)
+                "w_init" = smtx)
         )
     } else if (is(mod, "nmf")) {
         mod <- list(

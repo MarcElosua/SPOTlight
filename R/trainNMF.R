@@ -211,7 +211,7 @@ trainNMF <- function(
     }
     
     # Extract NMFfit to list for consistency with RcppML
-    mod <- .extract_nmf(mod)
+    mod <- .extract_nmf(mod, hw$W)
     
     # get topic profiles per cell type
     topic <- .topic_profiles(mod, groups)

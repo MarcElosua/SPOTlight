@@ -112,7 +112,7 @@ SPOTlight <- function(
     
     # train NMF model
     mod_ls <- trainNMF(x, y, groups, mgs, pnmf, n_top, gene_id, group_id,
-        weight_id, hvg, model, scale, verbose, assay, slot, L1, L2, tol...)
+        weight_id, hvg, model, scale, verbose, assay, slot, L1, L2, tol, ...)
     
     # perform deconvolution
     res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],

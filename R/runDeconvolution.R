@@ -78,7 +78,7 @@ runDeconvolution <- function(
             is(x, "Seurat") | is(x, "SingleCellExperiment") |
             is(x, "SpatialExperiment"),
         # Check mod inputs
-        is(mod, "NMFfit"),
+        is.list(mod),
         # check ref
         is.matrix(ref),
         # Check assay name
@@ -100,7 +100,7 @@ runDeconvolution <- function(
     # Get topic profiles for mixtures
     mat <- .pred_prop(x, mod, scale)
     
-    if (verbose) message("Deconvoluting mixture data")
+    if (verbose) message("Deconvoluting mixture data...")
     
     res <- vapply(seq_len(ncol(mat)), function(i) {
         pred <- nnls::nnls(ref, mat[, i])

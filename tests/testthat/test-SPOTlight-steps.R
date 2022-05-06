@@ -67,3 +67,4 @@ test_that("SPOTlight vs SPOTlight-steps", {
     expect_true(mse < 0.1)
     
 })
+
