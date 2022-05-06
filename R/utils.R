@@ -319,3 +319,38 @@
     }
     groups
 }
+
+# Helper function to extract elements of interest from objects NMFfit
+# (NMF package) and nmf (RcppML) and returns a list with relevant information
+# consistent between both of them
+.extract_nmf <- function(mod) {
+    if (is(mod, "NMFfit")) {
+        mod <- list(
+            "w" = NMF::basis(mod),
+            "d" = NULL,
+            "h" = NMF::coef(mod),
+            "misc" = list(
+                "tol" = NULL,
+                "iter" = mod@extra$iteration,
+                "runtime" = mod@runtime,
+                "mse" = NULL,
+                "w_init" = hw$W)
+        )
+    } else if (is(mod, "nmf")) {
+        mod <- list(
+            "w" = mod@w,
+            "d" = mod@d,
+            "h" = mod@h,
+            "misc" = list(
+                "tol" = mod@misc$tol,
+                "iter" = mod@misc$iter,
+                "runtime" = mod@misc$runtime,
+                "mse" = NULL,
+                "w_init" = mod@misc$w_init)
+        )
+    } else {
+        stop("mod is neither an 'NMFfit' or 'nmf' object ")
+    }
+    
+    return(mod)
+}

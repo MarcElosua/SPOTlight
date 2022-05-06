@@ -181,19 +181,17 @@ trainNMF <- function(
         # TODO add flexibility for k, tol, l1 + parallelization
         # TODO add seeding from RcppML github
         # TODO change library Matrix
-        require(Matrix)
+        # Need to load Matrix here since RcppML fails if its not there
+        # require(Matrix)
         mod <- RcppML::nmf(
-            A = x,
+            data = x,
             k = rank,
             tol = 1e-05,
-            verbose = verbose,
+            # verbose = verbose,
             L1 = 0.5)
-        # Add rownames and colnames to basis and coeficient
-        # TODO ask Zach if this can be automated
-        rownames(mod$w) <- rownames(x)
-        colnames(mod$w) <- paste0("topic_", seq_len(rank))
-        rownames(mod$h) <- paste0("topic_", seq_len(rank))
-        colnames(mod$h) <- colnames(x)
+        # Change nmfX to topic_X
+        colnames(mod@w) <- paste0("topic_", seq_len(ncol(mod@w)))
+        rownames(mod@h) <- paste0("topic_", seq_len(nrow(mod@h)))
     }
     # capture stop time
     t1 <- Sys.time()
@@ -205,14 +203,7 @@ trainNMF <- function(
     }
     
     # Extract NMFfit to list for consistency with RcppML
-    if (is(mod, "NMFfit")) {
-        mod <- list(
-            "w" = NMF::basis(mod),
-            "d" = NULL,
-            "h" = NMF::coef(mod),
-            "tol" = NULL,
-            "iter" = mod@extra$iteration)
-    }
+    mod <- .extract_nmf(mod)
     
     # get topic profiles per cell type
     topic <- .topic_profiles(mod, groups)
