@@ -37,6 +37,11 @@
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
 #' Either "ns" (default) or "std".
+#' @param L1 LASSO penalties in the range (0, 1], single value or array of
+#'   length two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param L2 Ridge penalties greater than zero, single value or array of length
+#'   two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param tol tolerance of the fit ?RcppML::nmf() for more info.
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
 #'
@@ -100,11 +105,14 @@ SPOTlight <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
+    L1 = 0.5,
+    L2 = 0,
+    tol = 1e-5,
     ...) {
     
     # train NMF model
-    mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
-        weight_id, hvg, model, scale, verbose, ...)
+    mod_ls <- trainNMF(x, y, groups, mgs, pnmf, n_top, gene_id, group_id,
+        weight_id, hvg, model, scale, verbose, assay, slot, L1, L2, tol...)
     
     # perform deconvolution
     res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
