@@ -21,6 +21,11 @@ SPOTlight(
   verbose = TRUE,
   assay = "RNA",
   slot = "counts",
+  L1_nmf = 0.5,
+  L2_nmf = 0,
+  tol = 1e-05,
+  L1_nnls = 0.1,
+  L2_nnls = 0,
   ...
 )
 }
@@ -71,6 +76,20 @@ By default "RNA".}
 specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
+
+\item{L1_nmf}{LASSO penalties in the range (0, 1], single value or array of
+length two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{L2_nmf}{Ridge penalties greater than zero, single value or array of
+length two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{tol}{tolerance of the fit ?RcppML::nmf() for more info.}
+
+\item{L1_nnls}{L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
+for more info.}
+
+\item{L2_nnls}{Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
+for more info.}
 
 \item{...}{additional parameters.}
 }

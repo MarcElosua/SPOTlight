@@ -9,11 +9,9 @@
 }
 
 #' @importFrom Matrix Matrix
-#' TODO remoce pnmf
 .init_nmf <- function(x,
     groups,
     mgs,
-    # pnmf,
     n_top = NULL,
     gene_id = "gene",
     group_id = "cluster",
@@ -57,11 +55,6 @@
         w[mgs[[k]][[gene_id]]] <- ws
         return(w)
     }, numeric(ng))
-    
-    # if (pnmf == "RcppML") {
-    #     W[W == 1e-12] <- 0
-    #     W <- Matrix(W, sparse = TRUE)
-    # }
     
     # H is of dimension (#groups)x(#samples) with H(i,j)
     # equal to 1 if j is in i, and ~0 otherwise

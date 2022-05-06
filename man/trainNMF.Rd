@@ -20,6 +20,9 @@ trainNMF(
   verbose = TRUE,
   assay = "RNA",
   slot = "counts",
+  L1 = 0.5,
+  L2 = 0,
+  tol = 1e-05,
   ...
 )
 }
@@ -68,11 +71,20 @@ specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
 
+\item{L1}{LASSO penalties in the range (0, 1], single value or array of
+length two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{L2}{Ridge penalties greater than zero, single value or array of length
+two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{tol}{tolerance of the fit ?RcppML::nmf() for more info.}
+
 \item{...}{additional parameters.}
 }
 \value{
-base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix contatining the topic profiles learnt.
+a list where the first element is a list with the NMF model
+  information (see ?RcppML::nmf return value) and the second is a matrix
+   containing the topic profiles learnt per cell type.
 }
 \description{
 This is the training function used by SPOTLight. This function
