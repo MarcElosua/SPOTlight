@@ -39,6 +39,11 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
+#' @param L1 LASSO penalties in the range (0, 1], single value or array of
+#'   length two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param L2 Ridge penalties greater than zero, single value or array of length
+#'   two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param tol tolerance of the fit ?RcppML::nmf() for more info.
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
 #'
@@ -90,6 +95,8 @@ trainNMF <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
+    L1 = c(0.5, 0.5),
+    tol = 1e-05,
     ...) {
     # check validity of input arguments
     pnmf <- match.arg(pnmf)
@@ -109,7 +116,9 @@ trainNMF <- function(
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
-        is.logical(verbose), length(verbose) == 1)
+        is.logical(verbose), length(verbose) == 1,
+        is.numeric(L1), length(L1) < 3,
+        is.numeric(L2), length(L1) < 3)
     
     # Set groups if x is SCE or SE and groups is NULL 
     if (is.null(groups))
@@ -167,28 +176,26 @@ trainNMF <- function(
     # set model rank to number of groups
     rank <- length(unique(groups))
     
+    # Get seeding matrices
+    if (verbose) message("Seeding initial matrices...")
+    hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
+    seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
+    
     if (pnmf == "NMF") {
         .test_installed("NMF")
-        if (verbose) message("Seeding initial matrices...")
-        hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
-        seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
         # train NMF model
         if (verbose) message("Training NMF model...")
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
     } else if (pnmf == "RcppML") {
         .test_installed("RcppML")
         if (verbose) message("Training NMF model...") 
-        # TODO add flexibility for k, tol, l1 + parallelization
-        # TODO add seeding from RcppML github
-        # TODO change library Matrix
-        # Need to load Matrix here since RcppML fails if its not there
-        # require(Matrix)
         mod <- RcppML::nmf(
             data = x,
             k = rank,
-            tol = 1e-05,
+            tol = tol,
             # verbose = verbose,
-            L1 = 0.5)
+            L1 = L1,
+            seed = hw$W)
         # Change nmfX to topic_X
         colnames(mod@w) <- paste0("topic_", seq_len(ncol(mod@w)))
         rownames(mod@h) <- paste0("topic_", seq_len(nrow(mod@h)))
