@@ -28,6 +28,10 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SpatialExperiment} indicates matrix to use.
 #'   By default "counts".
+#' @param L1 L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
+#'   for more info.
+#' @param L2 Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
+#'   for more info.
 #' @param verbose logical. Should information on progress be reported?
 #'
 #'
@@ -69,7 +73,9 @@ runDeconvolution <- function(
     min_prop = 0.01,
     verbose = TRUE,
     assay = "RNA",
-    slot = "counts") {
+    slot = "counts",
+    L1 = 0.1,
+    L2 = 0) {
     
     # Class checks
     stopifnot(
@@ -104,6 +110,7 @@ runDeconvolution <- function(
     
     res <- vapply(seq_len(ncol(mat)), function(i) {
         pred <- nnls::nnls(ref, mat[, i])
+        # RcppML::nnls(W, x[, i, drop = FALSE], L1 = L1, L2 = L2),
         prop <- prop.table(pred$x)
         # drop groups that fall below 'min_prop' & update
         prop[prop < min_prop] <- 0

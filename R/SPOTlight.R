@@ -34,14 +34,18 @@
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
 #' @param n_top integer scalar specifying the number of markers to select per
-#'  group. By default NULL uses all the marker genes to initialize the model.
+#'   group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
-#' Either "ns" (default) or "std".
-#' @param L1 LASSO penalties in the range (0, 1], single value or array of
+#'   Either "ns" (default) or "std".
+#' @param L1_nmf LASSO penalties in the range (0, 1], single value or array of
 #'   length two for c(w, h). See ?RcppML::nmf() for more info.
-#' @param L2 Ridge penalties greater than zero, single value or array of length
-#'   two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param L2_nmf Ridge penalties greater than zero, single value or array of
+#'   length two for c(w, h). See ?RcppML::nmf() for more info.
 #' @param tol tolerance of the fit ?RcppML::nmf() for more info.
+#' @param L1_nnls L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
+#'   for more info.
+#' @param L2_nnls Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
+#'   for more info.
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
 #'
@@ -105,18 +109,20 @@ SPOTlight <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1 = 0.5,
-    L2 = 0,
+    L1_nmf = 0.5,
+    L2_nmf = 0,
     tol = 1e-5,
+    L1_nnls = 0.1,
+    L2_nnls = 0,
     ...) {
     
     # train NMF model
     mod_ls <- trainNMF(x, y, groups, mgs, pnmf, n_top, gene_id, group_id,
-        weight_id, hvg, model, scale, verbose, assay, slot, L1, L2, tol, ...)
+        weight_id, hvg, model, scale, verbose, assay, slot, L1_nmf, L2_nmf, tol, ...)
     
     # perform deconvolution
     res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
-        scale, min_prop, verbose)
+        scale, min_prop, verbose, assay, slot, L1_nnls, L2_nnls)
 
     # return list of NMF model & deconvolution matrix
     list(

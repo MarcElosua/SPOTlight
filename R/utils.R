@@ -140,6 +140,7 @@
     # TODO implement nnls RcppML
     y <- vapply(seq_len(ncol(x)), function(i)
         nnls::nnls(W, x[, i, drop = FALSE])$x,
+        # RcppML::nnls(W, x[, i, drop = FALSE]),
         numeric(ncol(W)))
     
     # TODO check line below
