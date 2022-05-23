@@ -129,7 +129,6 @@
         x <- .scale_uv(x)
     }
     
-    # TODO ask Zach why a needs to be symmetric?
     # TODO implement nnls RcppML
     y <- vapply(seq_len(ncol(x)), function(i)
         nnls::nnls(W, x[, i, drop = FALSE])$x,

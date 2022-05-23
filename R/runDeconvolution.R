@@ -110,7 +110,9 @@ runDeconvolution <- function(
     
     res <- vapply(seq_len(ncol(mat)), function(i) {
         pred <- nnls::nnls(ref, mat[, i])
-        # RcppML::nnls(W, x[, i, drop = FALSE], L1 = L1, L2 = L2),
+        # scale reference
+        # ref_scale <- t(ref) / colSums(ref)
+        # RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1, L2 = L2)
         prop <- prop.table(pred$x)
         # drop groups that fall below 'min_prop' & update
         prop[prop < min_prop] <- 0
