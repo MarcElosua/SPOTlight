@@ -15,7 +15,7 @@ sep <- SeuratObject::CreateSeuratObject(
     counts = SingleCellExperiment::counts(spe))
 
 # Function to run the checks
-.checks <- function(decon, sce) {
+.checks <- function(decon, sce, spe) {
     mtr <- decon[[1]]
     rss <- decon[[2]]
     expect_is(decon, "list")
@@ -25,6 +25,11 @@ sep <- SeuratObject::CreateSeuratObject(
     expect_identical(sort(colnames(mtr)), sort(unique(as.character(sce$type))))
     expect_identical(nrow(mtr), length(rss))
     expect_identical(sort(rownames(mtr)), sort(names(rss)))
+    
+    dif <- rowSums((mtr - metadata(spe)$props)^2)
+    median_ss <- median(dif)
+    mean_ss <- mean(dif)
+    expect_true(mean_ss < 0.1 & median_ss < 0.1)
 }
 
 # Train NMF
@@ -50,7 +55,7 @@ test_that("runDeconvolution x SCE", {
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 
 test_that("runDeconvolution x SPE", {
@@ -60,7 +65,7 @@ test_that("runDeconvolution x SPE", {
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 
 # runDeconvolution with Seurat ----
@@ -71,7 +76,7 @@ test_that("runDeconvolution x SEP", {
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 
 # runDeconvolution with sparse matrix sp ----
@@ -82,18 +87,18 @@ test_that("runDeconvolution x dgCMatrix SP", {
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 
 # runDeconvolution with sparse matrix sp ----
 test_that("runDeconvolution x DelayedMatrix SP", {
     decon <- runDeconvolution(
-        x = DelayedArray::DelayedArray(counts(sce)),
+        x = DelayedArray::DelayedArray(counts(spe)),
         mod = res[["mod"]],
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 
 # runDeconvolution with matrices in both ----
@@ -104,6 +109,6 @@ test_that("runDeconvolution x matrices", {
         ref = res[["topic"]]
     )
     
-    .checks(decon, sce)
+    .checks(decon, sce, spe)
 })
 

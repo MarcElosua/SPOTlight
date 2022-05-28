@@ -107,33 +107,43 @@ runDeconvolution <- function(
     mat <- .pred_prop(x, mod, scale)
     
     if (verbose) message("Deconvoluting mixture data...")
+    ref_scale <- t(t(ref) / colSums(ref))
+    pred <- RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1, L2 = L2)
+    rownames(pred) <- rownames(ref_scale)
     
-    res <- vapply(seq_len(ncol(mat)), function(i) {
-        pred <- nnls::nnls(ref, mat[, i])
-        # scale reference
-        # ref_scale <- t(ref) / colSums(ref)
-        # RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1, L2 = L2)
-        prop <- prop.table(pred$x)
-        # drop groups that fall below 'min_prop' & update
-        prop[prop < min_prop] <- 0
-        prop <- prop.table(prop)
-        # compute residual sum of squares
-        ss <- sum(mat[, i]^2)
-        # compute percentage of unexplained residuals
-        err <- pred$deviance / ss
-        c(prop, err)
-    }, numeric(ncol(ref) + 1))
+    # Proportions within each cell type
+    res <- prop.table(pred, 2)
+    
+    # TODO Compute residuals
+    ss <- colSums(mat^2)
+    err <- rep(0, ncol(prop))
+    names(err) <- colnames(res)
+    
+    # res <- vapply(seq_len(ncol(mat)), function(i) {
+    #     pred <- nnls::nnls(ref, mat[, i])
+    #     # scale reference
+    #     # ref_scale <- t(ref) / colSums(ref)
+    #     # prop <- prop.table(pred$x)
+    #     # drop groups that fall below 'min_prop' & update
+    #     # prop[prop < min_prop] <- 0
+    #     # prop <- prop.table(prop)
+    #     # compute residual sum of squares
+    #     ss <- sum(mat[, i]^2)
+    #     # compute percentage of unexplained residuals
+    #     err <- pred$deviance / ss
+    #     c(prop, err)
+    # }, numeric(ncol(ref) + 1))
     
     # set dimension names
     # rownames come from the reference
-    rownames(res) <- c(rownames(ref), "res_ss")
-    colnames(res) <- colnames(mat)
+    # rownames(res) <- c(rownames(ref), "res_ss")
+    # colnames(res) <- colnames(mat)
     
     # Separate residuals from proportions
     # Extract residuals
-    err <- res["res_ss", ]
+    # err <- res["res_ss", ]
     # Extract only deconvolution matrices
-    res <- res[-nrow(res), ]
+    # res <- res[-nrow(res), ]
     
     return(list("mat" = t(res), "res_ss" = err))
 }

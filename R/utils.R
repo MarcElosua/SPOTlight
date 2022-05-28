@@ -130,10 +130,15 @@
     }
     
     # TODO implement nnls RcppML
-    y <- vapply(seq_len(ncol(x)), function(i)
-        nnls::nnls(W, x[, i, drop = FALSE])$x,
-        # RcppML::nnls(W, x[, i, drop = FALSE]),
-        numeric(ncol(W)))
+    # y1 <- vapply(seq_len(ncol(x)), function(i)
+    #     nnls::nnls(W, x[, i, drop = FALSE])$x,
+    #     numeric(ncol(W)))
+    # TODO sometimes this can predict all to 0 if not scaled
+    # If I do this we get the same since colSums(W) = 1 for all coummns
+    # w_scale <- t(t(W) / colSums(W))
+    # Use a very mild regularization at this step
+    y <- RcppML::predict.nmf(W, x, L1 = 0.05)
+    # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # TODO check line below
     rownames(y) <- rownames(mod$h)
