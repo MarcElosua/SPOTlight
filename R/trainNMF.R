@@ -95,8 +95,8 @@ trainNMF <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1 = 0.5,
-    L2 = 0,
+    L1_nmf = 0.5,
+    L2_nmf = 0,
     tol = 1e-05,
     ...) {
     # check validity of input arguments
@@ -118,8 +118,8 @@ trainNMF <- function(
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
         is.logical(verbose), length(verbose) == 1,
-        is.numeric(L1), length(L1) < 3,
-        is.numeric(L2), length(L1) < 3)
+        is.numeric(L1_nmf), length(L1_nmf) < 3,
+        is.numeric(L2_nmf), length(L2_nmf) < 3)
     
     # Set groups if x is SCE or SE and groups is NULL 
     if (is.null(groups))
@@ -180,10 +180,11 @@ trainNMF <- function(
     # Get seeding matrices
     if (verbose) message("Seeding initial matrices...")
     hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
-    seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
     
     if (pnmf == "NMF") {
         .test_installed("NMF")
+        # Seed NMF model
+        seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
         # train NMF model
         if (verbose) message("Training NMF model...")
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
@@ -194,8 +195,9 @@ trainNMF <- function(
             data = x,
             k = rank,
             tol = tol,
-            # verbose = verbose,
-            L1 = L1,
+            verbose = verbose,
+            L1 = L1_nmf,
+            L2 = L2_nmf,
             seed = hw$W)
         # Change nmfX to topic_X
         colnames(mod@w) <- paste0("topic_", seq_len(ncol(mod@w)))

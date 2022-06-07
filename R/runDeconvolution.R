@@ -74,8 +74,8 @@ runDeconvolution <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1 = 0.1,
-    L2 = 0) {
+    L1_nnls = 0.1,
+    L2_nnls = 0) {
     
     # Class checks
     stopifnot(
@@ -108,7 +108,7 @@ runDeconvolution <- function(
     
     if (verbose) message("Deconvoluting mixture data...")
     ref_scale <- t(t(ref) / colSums(ref))
-    pred <- RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1, L2 = L2)
+    pred <- RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1_nnls, L2 = L2_nnls)
     rownames(pred) <- rownames(ref_scale)
     
     # Proportions within each cell type
@@ -116,7 +116,7 @@ runDeconvolution <- function(
     
     # TODO Compute residuals
     ss <- colSums(mat^2)
-    err <- rep(0, ncol(prop))
+    err <- rep(0, ncol(res))
     names(err) <- colnames(res)
     
     # res <- vapply(seq_len(ncol(mat)), function(i) {

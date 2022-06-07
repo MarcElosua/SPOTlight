@@ -23,7 +23,6 @@ Imports:
   ggplot2,
   RcppML,
   Matrix,
-  nnls,
   SingleCellExperiment,
   sparseMatrixStats,
   stats
@@ -38,6 +37,7 @@ Suggests:
   jpeg,
   knitr,
   methods,
+  nnls,
   png,
   rmarkdown,
   scater,

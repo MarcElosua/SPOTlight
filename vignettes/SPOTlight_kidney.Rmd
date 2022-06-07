@@ -51,6 +51,8 @@ library(SingleCellExperiment)
 library(SpatialExperiment)
 library(scater)
 library(scran)
+library(RcppML)
+library(RcppSparse) # TODO remove
 ```
 
 # Introduction

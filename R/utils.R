@@ -166,14 +166,9 @@
 # extracts the count/expression matrix specified and returns a matrix
 .extract_counts <- function(x, assay, slot) {
     # Iterate over all the accepted classes and return expression matrix
-    if (is(x, "DelayedMatrix")) {
-        # Convert to matrix
-        rn <- rownames(x)
-        cn <- colnames(x)
-        x <- Matrix(x, sparse = TRUE, nrow = nrow(x), ncol = ncol(x))
-        rownames(x) <- rn
-        colnames(x) <- cn
-    } else if (is(x, "Seurat")) {
+    
+    # Extract count matrix from object
+    if (is(x, "Seurat")) {
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
@@ -199,6 +194,16 @@
         )
         ## Extract SCE-SE coordinates
         x <- SummarizedExperiment::assay(x, slot)
+    }
+    
+    # Process expression matrix
+    if (is(x, "DelayedMatrix")) {
+        # Convert to matrix
+        rn <- rownames(x)
+        cn <- colnames(x)
+        x <- Matrix(x, sparse = TRUE, nrow = nrow(x), ncol = ncol(x))
+        rownames(x) <- rn
+        colnames(x) <- cn
     } else if (is(x, "dgCMatrix") | is.matrix(x)) {
         x
     } else {
