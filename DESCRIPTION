@@ -1,5 +1,5 @@
 Package: SPOTlight
-Version: 0.99.11
+Version: 1.0.1
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
 Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
@@ -33,6 +33,7 @@ Suggests:
   ExperimentHub,
   DelayedArray,
   ggcorrplot,
+  grDevices,
   grid,
   igraph,
   jpeg,

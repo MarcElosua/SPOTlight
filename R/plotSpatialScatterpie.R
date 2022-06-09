@@ -109,18 +109,22 @@ plotSpatialScatterpie <- function(
                 
                 ## Rotate image if needed
                 if (!is.null(degrees)) {
-                    img <- SpatialImage(as.raster(img))
+                    .test_installed("grDevices")
+                    img <- SpatialExperiment::SpatialImage(
+                        grDevices::as.raster(img))
                     img <- as(img, "LoadedSpatialImage")
                     img <- SpatialExperiment::rotateImg(img, degrees = degrees)
-                    img <- as.raster(img)
+                    img <- grDevices::as.raster(img)
                 }
                 
                 ## Make mirror image if necessary
                 if (!is.null(axis)) {
-                    img <- SpatialImage(as.raster(img))
+                    .test_installed("grDevices")
+                    img <- SpatialExperiment::SpatialImage(
+                        grDevices::as.raster(img))
                     img <- as(img, "LoadedSpatialImage")
                     img <- SpatialExperiment::mirrorImg(img, axis = axis)
-                    img <- as.raster(img)
+                    img <- grDevices::as.raster(img)
                 }
             }
         }
@@ -148,13 +152,15 @@ plotSpatialScatterpie <- function(
     
     # merge by row names (by=0 or by="row.names")
     df <- merge(x, y, by = 0, all = TRUE)
-
+    # make y negative
+    df$coord_y_i <- abs(df$coord_y - ymax)
+    
     # Plot
     p + scatterpie::geom_scatterpie(
         data = df,
-        aes(
-            x = coord_x,
-            y = abs(coord_y - ymax)
+        aes_string(
+            x = "coord_x",
+            y = "coord_y_i"
         ),
         cols = cell_types,
         color = NA,
@@ -195,11 +201,6 @@ plotSpatialScatterpie <- function(
         # If image is null use the first slice
         if (is.null(slice) & img) 
             slice <- SeuratObject::Images(x)[1]
-        
-        # Extract Image in raster format
-        # If 'img = TRUE' extract image from Seurat object
-        # TODO Check if we can delete this since we can pass Seurat to plotImage
-        # if (img) img <- GetImage(x, image = slice, mode = "raster")
         
         # Extract spatial coordinates
         x <- as.matrix(SeuratObject::GetTissueCoordinates(x, image = slice))
