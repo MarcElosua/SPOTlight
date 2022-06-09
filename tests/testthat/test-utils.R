@@ -139,5 +139,3 @@ test_that(".plot_image() SPE", {
     expect_equal(class(plt)[1], "gg")
     expect_true(is.matrix(img))
 })
-
-

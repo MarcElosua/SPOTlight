@@ -172,7 +172,10 @@ We aim to identify highly variable genes that drive biological heterogeneity.
 By feeding these genes to the model we improve the resolution of the biological structure and reduce the technical noise.
 
 ```{r variance}
-dec <- modelGeneVar(sce)
+# Get vector indicating which genes are neither ribosomal or mitochondrial
+genes <- !grepl(pattern = "^Rp[l|s]|Mt", x = rownames(sce))
+
+dec <- modelGeneVar(sce, subset.row = genes)
 plot(dec$mean, dec$total, xlab = "Mean log-expression", ylab = "Variance")
 curve(metadata(dec)$trend(x), col = "blue", add = TRUE)
 
@@ -187,9 +190,6 @@ gene for that cell type. Examples include `avgLogFC`, `AUC`, `pct.expressed`,
 
 ```{r mgs}
 colLabels(sce) <- colData(sce)$free_annotation
-
-# Get vector indicating which genes are neither ribosomal or mitochondrial
-genes <- !grepl(pattern = "^Rp[l|s]|Mt", x = rownames(sce))
 
 # Compute marker genes
 mgs <- scoreMarkers(sce, subset.row = genes)
@@ -423,6 +423,25 @@ plotSpatialScatterpie(
     scale_fill_manual(
         values = pal,
         breaks = names(pal))
+```
+
+With the image underneath
+```{r}
+plotSpatialScatterpie(
+    x = spe,
+    y = mat,
+    cell_types = colnames(mat),
+    img = FALSE,
+    scatterpie_alpha = 1,
+    pie_scale = 0.4, 
+    # Rotate the image 90 degrees counterclockwise
+    degrees = -90,
+    # Pivot the image on its x axis
+    axis = "h") +
+    scale_fill_manual(
+        values = pal,
+        breaks = names(pal))
+
 ```
 
 ## Residuals

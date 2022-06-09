@@ -93,72 +93,21 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 \examples{
 library(scater)
 library(scran)
-library(TabulaMurisSenisData)
-library(TENxVisiumData)
 
-# Get Visium data from 'TENxVisiumData'
-spe <- MouseKidneyCoronal()
-
-# Use symbols instead of Ensembl IDs as feature names
-rownames(spe) <- rowData(spe)$symbol
-
-# Load SCE data
-sce <- TabulaMurisSenisDroplet(tissues = "Kidney")$Kidney
-
-# Keep cells from 18m mice with clear cell type annotations
-sce <- subset(sce, , age == "18m")
-sce <- subset(sce, , ! free_annotation \%in\% c("nan", "CD45"))
-
-# Get the top 3000 highly variable genes
-sce <- logNormCounts(sce)
-dec <- modelGeneVar(sce)
-# For the purpose of the example we will set hvg to NULL but using
-# 2000-3000 HVG is recommended.
-# hvg <- getTopHVGs(dec, n = 3000)
-hvg <- NULL
-colLabels(sce) <- colData(sce)$free_annotation
-
-# Get vector indicating which genes
-# are neither ribosomal or mitochondrial
-genes <- !grepl("^Rp[l|s]|Mt", rownames(sce))
-
-# Compute marker genes
-mgs <- scoreMarkers(sce, subset.row = genes)
-mgs_ls <- lapply(names(mgs), function(i){
-  x <- mgs[[i]]
-  # Filter and keep relevant marker genes, those with AUC > 0.8
-  x <- x[x$mean.AUC > 0.8, ]
-  # Sort the genes from highest to lowest weight
-  x <- x[order(x$mean.AUC, decreasing = TRUE), ]
-  # Add gene and cluster id to the dataframe
-  x$gene <- rownames(x)
-  x$cluster <- i
-  data.frame(x)
-})
-mgs_df <- do.call(rbind, mgs_ls)
-
-# split cell indices by identity
-idx <- split(seq(ncol(sce)), sce$free_annotation)
-# downsample to at most 5 cells per identity
-# Note that 3 is for example purpose, in real life scenarios n_cells
-# should be ~100
-n_cells <- 3
-cs_keep <- lapply(idx, function(i) {
-  n <- length(i)
-  if (n < n_cells)
-    n_cells <- n
-  sample(i, n_cells)
-})
-sce <- sce[, unlist(cs_keep)]
+# Use Mock data
+# Refer to the vignette for a full workflow
+sce <- mockSC(ng = 200, nc = 10, nt = 3)
+spe <- mockSP(sce)
+mgs <- getMGS(sce)
 
 res <- SPOTlight(
     x = counts(sce),
     y = counts(spe),
-    groups = sce$free_annotation,
-    mgs = mgs_df,
-    hvg = hvg,
-    weight_id = "mean.AUC",
-    group_id = "cluster",
+    groups = as.character(sce$type),
+    mgs = mgs,
+    hvg = NULL,
+    weight_id = "weight",
+    group_id = "type",
     gene_id = "gene")
 }
 \author{

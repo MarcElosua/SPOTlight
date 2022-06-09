@@ -100,12 +100,33 @@ SPOTlight <- function(
     ...) {
     
     # train NMF model
-    mod_ls <- trainNMF(x, y, groups, mgs, n_top, gene_id, group_id,
-        weight_id, hvg, model, scale, verbose, ...)
+    mod_ls <- trainNMF(
+        x = x,
+        y = y,
+        groups = groups,
+        mgs = mgs,
+        n_top = n_top,
+        gene_id = gene_id, 
+        group_id = group_id, 
+        weight_id = weight_id, 
+        hvg = hvg, 
+        model = model, 
+        scale = scale,
+        verbose = verbose,
+        assay = assay,
+        slot = slot,
+        ...)
 
     # perform deconvolution
-    res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
-        scale, min_prop, verbose)
+    res <- runDeconvolution(
+        x = y,
+        mod = mod_ls[["mod"]], 
+        ref = mod_ls[["topic"]], 
+        scale = scale, 
+        min_prop = min_prop, 
+        verbose = verbose,
+        assay = assay,
+        slot = slot)
 
     # return list of NMF model & deconvolution matrix
     list(

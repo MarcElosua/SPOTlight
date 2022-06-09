@@ -201,6 +201,7 @@
             xlim = c(0, ncol(x$raster)),
             ylim = c(0, nrow(x$raster))) + 
         theme_void()
+        # theme_classic()
 }
 
 # Extract image and convert it to array from allowed classes

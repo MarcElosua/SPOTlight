@@ -12,6 +12,8 @@ plotSpatialScatterpie(
   slice = NULL,
   scatterpie_alpha = 1,
   pie_scale = 0.4,
+  degrees = NULL,
+  axis = NULL,
   ...
 )
 }
@@ -40,6 +42,13 @@ By default 1.}
 
 \item{pie_scale}{Numeric scalar to set the size of the pie charts.
 By default 0.4.}
+
+\item{degrees}{From SpatialExperiment rotateImg. For clockwise (degrees > 0)
+and counter-clockwise (degrees < 0) rotation. By default NULL.}
+
+\item{axis}{From SpatialExperiment mirrorImg. When a SpatialExperiment object
+is passed as the image return the mirror image. For horizontal (axis = "h")
+ and vertical (axis = "v") mirroring. By default NULL.}
 
 \item{...}{additional parameters to geom_scatterpie}
 }

@@ -24,6 +24,11 @@
 #'   By default 1.
 #' @param pie_scale Numeric scalar to set the size of the pie charts.
 #'   By default 0.4.
+#' @param degrees From SpatialExperiment rotateImg. For clockwise (degrees > 0)
+#'  and counter-clockwise (degrees < 0) rotation. By default NULL.
+#' @param axis From SpatialExperiment mirrorImg. When a SpatialExperiment object
+#'   is passed as the image return the mirror image. For horizontal (axis = "h")
+#'    and vertical (axis = "v") mirroring. By default NULL.
 #' @param ... additional parameters to geom_scatterpie
 #' @return \code{ggplot} object
 #'
@@ -58,6 +63,8 @@ plotSpatialScatterpie <- function(
     slice = NULL,
     scatterpie_alpha = 1,
     pie_scale = 0.4,
+    degrees = NULL,
+    axis = NULL,
     ...) {
     # Check necessary packages are installed and if not STOP
     .test_installed("scatterpie")
@@ -77,8 +84,50 @@ plotSpatialScatterpie <- function(
         is.character(slice) | is.null(slice),
         # Check plotting parameters are numeric
         is.numeric(scatterpie_alpha),
-        is.numeric(pie_scale)
+        is.numeric(pie_scale),
+        is.numeric(degrees) | is.null(degrees),
+        axis %in% c("h", "v") | is.null(axis)
     )
+    
+    # If image is passed add it as the base layer, if not, no image
+    # Need to use isFALSE bc img can have many different inputs
+    # Set ymax to overlap image and piecharts
+    if (isFALSE(img)) {
+        p <- ggplot() +
+            coord_fixed()
+        ymax <- 0
+    } else {
+        # Extract image from Seurat or SE objects when img is TRUE
+        # If image is not TRUE and not FALSE an acceptable class for plotImage
+        # has been passed
+        if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
+            img <- .extract_image(x, slice)
+            
+            # Rotate or mirror image if dots don't overlay properly
+            if (is(x, "SpatialExperiment")) {
+                .test_installed("SpatialExperiment")
+                
+                ## Rotate image if needed
+                if (!is.null(degrees)) {
+                    img <- SpatialImage(as.raster(img))
+                    img <- as(img, "LoadedSpatialImage")
+                    img <- SpatialExperiment::rotateImg(img, degrees = degrees)
+                    img <- as.raster(img)
+                }
+                
+                ## Make mirror image if necessary
+                if (!is.null(axis)) {
+                    img <- SpatialImage(as.raster(img))
+                    img <- as(img, "LoadedSpatialImage")
+                    img <- SpatialExperiment::mirrorImg(img, axis = axis)
+                    img <- as.raster(img)
+                }
+            }
+        }
+        
+        p <- plotImage(x = img)
+        ymax <- max(p$coordinates$limits$y)
+    }
     
     # Extract coordinate matrix from x
     if (!is.matrix(x))
@@ -96,25 +145,7 @@ plotSpatialScatterpie <- function(
     stopifnot(
         nrow(x) == nrow(y),
         all(rownames(x) %in% rownames(y)))
-
-    # If image is passed add it as the base layer, if not, no image
-    # Need to use isFALSE bc img can have many different inputs
-    # Set ymax to overlap image and piecharts
-    if (isFALSE(img)) {
-        p <- ggplot() +
-            coord_fixed()
-        ymax <- 0
-    } else {
-        # Extract image from Seurat or SE objects when img is TRUE
-        # If image is not TRUE and not FALSE an acceptable class for plotImage
-        # has been passed
-        if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
-            img <- .extract_image(x, slice)
-        }
-        
-        p <- plotImage(x = img) + scale_y_reverse()
-        ymax <- max(p$coordinates$limits$y)
-    }
+    
     # merge by row names (by=0 or by="row.names")
     df <- merge(x, y, by = 0, all = TRUE)
 
@@ -186,15 +217,23 @@ plotSpatialScatterpie <- function(
             !is.null(colnames(x))
         )
         
-        # If image is null use the first slice
-        if (is.null(slice)) 
-            slice <- SpatialExperiment::imgData(x)[1, "sample_id"]
+        # If slice is null use the first slice
+        img_df <- SpatialExperiment::imgData(x)
+        if (is.null(slice))
+            slice <- img_df[1, "sample_id"]
+        
+        # Scale factor to scale the coordinates
+        sf <- img_df[img_df$sample_id == slice, "scaleFactor"]
         
         ## Extract spot barcodes
         barcodes <- colnames(x)
         
         ## Extract spatial coordinates
+        # coord_df <- SpatialExperiment::spatialCoords(x)
         x <- as.matrix(SpatialExperiment::spatialCoords(x)[, c(1, 2)])
+        
+        ## Scale coordinates
+        x <- x * sf
         
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
