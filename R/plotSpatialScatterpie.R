@@ -136,6 +136,7 @@ plotSpatialScatterpie <- function(
     # Extract coordinate matrix from x
     if (!is.matrix(x))
         x <- .extract_coord(x = x, slice = slice, img = img)
+    
     # Check colnames
     x <- .x_cnames(x)
     
@@ -175,7 +176,7 @@ plotSpatialScatterpie <- function(
 
 .x_cnames <- function(x) {
     # If the column names of x aren't right fix them
-    cnames <- c("coord_x", "coord_y")
+    cnames <- c("coord_y", "coord_x")
     if (!all(colnames(x) %in% cnames)) {
         colnames(x) <- cnames
     }
@@ -196,10 +197,10 @@ plotSpatialScatterpie <- function(
             # Stop if there are no images
             !is.null(SeuratObject::Images(x)),
             # Stop if the image doesn't exist
-            slice %in% SeuratObject::Images(x))
+            is.null(slice) | slice %in% SeuratObject::Images(x))
         
         # If image is null use the first slice
-        if (is.null(slice) & img) 
+        if (is.null(slice))
             slice <- SeuratObject::Images(x)[1]
         
         # Extract spatial coordinates
