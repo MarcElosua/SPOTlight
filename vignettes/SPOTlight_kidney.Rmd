@@ -425,7 +425,7 @@ plotSpatialScatterpie(
         breaks = names(pal))
 ```
 
-With the image underneath
+With the image underneath - we are rotating it 90 degrees counterclockwise and mirroring across the horizontal axis to show how to align if the spots don't overlay the image.
 ```{r}
 plotSpatialScatterpie(
     x = spe,
