@@ -95,7 +95,7 @@ trainNMF <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1_nmf = 0.5,
+    L1_nmf = 0,
     L2_nmf = 0,
     tol = 1e-05,
     ...) {
@@ -191,6 +191,7 @@ trainNMF <- function(
     } else if (pnmf == "RcppML") {
         .test_installed("RcppML")
         if (verbose) message("Training NMF model...") 
+        
         mod <- RcppML::nmf(
             data = x,
             k = rank,
@@ -199,6 +200,7 @@ trainNMF <- function(
             L1 = L1_nmf,
             L2 = L2_nmf,
             seed = hw$W)
+        
         # Change nmfX to topic_X
         colnames(mod@w) <- paste0("topic_", seq_len(ncol(mod@w)))
         rownames(mod@h) <- paste0("topic_", seq_len(nrow(mod@h)))

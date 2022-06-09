@@ -80,6 +80,36 @@ plotSpatialScatterpie <- function(
         is.numeric(pie_scale)
     )
     
+    # If image is passed add it as the base layer, if not, no image
+    # Need to use isFALSE bc img can have many different inputs
+    # Set ymax to overlap image and piecharts
+    if (isFALSE(img)) {
+        p <- ggplot() +
+            coord_fixed()
+        ymax <- 0
+    } else {
+        # Extract image from Seurat or SE objects when img is TRUE
+        # If image is not TRUE and not FALSE an acceptable class for plotImage
+        # has been passed
+        if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
+            img <- .extract_image(x, slice)
+        }
+        
+        if (is(x, "Seurat") & isTRUE(img)) {
+            
+            p <- plotImage(x = img) + scale_y_reverse()
+            ymax <- max(p$coordinates$limits$y)
+        ## TODO check if SpatialExperiment and img need separate
+        } else if (is(x, "SpatialExperiment") & isTRUE(img)) {
+            p <- plotImage(x = img)
+            ymax <- max(p$coordinates$limits$y)
+            
+        } else {
+            p <- plotImage(x = img)
+            ymax <- max(p$coordinates$limits$y)
+        }
+    }
+    
     # Extract coordinate matrix from x
     if (!is.matrix(x))
         x <- .extract_coord(x = x, slice = slice, img = img)
@@ -96,25 +126,7 @@ plotSpatialScatterpie <- function(
     stopifnot(
         nrow(x) == nrow(y),
         all(rownames(x) %in% rownames(y)))
-
-    # If image is passed add it as the base layer, if not, no image
-    # Need to use isFALSE bc img can have many different inputs
-    # Set ymax to overlap image and piecharts
-    if (isFALSE(img)) {
-        p <- ggplot() +
-            coord_fixed()
-        ymax <- 0
-    } else {
-        # Extract image from Seurat or SE objects when img is TRUE
-        # If image is not TRUE and not FALSE an acceptable class for plotImage
-        # has been passed
-        if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
-            img <- .extract_image(x, slice)
-        }
-        
-        p <- plotImage(x = img) + scale_y_reverse()
-        ymax <- max(p$coordinates$limits$y)
-    }
+    
     # merge by row names (by=0 or by="row.names")
     df <- merge(x, y, by = 0, all = TRUE)
 
@@ -132,7 +144,7 @@ plotSpatialScatterpie <- function(
         ...) +
         # Below not needed bc comes from plotImage
         # coord_fixed() +
-        theme_void() + 
+        theme_classic() +
         theme(legend.key.size = unit(0.5, "lines"))
     }
 
@@ -187,8 +199,12 @@ plotSpatialScatterpie <- function(
         )
         
         # If image is null use the first slice
+        img_df <- SpatialExperiment::imgData(x)
         if (is.null(slice)) 
-            slice <- SpatialExperiment::imgData(x)[1, "sample_id"]
+            slice <- img_df[1, "sample_id"]
+        
+        # Scale factor to scale the coordinates
+        sf <- img_df[img_df$sample_id == slice, "scaleFactor"]
         
         ## Extract spot barcodes
         barcodes <- colnames(x)
@@ -196,8 +212,12 @@ plotSpatialScatterpie <- function(
         ## Extract spatial coordinates
         x <- as.matrix(SpatialExperiment::spatialCoords(x)[, c(1, 2)])
         
+        ## Scale coordinates
+        x <- x * sf
+        
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
+        
     } else {
         stop("Couldn't extract image coordinates.
             Please check class(x) is SpatialExperiment, Seurat,

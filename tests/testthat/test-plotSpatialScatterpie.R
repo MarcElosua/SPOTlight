@@ -72,3 +72,21 @@ test_that("plotSpatialScatterpie - pie_scale", {
     expect_equal(class(plt)[1], "gg")
 })
 
+library(SpatialExperiment)
+example(read10xVisium, echo = FALSE)
+# Proportions
+spe_y <- replicate(m <- 5, runif(ncol(spe), 0, 1))
+spe_y <- spe_y / rowSums(spe_y)
+rownames(spe_y) <- colnames(spe)
+colnames(spe_y) <- paste0("type", seq_len(ncol(spe_y)))
+
+# plotSpatialScatterpie() img TRUE----
+test_that("plotSpatialScatterpie - image", {
+    plt <- plotSpatialScatterpie(
+        x = spe,
+        y = spe_y,
+        img = TRUE
+    )
+    expect_equal(class(plt)[1], "gg")
+})
+

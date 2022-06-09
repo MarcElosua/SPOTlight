@@ -74,7 +74,7 @@ runDeconvolution <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts",
-    L1_nnls = 0.1,
+    L1_nnls = 0,
     L2_nnls = 0) {
     
     # Class checks
@@ -147,3 +147,4 @@ runDeconvolution <- function(
     
     return(list("mat" = t(res), "res_ss" = err))
 }
+

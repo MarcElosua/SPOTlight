@@ -137,7 +137,7 @@
     # If I do this we get the same since colSums(W) = 1 for all coummns
     # w_scale <- t(t(W) / colSums(W))
     # Use a very mild regularization at this step
-    y <- RcppML::predict.nmf(W, x, L1 = 0.05)
+    y <- RcppML::predict.nmf(W, x, L1 = 0)
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # TODO check line below
