@@ -30,10 +30,10 @@
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
 #' Either "ns" (default) or "std".
-#' @param assay if the object is of Class \code{Seurat}, character string
+#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'     By default "RNA".
-#' @param slot if the object is of Class \code{Seurat}, character string
+#'   By default "RNA" and "Spatial".
+#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
@@ -84,8 +84,10 @@ trainNMF <- function(
     model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE,
-    assay = "RNA",
-    slot = "counts",
+    assay_sc = "RNA",
+    slot_sc = "counts",
+    assay_sp = "Spatial",
+    slot_sp = "counts",
     ...) {
     # check validity of input arguments
     model <- match.arg(model)
@@ -111,10 +113,10 @@ trainNMF <- function(
     
     # Extract expression matrices for x and y
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay, slot)
+        x <- .extract_counts(x, assay_sc, slot_sc)
     
     if (!is.matrix(y))
-        y <- .extract_counts(y, assay, slot)
+        y <- .extract_counts(y, assay_sp, slot_sp)
     
     # select genes in mgs or hvg
     if (!is.null(hvg)) {

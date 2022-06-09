@@ -81,7 +81,8 @@ test_that("trainNMF x SEP", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene"
+        gene_id = "gene",
+        assay_sp = "RNA"
     )
     
     .checks(res, sce)

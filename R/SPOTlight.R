@@ -24,10 +24,10 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
-#' @param assay if the object is of Class \code{Seurat}, character string
+#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA".
-#' @param slot if the object is of Class \code{Seurat}, character string
+#'   By default "RNA" and "Spatial".
+#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
@@ -95,8 +95,10 @@ SPOTlight <- function(
     min_prop = 0.01,
     # other
     verbose = TRUE,
-    assay = "RNA",
-    slot = "counts",
+    assay_sc = "RNA",
+    slot_sc = "counts",
+    assay_sp = "Spatial",
+    slot_sp = "counts",
     ...) {
     
     # train NMF model
@@ -113,8 +115,10 @@ SPOTlight <- function(
         model = model, 
         scale = scale,
         verbose = verbose,
-        assay = assay,
-        slot = slot,
+        assay_sc = assay_sc,
+        slot_sc = slot_sc,
+        assay_sp = assay_sp,
+        slot_sp = slot_sp,
         ...)
 
     # perform deconvolution
@@ -125,8 +129,8 @@ SPOTlight <- function(
         scale = scale, 
         min_prop = min_prop, 
         verbose = verbose,
-        assay = assay,
-        slot = slot)
+        assay = assay_sp,
+        slot = slot_sp)
 
     # return list of NMF model & deconvolution matrix
     list(
