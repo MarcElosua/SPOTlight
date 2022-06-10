@@ -31,11 +31,11 @@
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running nmf
-#'   from the NMF. Either "ns" (default) or "std".
-#' @param assay if the object is of Class \code{Seurat}, character string
+    #'   from the NMF. Either "ns" (default) or "std".
+#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'     By default "RNA".
-#' @param slot if the object is of Class \code{Seurat}, character string
+#'   By default "RNA" and "Spatial".
+#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
@@ -93,11 +93,13 @@ trainNMF <- function(
     model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE,
-    assay = "RNA",
-    slot = "counts",
     L1_nmf = 0,
     L2_nmf = 0,
     tol = 1e-05,
+    assay_sc = "RNA",
+    slot_sc = "counts",
+    assay_sp = "Spatial",
+    slot_sp = "counts",
     ...) {
     # check validity of input arguments
     pnmf <- match.arg(pnmf)
@@ -119,7 +121,8 @@ trainNMF <- function(
         is.logical(scale), length(scale) == 1,
         is.logical(verbose), length(verbose) == 1,
         is.numeric(L1_nmf), length(L1_nmf) < 3,
-        is.numeric(L2_nmf), length(L2_nmf) < 3)
+        is.numeric(L2_nmf), length(L2_nmf) < 3,
+        is.numeric(tol), length(tol) == 1)
     
     # Set groups if x is SCE or SE and groups is NULL 
     if (is.null(groups))
@@ -133,10 +136,10 @@ trainNMF <- function(
     # Extract expression matrices for x and y
     # TODO check this step
     if (!is.matrix(x) & !is(x, "dgCMatrix"))
-        x <- .extract_counts(x, assay, slot)
+        x <- .extract_counts(x, assay_sc, slot_sc)
     
     if (!is.matrix(y) & !is(y, "dgCMatrix"))
-        y <- .extract_counts(y, assay, slot)
+        y <- .extract_counts(y, assay_sp, slot_sp)
     
     if (is.matrix(x)) {
         if (pnmf == "RcppML")

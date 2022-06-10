@@ -24,6 +24,11 @@
 #'   By default 1.
 #' @param pie_scale Numeric scalar to set the size of the pie charts.
 #'   By default 0.4.
+#' @param degrees From SpatialExperiment rotateImg. For clockwise (degrees > 0)
+#'  and counter-clockwise (degrees < 0) rotation. By default NULL.
+#' @param axis From SpatialExperiment mirrorImg. When a SpatialExperiment object
+#'   is passed as the image return the mirror image. For horizontal (axis = "h")
+#'    and vertical (axis = "v") mirroring. By default NULL.
 #' @param ... additional parameters to geom_scatterpie
 #' @return \code{ggplot} object
 #'
@@ -58,6 +63,8 @@ plotSpatialScatterpie <- function(
     slice = NULL,
     scatterpie_alpha = 1,
     pie_scale = 0.4,
+    degrees = NULL,
+    axis = NULL,
     ...) {
     # Check necessary packages are installed and if not STOP
     .test_installed("scatterpie")
@@ -77,7 +84,9 @@ plotSpatialScatterpie <- function(
         is.character(slice) | is.null(slice),
         # Check plotting parameters are numeric
         is.numeric(scatterpie_alpha),
-        is.numeric(pie_scale)
+        is.numeric(pie_scale),
+        is.numeric(degrees) | is.null(degrees),
+        axis %in% c("h", "v") | is.null(axis)
     )
     
     # If image is passed add it as the base layer, if not, no image
@@ -93,26 +102,41 @@ plotSpatialScatterpie <- function(
         # has been passed
         if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
             img <- .extract_image(x, slice)
+            
+            # Rotate or mirror image if dots don't overlay properly
+            if (is(x, "SpatialExperiment")) {
+                .test_installed("SpatialExperiment")
+                
+                ## Rotate image if needed
+                if (!is.null(degrees)) {
+                    .test_installed("grDevices")
+                    img <- SpatialExperiment::SpatialImage(
+                        grDevices::as.raster(img))
+                    img <- as(img, "LoadedSpatialImage")
+                    img <- SpatialExperiment::rotateImg(img, degrees = degrees)
+                    img <- grDevices::as.raster(img)
+                }
+                
+                ## Make mirror image if necessary
+                if (!is.null(axis)) {
+                    .test_installed("grDevices")
+                    img <- SpatialExperiment::SpatialImage(
+                        grDevices::as.raster(img))
+                    img <- as(img, "LoadedSpatialImage")
+                    img <- SpatialExperiment::mirrorImg(img, axis = axis)
+                    img <- grDevices::as.raster(img)
+                }
+            }
         }
         
-        if (is(x, "Seurat") & isTRUE(img)) {
-            
-            p <- plotImage(x = img) + scale_y_reverse()
-            ymax <- max(p$coordinates$limits$y)
-        ## TODO check if SpatialExperiment and img need separate
-        } else if (is(x, "SpatialExperiment") & isTRUE(img)) {
-            p <- plotImage(x = img)
-            ymax <- max(p$coordinates$limits$y)
-            
-        } else {
-            p <- plotImage(x = img)
-            ymax <- max(p$coordinates$limits$y)
-        }
+        p <- plotImage(x = img)
+        ymax <- max(p$coordinates$limits$y)
     }
     
     # Extract coordinate matrix from x
     if (!is.matrix(x))
         x <- .extract_coord(x = x, slice = slice, img = img)
+
     # Check colnames
     x <- .x_cnames(x)
     
@@ -129,13 +153,15 @@ plotSpatialScatterpie <- function(
     
     # merge by row names (by=0 or by="row.names")
     df <- merge(x, y, by = 0, all = TRUE)
-
+    # make y negative
+    df$coord_y_i <- abs(df$coord_y - ymax)
+    
     # Plot
     p + scatterpie::geom_scatterpie(
         data = df,
-        aes(
-            x = coord_x,
-            y = abs(coord_y - ymax)
+        aes_string(
+            x = "coord_x",
+            y = "coord_y_i"
         ),
         cols = cell_types,
         color = NA,
@@ -150,7 +176,7 @@ plotSpatialScatterpie <- function(
 
 .x_cnames <- function(x) {
     # If the column names of x aren't right fix them
-    cnames <- c("coord_x", "coord_y")
+    cnames <- c("coord_y", "coord_x")
     if (!all(colnames(x) %in% cnames)) {
         colnames(x) <- cnames
     }
@@ -171,16 +197,11 @@ plotSpatialScatterpie <- function(
             # Stop if there are no images
             !is.null(SeuratObject::Images(x)),
             # Stop if the image doesn't exist
-            slice %in% SeuratObject::Images(x))
+            is.null(slice) | slice %in% SeuratObject::Images(x))
         
         # If image is null use the first slice
-        if (is.null(slice) & img) 
+        if (is.null(slice))
             slice <- SeuratObject::Images(x)[1]
-        
-        # Extract Image in raster format
-        # If 'img = TRUE' extract image from Seurat object
-        # TODO Check if we can delete this since we can pass Seurat to plotImage
-        # if (img) img <- GetImage(x, image = slice, mode = "raster")
         
         # Extract spatial coordinates
         x <- as.matrix(SeuratObject::GetTissueCoordinates(x, image = slice))
@@ -198,9 +219,9 @@ plotSpatialScatterpie <- function(
             !is.null(colnames(x))
         )
         
-        # If image is null use the first slice
+        # If slice is null use the first slice
         img_df <- SpatialExperiment::imgData(x)
-        if (is.null(slice)) 
+        if (is.null(slice))
             slice <- img_df[1, "sample_id"]
         
         # Scale factor to scale the coordinates
@@ -210,6 +231,7 @@ plotSpatialScatterpie <- function(
         barcodes <- colnames(x)
         
         ## Extract spatial coordinates
+        # coord_df <- SpatialExperiment::spatialCoords(x)
         x <- as.matrix(SpatialExperiment::spatialCoords(x)[, c(1, 2)])
         
         ## Scale coordinates

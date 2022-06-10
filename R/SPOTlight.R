@@ -26,10 +26,10 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
-#' @param assay if the object is of Class \code{Seurat}, character string
+#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA".
-#' @param slot if the object is of Class \code{Seurat}, character string
+#'   By default "RNA" and "Spatial".
+#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
@@ -107,22 +107,52 @@ SPOTlight <- function(
     min_prop = 0.01,
     # other
     verbose = TRUE,
-    assay = "RNA",
-    slot = "counts",
-    L1_nmf = 0.5,
+    assay_sc = "RNA",
+    slot_sc = "counts",
+    assay_sp = "Spatial",
+    slot_sp = "counts",
+    L1_nmf = 0,
     L2_nmf = 0,
     tol = 1e-5,
-    L1_nnls = 0.1,
+    L1_nnls = 0,
     L2_nnls = 0,
     ...) {
     
     # train NMF model
-    mod_ls <- trainNMF(x, y, groups, mgs, pnmf, n_top, gene_id, group_id,
-        weight_id, hvg, model, scale, verbose, assay, slot, L1_nmf, L2_nmf, tol, ...)
-    
+    mod_ls <- trainNMF(
+        x = x,
+        y = y,
+        groups = groups,
+        mgs = mgs,
+        n_top = n_top,
+        gene_id = gene_id, 
+        group_id = group_id, 
+        weight_id = weight_id, 
+        hvg = hvg, 
+        model = model, 
+        scale = scale,
+        verbose = verbose,
+        assay_sc = assay_sc,
+        slot_sc = slot_sc,
+        assay_sp = assay_sp,
+        slot_sp = slot_sp,
+        L1_nmf = L1_nmf,
+        L2_nmf = L2_nmf,
+        tol = tol,
+        ...)
+
     # perform deconvolution
-    res <- runDeconvolution(y, mod_ls[["mod"]], mod_ls[["topic"]],
-        scale, min_prop, verbose, assay, slot, L1_nnls, L2_nnls)
+    res <- runDeconvolution(
+        x = y,
+        mod = mod_ls[["mod"]], 
+        ref = mod_ls[["topic"]], 
+        scale = scale, 
+        min_prop = min_prop, 
+        verbose = verbose,
+        assay = assay_sp,
+        slot = slot_sp,
+        L1_nnls = L1_nnls,
+        L2_nnls = L1_nnls)
 
     # return list of NMF model & deconvolution matrix
     list(

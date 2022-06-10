@@ -88,5 +88,27 @@ test_that("plotSpatialScatterpie - image", {
         img = TRUE
     )
     expect_equal(class(plt)[1], "gg")
+    # Make sure there is an image
+    expect_true(is(plt$layers[[1]]$geom, "GeomCustomAnn"))
+})
+
+# plotSpatialScatterpie() img TRUE----
+test_that("plotSpatialScatterpie - spots on image", {
+    plt <- plotSpatialScatterpie(
+        x = spe,
+        y = spe_y,
+        img = TRUE
+    )
+    expect_equal(class(plt)[1], "gg")
+    # Make sure there is an image
+    expect_true(is(plt$layers[[1]]$geom, "GeomCustomAnn"))
+    
+    # Check the spots are on within the image coordinates
+    x_y_min_max <- plt$layers[[1]]$geom_params
+    point_df <- plt$layers[[2]]$data
+    expect_true(max(point_df$coord_x) <= x_y_min_max$xmax)
+    expect_true(min(point_df$coord_x) >= x_y_min_max$xmin)
+    expect_true(max(point_df$coord_y) <= x_y_min_max$ymax)
+    expect_true(min(point_df$coord_y) >= x_y_min_max$ymin)
 })
 

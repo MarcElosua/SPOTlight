@@ -4,7 +4,8 @@
     sds <- rowSds(x, na.rm = TRUE)
     # TODO find a more efficient way of scaling the matrix
     # t1 <- t(scale(t(x), center = FALSE, scale = sds))
-    t1 <- t(t(x) / sds)
+    # Scale by gene (each row by its sd) for unit variance
+    t1 <- x / sds
     t1
 }
 
@@ -237,6 +238,7 @@
             xlim = c(0, ncol(x$raster)),
             ylim = c(0, nrow(x$raster))) + 
         theme_void()
+        # theme_classic()
 }
 
 # Extract image and convert it to array from allowed classes

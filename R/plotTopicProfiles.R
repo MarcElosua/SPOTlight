@@ -54,17 +54,19 @@ plotTopicProfiles <- function(
     
     # check validity of input arguments
     stopifnot(
-        is(x, "NMFfit"),
+        is(x, "list"),
+        all(sort(names(x)) == sort(c("w", "d", "h", "misc"))),
         is.character(y),
-        length(y) == ncol(coef(x)),
+        length(y) == ncol(x$h),
         setequal(
-            colnames(basis(x)), paste0("topic_", seq_len(length(unique(y))))
+            colnames(x$w), paste0("topic_", seq_len(length(unique(y))))
             ),
         is.logical(facet), length(facet) == 1,
-        is.numeric(min_prop), length(min_prop) == 1)
+        is.numeric(min_prop), length(min_prop) == 1,
+        is.null(ncol) | (is.numeric(ncol) & length(ncol) == 1))
     
-    # get group proportions
-    mat <- prop.table(t(coef(x)), 1)
+    # get proportion of topic contribution by cell
+    mat <- prop.table(t(x$h), 1)
     
     if (facet) {
         # stretch for plotting

@@ -18,11 +18,18 @@ trainNMF(
   model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
+<<<<<<< HEAD
   assay = "RNA",
   slot = "counts",
   L1 = 0.5,
   L2 = 0,
   tol = 1e-05,
+=======
+  assay_sc = "RNA",
+  slot_sc = "counts",
+  assay_sp = "Spatial",
+  slot_sp = "counts",
+>>>>>>> main
   ...
 )
 }
@@ -62,11 +69,11 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string
+\item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
-  By default "RNA".}
+By default "RNA" and "Spatial".}
 
-\item{slot}{if the object is of Class \code{Seurat}, character string
+\item{slot_sc, slot_sp}{if the object is of Class \code{Seurat}, character string
 specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}

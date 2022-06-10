@@ -1,4 +1,5 @@
 set.seed(321)
+library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
@@ -107,7 +108,8 @@ test_that("rcpp trainNMF x SEP", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene"
+        gene_id = "gene",
+        assay_sp = "RNA"
     )
     
     .checks(res, sce)
@@ -273,7 +275,8 @@ test_that("NMF trainNMF x SEP", {
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
-        gene_id = "gene"
+        gene_id = "gene",
+        assay_sp = "RNA"
     )
     
     .checks(res, sce)

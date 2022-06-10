@@ -429,6 +429,25 @@ plotSpatialScatterpie(
         breaks = names(pal))
 ```
 
+With the image underneath - we are rotating it 90 degrees counterclockwise and mirroring across the horizontal axis to show how to align if the spots don't overlay the image.
+```{r}
+plotSpatialScatterpie(
+    x = spe,
+    y = mat,
+    cell_types = colnames(mat),
+    img = FALSE,
+    scatterpie_alpha = 1,
+    pie_scale = 0.4, 
+    # Rotate the image 90 degrees counterclockwise
+    degrees = -90,
+    # Pivot the image on its x axis
+    axis = "h") +
+    scale_fill_manual(
+        values = pal,
+        breaks = names(pal))
+
+```
+
 ## Residuals
 
 Lastly we can also take a look at how well the model predicted the proportions

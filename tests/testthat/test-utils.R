@@ -1,4 +1,5 @@
 set.seed(321)
+library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC()
 spe <- mockSP(sce)
@@ -19,7 +20,8 @@ defs <- list(
     gene_id = "gene",
     group_id = "type",
     weight_id = "weight",
-    verbose = FALSE
+    verbose = FALSE,
+    pnmf = "RcppML"
 )
 
 # NMF ----
@@ -42,7 +44,7 @@ test_that("NMF", {
     args <- c(defs, list(x., y., groups, mgs))
     fit <- expect_silent(do.call(trainNMF, args))
     mod <- fit[["mod"]]
-    expect_is(mod, "NMF")
+    expect_is(mod, "list")
     expect_true(!all(c(i, j) %in% rownames(mod)))
     # Only marker genes should be present - we don't use hvg here
     expect_true(all(rownames(mod) %in% mgs$gene))
@@ -51,12 +53,16 @@ test_that("NMF", {
     args <- c(defs, list(x, y, groups, mgs))
     fit <- expect_silent(do.call(trainNMF, args))
     mod <- fit[["mod"]]
-    expect_is(mod, "NMF")
+    expect_is(mod, "list")
     # Remove genes since these can change depending on 
     # filtering, mgs, hvg, all 0...
     expect_identical(
-        dimnames(mod)[2:3],
-        c(dimnames(x)[2], list(paste0("topic_", 1:ncol(basis(mod))))))
+        dimnames(mod$h)[1:2],
+        c(list(paste0("topic_", 1:nrow(mod$h))), dimnames(x)[2]))
+    
+    expect_identical(
+        dimnames(mod$w)[1:2],
+        c(list(mgs$gene), list(paste0("topic_", 1:nrow(mod$h)))))
     
     # + .topic_profiles ----
     # should give a square numeric matrix
@@ -115,7 +121,7 @@ test_that(".extract_counts()", {
 })
 
 # .extract_image
-test_that(".extract_image()", {
+test_that("scale_uv()", {
     x <- counts(sce)
     y <- .scale_uv(x)
     expect_is(y, "matrix")
@@ -139,5 +145,4 @@ test_that(".plot_image() SPE", {
     expect_equal(class(plt)[1], "gg")
     expect_true(is.matrix(img))
 })
-
 
