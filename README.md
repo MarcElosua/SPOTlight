@@ -31,7 +31,7 @@ install_github("https://github.com/MarcElosua/SPOTlight")
 
 ### Contributors
 
-SPOTlight was originally developed by [Marc Elosua Bayes](https://github.com/MarcElosua/) and has received substantial additional contributions from [Helena L. Crowell](https://github.com/HelenaLC).
+SPOTlight was originally developed by [Marc Elosua Bayes](https://github.com/MarcElosua/) and has received substantial additional contributions from [Helena L. Crowell](https://github.com/HelenaLC) and [Zach DeBruine](https://github.com/zdebruine).
 
 ### Issues - Ideas?
 
