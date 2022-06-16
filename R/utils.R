@@ -86,7 +86,6 @@
 }
 
 #' @importFrom sparseMatrixStats colMedians
-#' @importFrom NMF coef
 .topic_profiles <- function(mod, groups) {
     # Treat mod differently if it comes from NMF or RcppML
     if (is(mod, "NMFfit")) {

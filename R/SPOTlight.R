@@ -85,6 +85,8 @@ NULL
 
 #' @rdname SPOTlight
 #' @export
+#' @useDynLib SPOTlight, .registration = TRUE
+#' 
 SPOTlight <- function(
     x,
     y,

@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 predict_nmf <- function(A_, w, L1, L2, threads) {
-    .Call('_SPOTlight_predict_nmf', PACKAGE = 'SPOTlight', A_, w, L1, L2, threads)
+    .Call(`_SPOTlight_predict_nmf`, A_, w, L1, L2, threads)
 }
 
 run_nmf <- function(A_, At_, tol, maxit, verbose, L1, L2, threads, w) {
-    .Call('_SPOTlight_run_nmf', PACKAGE = 'SPOTlight', A_, At_, tol, maxit, verbose, L1, L2, threads, w)
+    .Call(`_SPOTlight_run_nmf`, A_, At_, tol, maxit, verbose, L1, L2, threads, w)
 }
 
