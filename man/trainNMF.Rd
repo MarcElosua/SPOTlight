@@ -18,18 +18,13 @@ trainNMF(
   model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
-<<<<<<< HEAD
-  assay = "RNA",
-  slot = "counts",
-  L1 = 0.5,
-  L2 = 0,
+  L1_nmf = 0,
+  L2_nmf = 0,
   tol = 1e-05,
-=======
   assay_sc = "RNA",
   slot_sc = "counts",
   assay_sp = "Spatial",
   slot_sp = "counts",
->>>>>>> main
   ...
 )
 }
@@ -69,6 +64,14 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
+\item{L1_nmf}{LASSO penalties in the range (0, 1], single value or array of
+length two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{L2_nmf}{Ridge penalties greater than zero, single value or array of
+length two for c(w, h). See ?RcppML::nmf() for more info.}
+
+\item{tol}{tolerance of the fit ?RcppML::nmf() for more info.}
+
 \item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
 By default "RNA" and "Spatial".}
@@ -77,14 +80,6 @@ By default "RNA" and "Spatial".}
 specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
-
-\item{L1}{LASSO penalties in the range (0, 1], single value or array of
-length two for c(w, h). See ?RcppML::nmf() for more info.}
-
-\item{L2}{Ridge penalties greater than zero, single value or array of length
-two for c(w, h). See ?RcppML::nmf() for more info.}
-
-\item{tol}{tolerance of the fit ?RcppML::nmf() for more info.}
 
 \item{...}{additional parameters.}
 }
@@ -100,6 +95,7 @@ This is the training function used by SPOTLight. This function
 }
 \examples{
 set.seed(321)
+library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)

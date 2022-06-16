@@ -28,9 +28,9 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SpatialExperiment} indicates matrix to use.
 #'   By default "counts".
-#' @param L1 L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
+#' @param L1_nnls L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
 #'   for more info.
-#' @param L2 Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
+#' @param L2_nnls Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
 #'   for more info.
 #' @param verbose logical. Should information on progress be reported?
 #'
@@ -63,7 +63,7 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @importFrom nnls nnls
+#' @importFrom RcppML predict.nmf
 #' @export
 runDeconvolution <- function(
     x,
@@ -107,6 +107,8 @@ runDeconvolution <- function(
     mat <- .pred_prop(x, mod, scale)
     
     if (verbose) message("Deconvoluting mixture data...")
+    if (verbose) message(paste0("Using L1 reg: ", L1_nnls))
+    if (verbose) message(paste0("Using L2 reg: ", L2_nnls))
     ref_scale <- t(t(ref) / colSums(ref))
     pred <- RcppML::predict.nmf(w = ref_scale, data = mat, L1 = L1_nnls, L2 = L2_nnls)
     rownames(pred) <- rownames(ref_scale)

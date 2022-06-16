@@ -170,7 +170,7 @@ plotSpatialScatterpie <- function(
         ...) +
         # Below not needed bc comes from plotImage
         # coord_fixed() +
-        theme_classic() +
+        theme_void() +
         theme(legend.key.size = unit(0.5, "lines"))
     }
 

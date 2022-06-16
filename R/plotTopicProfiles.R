@@ -24,6 +24,7 @@
 #'
 #' @examples
 #' library(ggplot2)
+#' library(RcppML)
 #' x <- mockSC()
 #' y <- mockSP(x)
 #' z <- getMGS(x)
@@ -39,8 +40,7 @@
 NULL
 
 #' @rdname plotTopicProfiles
-#' @importFrom NMF coef
-#' @importFrom stats aggregate
+#' @importFrom stats aggregate median
 #' @import ggplot2
 #' @export
 plotTopicProfiles <- function(

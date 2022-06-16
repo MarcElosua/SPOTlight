@@ -68,6 +68,7 @@
 #' @examples
 #' library(scater)
 #' library(scran)
+#' library(RcppML)
 #' 
 #' # Use Mock data
 #' # Refer to the vignette for a full workflow
@@ -124,6 +125,7 @@ SPOTlight <- function(
         y = y,
         groups = groups,
         mgs = mgs,
+        pnmf = pnmf,
         n_top = n_top,
         gene_id = gene_id, 
         group_id = group_id, 
@@ -152,7 +154,7 @@ SPOTlight <- function(
         assay = assay_sp,
         slot = slot_sp,
         L1_nnls = L1_nnls,
-        L2_nnls = L1_nnls)
+        L2_nnls = L2_nnls)
 
     # return list of NMF model & deconvolution matrix
     list(

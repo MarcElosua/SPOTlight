@@ -23,6 +23,7 @@ Imports:
   ggplot2,
   RcppML,
   Matrix,
+  methods,
   SingleCellExperiment,
   sparseMatrixStats,
   stats
@@ -37,7 +38,6 @@ Suggests:
   igraph,
   jpeg,
   knitr,
-  methods,
   nnls,
   png,
   rmarkdown,
@@ -51,7 +51,8 @@ Suggests:
   S4Vectors,
   TabulaMurisSenisData,
   TENxVisiumData,
-  testthat
+  testthat,
+  utils
 biocViews: 
   SingleCell, 
   Spatial,

@@ -13,8 +13,8 @@ runDeconvolution(
   verbose = TRUE,
   assay = "RNA",
   slot = "counts",
-  L1 = 0.1,
-  L2 = 0
+  L1_nnls = 0,
+  L2_nnls = 0
 )
 }
 \arguments{
@@ -47,10 +47,10 @@ specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SpatialExperiment} indicates matrix to use.
 By default "counts".}
 
-\item{L1}{L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
+\item{L1_nnls}{L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
 for more info.}
 
-\item{L2}{Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
+\item{L2_nnls}{Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
 for more info.}
 }
 \value{

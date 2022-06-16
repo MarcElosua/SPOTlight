@@ -39,10 +39,10 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
-#' @param L1 LASSO penalties in the range (0, 1], single value or array of
+#' @param L1_nmf LASSO penalties in the range (0, 1], single value or array of
 #'   length two for c(w, h). See ?RcppML::nmf() for more info.
-#' @param L2 Ridge penalties greater than zero, single value or array of length
-#'   two for c(w, h). See ?RcppML::nmf() for more info.
+#' @param L2_nmf Ridge penalties greater than zero, single value or array of
+#'   length two for c(w, h). See ?RcppML::nmf() for more info.
 #' @param tol tolerance of the fit ?RcppML::nmf() for more info.
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
@@ -56,6 +56,7 @@
 #'
 #' @examples
 #' set.seed(321)
+#' library(RcppML)
 #' # mock up some single-cell, mixture & marker data
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
@@ -78,6 +79,7 @@ NULL
 #' @rdname trainNMF
 
 #' @importFrom Matrix rowSums Matrix
+#' @importFrom methods is as
 #' @export
 trainNMF <- function(
     x,
@@ -120,8 +122,8 @@ trainNMF <- function(
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
         is.logical(verbose), length(verbose) == 1,
-        is.numeric(L1_nmf), length(L1_nmf) < 3,
-        is.numeric(L2_nmf), length(L2_nmf) < 3,
+        is.numeric(L1_nmf), length(L1_nmf) == 1,
+        is.numeric(L2_nmf), length(L2_nmf) == 1,
         is.numeric(tol), length(tol) == 1)
     
     # Set groups if x is SCE or SE and groups is NULL 
@@ -186,6 +188,7 @@ trainNMF <- function(
     
     if (pnmf == "NMF") {
         .test_installed("NMF")
+        if (verbose) message("Using NMF...")
         # Seed NMF model
         seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
         # train NMF model
@@ -193,6 +196,7 @@ trainNMF <- function(
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
     } else if (pnmf == "RcppML") {
         .test_installed("RcppML")
+        if (verbose) message("Using RcppML...")
         if (verbose) message("Training NMF model...") 
         
         mod <- RcppML::nmf(

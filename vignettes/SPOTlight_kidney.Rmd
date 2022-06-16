@@ -51,8 +51,9 @@ library(SingleCellExperiment)
 library(SpatialExperiment)
 library(scater)
 library(scran)
+library(Matrix)
 library(RcppML)
-library(RcppSparse) # TODO remove
+# library(RcppSparse) # TODO remove
 ```
 
 # Introduction
@@ -366,9 +367,9 @@ In the below table we can see how the top genes for `Topic1` are characteristic
 for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
 
 ```{r basis-dt, message=FALSE, warning=FALSE}
-library(NMF)
-sign <- basis(mod)
-colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
+# library(NMF)
+sign <- mod$w
+# colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
 head(sign)
 # This can be dynamically visualized with DT as shown below
 # DT::datatable(sign, fillContainer = TRUE, filter = "top")

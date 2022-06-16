@@ -19,20 +19,15 @@ SPOTlight(
   model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
-<<<<<<< HEAD
-  assay = "RNA",
-  slot = "counts",
-  L1_nmf = 0.5,
-  L2_nmf = 0,
-  tol = 1e-05,
-  L1_nnls = 0.1,
-  L2_nnls = 0,
-=======
   assay_sc = "RNA",
   slot_sc = "counts",
   assay_sp = "Spatial",
   slot_sp = "counts",
->>>>>>> main
+  L1_nmf = 0,
+  L2_nmf = 0,
+  tol = 1e-05,
+  L1_nnls = 0,
+  L2_nnls = 0,
   ...
 )
 }
@@ -123,6 +118,7 @@ SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 \examples{
 library(scater)
 library(scran)
+library(RcppML)
 
 # Use Mock data
 # Refer to the vignette for a full workflow
