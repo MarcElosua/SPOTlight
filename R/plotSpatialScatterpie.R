@@ -136,7 +136,7 @@ plotSpatialScatterpie <- function(
     # Extract coordinate matrix from x
     if (!is.matrix(x))
         x <- .extract_coord(x = x, slice = slice, img = img)
-    
+
     # Check colnames
     x <- .x_cnames(x)
     
@@ -170,7 +170,7 @@ plotSpatialScatterpie <- function(
         ...) +
         # Below not needed bc comes from plotImage
         # coord_fixed() +
-        theme_void() + 
+        theme_classic() +
         theme(legend.key.size = unit(0.5, "lines"))
     }
 
@@ -239,6 +239,7 @@ plotSpatialScatterpie <- function(
         
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
+        
     } else {
         stop("Couldn't extract image coordinates.
             Please check class(x) is SpatialExperiment, Seurat,

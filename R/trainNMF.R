@@ -8,43 +8,13 @@
 #'   takes in single cell expression data, trains the model and learns topic
 #'    profiles for each cell type
 #'  
-#' @param x,y single-cell and mixture dataset, respectively. Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
-#' @param groups character vector of group labels for cells in \code{x}.
-#'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
-#'   Make sure groups is not a Factor.
-#' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
-#'   Must contain columns holding gene identifiers, group labels and
-#'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
-#' @param hvg character vector containing hvg to include in the model.
-#'   By default NULL.
-#' @param gene_id,group_id,weight_id character specifying the column
-#'   in \code{mgs} containing gene identifiers, group labels and weights,
-#'   respectively.
-#' @param scale logical specifying whether to scale single-cell counts to unit
-#'   variance. This gives the user the option to normalize the data beforehand
-#'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
-#'   slot from where to extract the count data.
-#' @param n_top integer scalar specifying the number of markers to select per
-#'  group. By default NULL uses all the marker genes to initialize the model.
-#' @param model character string indicating which model to use when running NMF.
-#' Either "ns" (default) or "std".
-#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA" and "Spatial".
-#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
-#'   By default "counts".
-#' @param verbose logical. Should information on progress be reported?
-#' @param ... additional parameters.
+#' @inheritParams SPOTlight
 #'
+#' @return a list where the first element is a list with the NMF model (\code{w}, 
+#'   \code{d}, and \code{h}), and the second is a matrix containing the topic 
+#'   profiles learned per cell type.
 #'
-#' @return base a list where the first element is an \code{NMFfit} object and
-#'   the second is a matrix contatining the topic profiles learnt.
-#'
-#' @author Marc Elosua Bayes & Helena L Crowell
+#' @author Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 #'
 #' @examples
 #' set.seed(321)
@@ -68,8 +38,8 @@
 NULL
 
 #' @rdname trainNMF
-#' @importFrom Matrix rowSums
-#' @importFrom NMF nmf nmfModel
+
+#' @importFrom Matrix rowSums Matrix
 #' @export
 trainNMF <- function(
     x,
@@ -81,26 +51,37 @@ trainNMF <- function(
     group_id = "cluster",
     weight_id = "weight",
     hvg = NULL,
-    model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE,
+    L1_nmf = 0,
+    L2_nmf = 0,
+    tol = 1e-05,
+    maxit = 100,
+    threads = 0,
     assay_sc = "RNA",
     slot_sc = "counts",
     assay_sp = "Spatial",
     slot_sp = "counts",
     ...) {
     # check validity of input arguments
-    model <- match.arg(model)
-    
     if (is.null(n_top))
         n_top <- max(table(mgs[[group_id]]))
     ids <- c(gene_id, group_id, weight_id)
     
     stopifnot(
+        is.numeric(x) | is(x, "dgCMatrix") |
+            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "DelayedMatrix"), 
+        is.numeric(y) | is(y, "dgCMatrix") |
+            is(y, "Seurat") | is(y, "SingleCellExperiment") |
+            is(y, "DelayedMatrix"),
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
-        is.logical(verbose), length(verbose) == 1)
+        is.logical(verbose), length(verbose) == 1,
+        is.numeric(L1_nmf), length(L1_nmf) == 1,
+        is.numeric(L2_nmf), length(L2_nmf) == 1,
+        is.numeric(tol), length(tol) == 1)
     
     # Set groups if x is SCE or SE and groups is NULL 
     if (is.null(groups))
@@ -112,12 +93,17 @@ trainNMF <- function(
     stopifnot(groups %in% mgs[[group_id]])
     
     # Extract expression matrices for x and y
-    if (!is.matrix(x))
+    # TODO check this step
+    if (!is.matrix(x) & !is(x, "dgCMatrix"))
         x <- .extract_counts(x, assay_sc, slot_sc)
     
-    if (!is.matrix(y))
+    if (!is.matrix(y) & !is(y, "dgCMatrix"))
         y <- .extract_counts(y, assay_sp, slot_sp)
     
+    # convert matrix to dgCMatrix, 
+    #   if it is already then nothing is done
+    x <- as(x, "dgCMatrix")
+
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
@@ -147,17 +133,20 @@ trainNMF <- function(
     # set model rank to number of groups
     rank <- length(unique(groups))
     
-    # get seeding matrices (optional)
-    seed <- if (TRUE) {
-        if (verbose) message("Seeding initial matrices")
-        hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
-        nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
-    }
+    # Get seeding matrices
+    if (verbose) message("Seeding NMF model...")
+    w_init <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
     
-    # train NMF model
-    if (verbose) message("Training NMF model")
-    mod <- nmf(x, rank, paste0(model, "NMF"), seed, ...)
-    
+    if (verbose) message("Training NMF model...")
+        
+    # call to C++ routine
+    mod <- run_nmf(x, t(x), tol, maxit, verbose, L1_nmf, L2_nmf, threads, w_init)
+
+    # Change nmfX to topic_X
+    colnames(mod$w) <- paste0("topic_", seq_len(ncol(mod$w)))
+    rownames(mod$h) <- paste0("topic_", seq_len(nrow(mod$h)))
+    rownames(mod$w) <- rownames(x)
+    colnames(mod$h) <- colnames(x)
     # capture stop time
     t1 <- Sys.time()
     

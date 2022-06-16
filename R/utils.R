@@ -1,9 +1,15 @@
-#' @importFrom matrixStats rowSds
+#' @importFrom sparseMatrixStats rowSds
+#' @importFrom Matrix t
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
-    t(scale(t(x), center = FALSE, scale = sds))
+    # TODO find a more efficient way of scaling the matrix
+    # t1 <- t(scale(t(x), center = FALSE, scale = sds))
+    # Scale by gene (each row by its sd) for unit variance
+    t1 <- x / sds
+    t1
 }
 
+#' @importFrom Matrix Matrix
 .init_nmf <- function(x,
     groups,
     mgs,
@@ -50,20 +56,11 @@
         w[mgs[[k]][[gene_id]]] <- ws
         return(w)
     }, numeric(ng))
-
-    # H is of dimension (#groups)x(#samples) with H(i,j)
-    # equal to 1 if j is in i, and ~0 otherwise
-    cs <- split(seq_len(nc), groups)
-    H <- t(vapply(ks, function(k) {
-        h <- numeric(nc) + 1e-12
-        h[cs[[k]]] <- 1
-        return(h)
-    }, numeric(nc)))
     
+    # there is no need to initialize H
     tp <- paste0("topic_", seq_len(length(ks)))
     dimnames(W) <- list(rownames(x), tp)
-    dimnames(H) <- list(tp, colnames(x))
-    return(list("W" = W, "H" = H))
+    return(W)
 }
 
 .filter <- function(x, y) {
@@ -88,10 +85,16 @@
     return(x[i, ])
 }
 
-#' @importFrom matrixStats colMedians
+#' @importFrom sparseMatrixStats colMedians
 #' @importFrom NMF coef
 .topic_profiles <- function(mod, groups) {
-    df <- data.frame(t(coef(mod)))
+    # Treat mod differently if it comes from NMF or RcppML
+    if (is(mod, "NMFfit")) {
+        df <- data.frame(t(coef(mod)))
+    } else if (is.list(mod)) {
+        df <- data.frame(t(mod$h))
+    }
+    
     dfs <- split(df, groups)
     res <- vapply(
         dfs, function(df)
@@ -102,21 +105,30 @@
     return(t(res))
 }
 
-#' @importFrom NMF basis
-#' @importFrom nnls nnls
-.pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
-    W <- basis(mod)
+
+.pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE, L1_nnls = 0, L2_nnls = 0, threads = 0) {
+    # Keep basis sparse
+    W <- mod$w
+
     x <- x[rownames(W), ]
     if (scale) {
         x <- .scale_uv(x)
     }
-
-    y <- vapply(
-        seq_len(ncol(x)), 
-        function(i) nnls(W, x[, i])$x,
-        numeric(ncol(W)))
     
-    rownames(y) <- dimnames(mod)[[3]]
+    # y1 <- vapply(seq_len(ncol(x)), function(i)
+    #     nnls::nnls(W, x[, i, drop = FALSE])$x,
+    #     numeric(ncol(W)))
+    # TODO sometimes this can predict all to 0 if not scaled
+    # If I do this we get the same since colSums(W) = 1 for all columns
+    # w_scale <- t(t(W) / colSums(W))
+    # Use a very mild regularization at this step
+    
+    # TODO shoudl regularization parameters for this step be separate from the later deconvolution step?
+    y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
+    # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
+    
+    # TODO check line below
+    rownames(y) <- rownames(mod$h)
     colnames(y) <- colnames(x)
     return(y)
 }
@@ -141,10 +153,9 @@
 # extracts the count/expression matrix specified and returns a matrix
 .extract_counts <- function(x, assay, slot) {
     # Iterate over all the accepted classes and return expression matrix
-    if (is(x, "dgCMatrix") | is(x, "DelayedMatrix")) {
-        # Convert to matrix
-        x <- as.matrix(x)
-    } else if (is(x, "Seurat")) {
+    
+    # Extract count matrix from object
+    if (is(x, "Seurat")) {
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
@@ -154,8 +165,8 @@
             assay %in% SeuratObject::Assays(x)
         )
         
-        # Extract spatial coordinates
-        x <- as.matrix(SeuratObject::GetAssayData(x, slot, assay))
+        # Extract Seurat coordinates
+        x <- SeuratObject::GetAssayData(x, slot, assay)
     } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
         
@@ -168,12 +179,24 @@
             # Return error if there are no colnames in the object
             !is.null(colnames(x))
         )
-        ## Extract spatial coordinates
-        x <- as.matrix(SummarizedExperiment::assay(x, slot))
+        ## Extract SCE-SE coordinates
+        x <- SummarizedExperiment::assay(x, slot)
+    }
+    
+    # Process expression matrix
+    if (is(x, "DelayedMatrix")) {
+        # Convert to matrix
+        rn <- rownames(x)
+        cn <- colnames(x)
+        x <- Matrix(x, sparse = TRUE, nrow = nrow(x), ncol = ncol(x))
+        rownames(x) <- rn
+        colnames(x) <- cn
+    } else if (is(x, "dgCMatrix") | is.matrix(x)) {
+        x
     } else {
-        stop("Couldn't extract image coordinates.
-            Please check class(x) is SpatialExperiment, Seurat,
-            dataframe or matrix")
+        stop("Couldn't extract counts. Please check class(x) is a
+        SingleCellExpriment, SpatialExperiment, Seurat, matrix, DelayedMatrix
+        or dgCMatrix.")
     }
     return(x)
     

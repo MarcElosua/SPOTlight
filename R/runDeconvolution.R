@@ -11,30 +11,15 @@
 #' @param x mixture dataset. Can be a numeric matrix,
 #'   \code{SingleCellExperiment}, \code{SpatialExperiment} or 
 #'   \code{SeuratObjecy}.
-#' @param mod object of class NMFfit as obtained from trainNMF. 
-#' @param ref bject of class matrix containing the topic profiles for each cell
-#'  type as obtained from trainNMF. 
-#' @param scale logical specifying whether to scale single-cell counts to unit
-#'   variance. This gives the user the option to normalize the data beforehand
-#'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
-#'   slot from where to extract the count data.
-#' @param min_prop scalar in [0,1] setting the minimum contribution
-#'   expected from a cell type in \code{x} to observations in \code{y}.
-#'   By default 0.
-#' @param assay if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA". Ignore for the rest of x input classes.
-#' @param slot if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SpatialExperiment} indicates matrix to use.
-#'   By default "counts".
-#' @param verbose logical. Should information on progress be reported?
+#' @param mod object as obtained from trainNMF. 
+#' @param ref object of class matrix containing the topic profiles for each cell
+#'  type as obtained from trainNMF.
+#' @inheritParams SPOTlight
 #'
+#' @return base a list where the first element is a list giving the NMF model and
+#'   the second is a matrix containing the topic profiles learnt.
 #'
-#' @return base a list where the first element is an \code{NMFfit} object and
-#'   the second is a matrix contatining the topic profiles learnt.
-#'
-#' @author Marc Elosua Bayes & Helena L Crowell
+#' @author Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 #'
 #' @examples
 #' set.seed(321)
@@ -59,7 +44,6 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @importFrom nnls nnls
 #' @export
 runDeconvolution <- function(
     x,
@@ -68,8 +52,11 @@ runDeconvolution <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    assay = "RNA",
-    slot = "counts") {
+    assay_sp = "RNA",
+    slot = "counts",
+    L1_nnls = 0,
+    L2_nnls = 0,
+    threads = 0, ...) {
     
     # Class checks
     stopifnot(
@@ -78,11 +65,11 @@ runDeconvolution <- function(
             is(x, "Seurat") | is(x, "SingleCellExperiment") |
             is(x, "SpatialExperiment"),
         # Check mod inputs
-        is(mod, "NMFfit"),
+        is.list(mod),
         # check ref
         is.matrix(ref),
         # Check assay name
-        is.character(assay), length(assay) == 1,
+        is.character(assay_sp), length(assay_sp) == 1,
         # Check slot name
         is.character(slot), length(slot) == 1,
         # Check scale and verbose
@@ -91,41 +78,28 @@ runDeconvolution <- function(
         # Check min_prop numeric
         is.numeric(min_prop), length(min_prop) == 1,
         min_prop >= 0, min_prop <= 1
-        
     )
     
     # Extract expression matrix
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay, slot)
+        x <- .extract_counts(x, assay_sp, slot)
     
     # Get topic profiles for mixtures
-    mat <- .pred_prop(x, mod, scale)
+    mat <- .pred_prop(x, mod, scale, L1_nnls, L2_nnls, threads)
     
-    if (verbose) message("Deconvoluting mixture data")
+    if (verbose) message("Deconvoluting mixture data...")
+    ref_scale <- t(t(ref) / colSums(ref))
+    pred <- predict_nmf(as(mat, "dgCMatrix"), ref_scale, L1_nnls, L2_nnls, threads)
+    rownames(pred) <- rownames(ref_scale)
     
-    res <- vapply(seq_len(ncol(mat)), function(i) {
-        pred <- nnls::nnls(ref, mat[, i])
-        prop <- prop.table(pred$x)
-        # drop groups that fall below 'min_prop' & update
-        prop[prop < min_prop] <- 0
-        prop <- prop.table(prop)
-        # compute residual sum of squares
-        ss <- sum(mat[, i]^2)
-        # compute percentage of unexplained residuals
-        err <- pred$deviance / ss
-        c(prop, err)
-    }, numeric(ncol(ref) + 1))
+    # Proportions within each cell type
+    res <- prop.table(pred, 2)
     
-    # set dimension names
-    # rownames come from the reference
-    rownames(res) <- c(rownames(ref), "res_ss")
-    colnames(res) <- colnames(mat)
-    
-    # Separate residuals from proportions
-    # Extract residuals
-    err <- res["res_ss", ]
-    # Extract only deconvolution matrices
-    res <- res[-nrow(res), ]
-    
+    # TODO Compute residuals
+    ss <- colSums(mat^2)
+    err <- rep(0, ncol(res))
+    names(err) <- colnames(res)
+
     return(list("mat" = t(res), "res_ss" = err))
 }
+
