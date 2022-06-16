@@ -14,9 +14,13 @@ trainNMF(
   group_id = "cluster",
   weight_id = "weight",
   hvg = NULL,
-  model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
+  L1_nmf = 0,
+  L2_nmf = 0,
+  tol = 1e-05,
+  maxit = 100,
+  threads = 0,
   assay_sc = "RNA",
   slot_sc = "counts",
   assay_sp = "Spatial",
@@ -47,15 +51,23 @@ respectively.}
 \item{hvg}{character vector containing hvg to include in the model.
 By default NULL.}
 
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
-
 \item{scale}{logical specifying whether to scale single-cell counts to unit
 variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
+
+\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF, increases sparsity of each factor}
+
+\item{L2_nmf}{Ridge penalty in the range (0, 1] for NMF, increases angle between factors}
+
+\item{tol}{tolerance of the NMF model at convergence, the Pearson correlation 
+distance between models across consecutive iterations (1e-5 is publication quality)}
+
+\item{maxit}{maximum number of NMF iterations for fitting}
+
+\item{threads}{number of threads to use, default 0 (all threads)}
 
 \item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
@@ -69,8 +81,9 @@ By default "counts".}
 \item{...}{additional parameters.}
 }
 \value{
-base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix contatining the topic profiles learnt.
+a list where the first element is a list with the NMF model (\code{w}, 
+  \code{d}, and \code{h}), and the second is a matrix containing the topic 
+  profiles learned per cell type.
 }
 \description{
 This is the training function used by SPOTLight. This function
@@ -98,5 +111,5 @@ res[["mod"]]
 res[["topic"]]
 }
 \author{
-Marc Elosua Bayes & Helena L Crowell
+Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 }

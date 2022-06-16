@@ -11,8 +11,12 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-  assay = "RNA",
-  slot = "counts"
+  assay_sp = "RNA",
+  slot = "counts",
+  L1_nnls = 0,
+  L2_nnls = 0,
+  threads = 0,
+  ...
 )
 }
 \arguments{
@@ -20,9 +24,9 @@ runDeconvolution(
 \code{SingleCellExperiment}, \code{SpatialExperiment} or 
 \code{SeuratObjecy}.}
 
-\item{mod}{object of class NMFfit as obtained from trainNMF.}
+\item{mod}{object as obtained from trainNMF.}
 
-\item{ref}{bject of class matrix containing the topic profiles for each cell
+\item{ref}{object of class matrix containing the topic profiles for each cell
 type as obtained from trainNMF.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -36,18 +40,17 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA". Ignore for the rest of x input classes.}
+\item{L1_nnls}{LASSO penalty in the range (0, 1] for NNLS}
 
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SpatialExperiment} indicates matrix to use.
-By default "counts".}
+\item{L2_nnls}{Ridge penalty in the range (0, 1] for NNLS}
+
+\item{threads}{number of threads to use, default 0 (all threads)}
+
+\item{...}{additional parameters.}
 }
 \value{
-base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix contatining the topic profiles learnt.
+base a list where the first element is a list giving the NMF model and
+  the second is a matrix containing the topic profiles learnt.
 }
 \description{
 This function takes in the mixture data, the trained model & the
@@ -76,5 +79,5 @@ decon <- runDeconvolution(
     ref = res[["topic"]])
 }
 \author{
-Marc Elosua Bayes & Helena L Crowell
+Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 }
