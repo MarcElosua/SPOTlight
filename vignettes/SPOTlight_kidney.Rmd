@@ -299,7 +299,7 @@ Alternatively you can run `SPOTlight` in two steps so that you can have the trai
 mod_ls <- trainNMF(
     x = sce,
     y = spe,
-    groups = sce$type,
+    groups = sce@colData@listData$label,
     mgs = mgs,
     weight_id = "weight",
     group_id = "type",
