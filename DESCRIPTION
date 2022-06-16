@@ -17,15 +17,14 @@ Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
     (NNLS) to subsequently deconvolute ST capture locations (spots).
 Authors@R: c(
   person("Marc", "Elosua-Bayes", email="elosua.marc@gmail.com", role=c("aut", "cre")),
+  person("Zachary", "DeBruine", email="zacharydebruine@gmail.com", role="aut"),
   person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))
 Depends: R (>= 4.1)
 Imports:
   ggplot2,
-  NMF,
   Matrix,
-  matrixStats,
-  nnls,
   SingleCellExperiment,
+  sparseMatrixStats,
   stats
 Suggests:
   BiocStyle,
@@ -39,6 +38,7 @@ Suggests:
   jpeg,
   knitr,
   methods,
+  nnls,
   png,
   rmarkdown,
   scater,
@@ -52,6 +52,9 @@ Suggests:
   TabulaMurisSenisData,
   TENxVisiumData,
   testthat
+LinkingTo: 
+    Rcpp, 
+    RcppEigen
 biocViews: 
   SingleCell, 
   Spatial,
