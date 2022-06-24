@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' @importFrom sparseMatrixStats rowSds
 #' @importFrom Matrix t
 .scale_uv <- function(x) {
@@ -72,6 +73,58 @@
     return(list("W" = W, "H" = H))
 }
 
+#' .init_nmf <- function(x,
+#'     groups,
+#'     mgs,
+#'     n_top = NULL,
+#'     gene_id = "gene",
+#'     group_id = "cluster",
+#'     weight_id = "weight") {
+#'     # check validity of input arguments
+#'     if (is.null(n_top)) {
+#'         n_top <- max(table(mgs[[group_id]]))
+#'     }
+#'     stopifnot(
+#'         is.character(gene_id), length(gene_id) == 1,
+#'         is.character(group_id), length(group_id) == 1,
+#'         is.character(weight_id), length(weight_id) == 1,
+#'         c(gene_id, group_id, weight_id) %in% names(mgs),
+#'         is.numeric(n_top), length(n_top) == 1, round(n_top) == n_top)
+#'     
+#'     ng <- nrow(x)
+#'     nc <- ncol(x)
+#'     names(ks) <- ks <- unique(groups)
+#'     
+#'     # subset 'n_top' features
+#'     mgs <- split(mgs, mgs[[group_id]])
+#'     mgs <- lapply(mgs, function(df) {
+#'         o <- order(df[[weight_id]], decreasing = TRUE)
+#'         n <- ifelse(nrow(df) < n_top, nrow(df), n_top)
+#'         df[o, ][seq_len(n), ]
+#'     })
+#'     
+#'     # subset unique features
+#'     mgs <- lapply(ks, function(k) {
+#'         g1 <- mgs[[k]][[gene_id]]
+#'         g2 <- unlist(lapply(mgs[ks != k], `[[`, gene_id))
+#'         mgs[[k]][!g1 %in% g2, , drop = FALSE]
+#'     })
+#'     
+#'     # W is of dimension (#groups)x(#features) with W(i,j)
+#'     # equal to weight if j is marker for i, and ~0 otherwise
+#'     W <- vapply(ks, function(k) {
+#'         w <- numeric(ng) + 1e-12
+#'         names(w) <- rownames(x)
+#'         ws <- mgs[[k]][[weight_id]]
+#'         w[mgs[[k]][[gene_id]]] <- ws
+#'         return(w)
+#'     }, numeric(ng))
+#'     
+#'     # there is no need to initialize H
+#'     tp <- paste0("topic_", seq_len(length(ks)))
+#'     dimnames(W) <- list(rownames(x), tp)
+#'     return(W)
+#' }
 .filter <- function(x, y) {
     # remove undetected features
     .fil <- function(.) {
@@ -93,6 +146,7 @@
     }
     return(x[i, ])
 }
+
 
 #' @importFrom sparseMatrixStats colMedians
 .topic_profiles <- function(mod, groups) {
@@ -137,7 +191,7 @@
     # If I do this we get the same since colSums(W) = 1 for all coummns
     # w_scale <- t(t(W) / colSums(W))
     # Use a very mild regularization at this step
-    y <- RcppML::predict.nmf(W, x, L1 = 0)
+    y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # TODO check line below
@@ -367,4 +421,3 @@
     
     return(mod)
 }
-

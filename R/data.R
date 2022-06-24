@@ -40,7 +40,7 @@ NULL
 #' @importFrom stats rnbinom runif
 #' @export
 mockSC <- function(ng = 200, nc = 50, nt = 3) {
-    z <- lapply(seq_len(nt), \(t) {
+    z <- lapply(seq_len(nt), function(t) {
         ms <- 2^runif(ng, 2, 10)
         ds <- 0.5 + 100 / ms
         y <- rnbinom(ng * nc, mu = ms, size = 1 / ds)
@@ -111,7 +111,7 @@ getMGS <- function(x, n_top = 10) {
     # Remove group column
     y <- t(y[, -1])
     # get proportion of counts by group
-    z <- lapply(rownames(y), \(gene) {
+    z <- lapply(rownames(y), function(gene) {
         p <- prop.table(y[gene, ])
         i <- which.max(p)
         type <- names(i)
@@ -123,7 +123,7 @@ getMGS <- function(x, n_top = 10) {
     # select 'top_n' in each group
     z <- split(z, z$type)
     # Iterate over groups and sort within them
-    z <- lapply(z, \(.) {
+    z <- lapply(z, function(.) {
         # Get indexes of the positions in the sorted order
         o <- order(.$weight, decreasing = TRUE)
         # order the markers

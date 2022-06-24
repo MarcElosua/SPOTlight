@@ -81,7 +81,6 @@ plotInteractions <- function(x,
 }
 
 #' @importFrom sparseMatrixStats rowAlls
-#' @importFrom utils combn
 .count_interactions <- function(x, min_prop) {
     # for each pair of groups count how many
     # samples have value above 'min_prop'

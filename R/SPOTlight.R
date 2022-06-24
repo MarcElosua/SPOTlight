@@ -6,9 +6,10 @@
 #'
 #' @param x,y single-cell and mixture dataset, respectively. Can be a
 #'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
-#' @param groups vector of group labels for cells in \code{x}.
+#' @param groups character vector of group labels for cells in \code{x}.
 #'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels} and \code{Idents(x)}, respectively.
+#'   defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
+#'   Make sure groups is not a Factor.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
@@ -23,9 +24,8 @@
 #'   variance. This gives the user the option to normalize the data beforehand
 #'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 #'   slot from where to extract the count data.
-#' @param min_prop scalar in [0,1] setting the minimum contribution
-#'   expected from a cell type in \code{x} to observations in \code{y}.
-#'   By default 0.
+#' @param n_top integer scalar specifying the number of markers to select per
+#'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
 #'   By default "RNA" and "Spatial".
@@ -33,26 +33,25 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
-#' @param n_top integer scalar specifying the number of markers to select per
-#'   group. By default NULL uses all the marker genes to initialize the model.
-#' @param model character string indicating which model to use when running NMF.
-#'   Either "ns" (default) or "std".
-#' @param L1_nmf LASSO penalties in the range (0, 1], single value or array of
-#'   length two for c(w, h). See ?RcppML::nmf() for more info.
-#' @param L2_nmf Ridge penalties greater than zero, single value or array of
-#'   length two for c(w, h). See ?RcppML::nmf() for more info.
-#' @param tol tolerance of the fit ?RcppML::nmf() for more info.
-#' @param L1_nnls L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
-#'   for more info.
-#' @param L2_nnls Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
-#'   for more info.
+#' @param L1_nmf LASSO penalty in the range (0, 1] for NMF, increases sparsity of each factor
+#' @param L2_nmf Ridge penalty in the range (0, 1] for NMF, increases angle between factors
+#' @param tol tolerance of the NMF model at convergence, the Pearson correlation 
+#'   distance between models across consecutive iterations (1e-5 is publication quality)
+#' @param maxit maximum number of NMF iterations for fitting
+#' @param threads number of threads to use, default 0 (all threads)
 #' @param verbose logical. Should information on progress be reported?
+#' @param ... additional parameters.
+#' @param min_prop scalar in [0,1] setting the minimum contribution
+#'   expected from a cell type in \code{x} to observations in \code{y}.
+#'   By default 0.
+#' @param L1_nnls LASSO penalty in the range (0, 1] for NNLS
+#' @param L2_nnls Ridge penalty in the range (0, 1] for NNLS
 #' @param ... additional parameters.
 #'
 #' @return a numeric matrix with rows corresponding to samples
 #'   and columns to groups
 #'
-#' @author Marc Elosua-Bayes & Helena L. Crowell
+#' @author Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 #'
 #' @details SPOTlight uses a Non-Negative Matrix Factorization approach to learn
 #'   which genes are important for each cell type. In order to drive the
@@ -68,7 +67,6 @@
 #' @examples
 #' library(scater)
 #' library(scran)
-#' library(RcppML)
 #' 
 #' # Use Mock data
 #' # Refer to the vignette for a full workflow
@@ -89,11 +87,12 @@ NULL
 
 #' @rdname SPOTlight
 #' @export
+#' @useDynLib SPOTlight, .registration = TRUE
+#' 
 SPOTlight <- function(
     x,
     y,
     groups = NULL,
-    # markers
     mgs,
     pnmf = c("RcppML", "NMF"),
     n_top = NULL,
@@ -101,12 +100,9 @@ SPOTlight <- function(
     group_id = "cluster",
     weight_id = "weight",
     hvg = NULL,
-    # NMF
     scale = TRUE,
     model = c("ns", "std"),
-    # deconvolution
     min_prop = 0.01,
-    # other
     verbose = TRUE,
     assay_sc = "RNA",
     slot_sc = "counts",
@@ -114,6 +110,8 @@ SPOTlight <- function(
     slot_sp = "counts",
     L1_nmf = 0,
     L2_nmf = 0,
+    maxit = 100,
+    threads = 0,
     tol = 1e-5,
     L1_nnls = 0,
     L2_nnls = 0,
@@ -141,8 +139,10 @@ SPOTlight <- function(
         L1_nmf = L1_nmf,
         L2_nmf = L2_nmf,
         tol = tol,
+        threads = threads,
+        maxit = maxit,
         ...)
-
+    
     # perform deconvolution
     res <- runDeconvolution(
         x = y,
@@ -155,10 +155,11 @@ SPOTlight <- function(
         slot = slot_sp,
         L1_nnls = L1_nnls,
         L2_nnls = L2_nnls)
-
+    
     # return list of NMF model & deconvolution matrix
     list(
         "mat" = res[["mat"]],
         "res_ss" = res[["res_ss"]],
         "NMF" = mod_ls[["mod"]])
-    }
+    
+}
