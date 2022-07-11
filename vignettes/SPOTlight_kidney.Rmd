@@ -300,10 +300,9 @@ res <- SPOTlight(
 
 Alternatively you can run `SPOTlight` in two steps so that you can have the trained model. Having the trained model allows you to reuse with other datasets you also want to deconvolute with the same reference. This allows you to skip the training step, the most time consuming and computationally expensive.
 
-```{r SPOTligh2, eval=FALSE}
+```{r SPOTlight2, eval=FALSE}
 mod_ls <- trainNMF(
     x = sce,
-    y = spe,
     pnmf = "RcppML",
     groups = sce$free_annotation,
     mgs = mgs_df,

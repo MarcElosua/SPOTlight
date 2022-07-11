@@ -26,6 +26,8 @@
 #'   slot from where to extract the count data.
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
+#' @param model character string indicating which model to use when running NMF.
+#' Either "ns" (default) or "std".
 #' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
 #'   By default "RNA" and "Spatial".
@@ -40,7 +42,6 @@
 #' @param maxit maximum number of NMF iterations for fitting
 #' @param threads number of threads to use, default 0 (all threads)
 #' @param verbose logical. Should information on progress be reported?
-#' @param ... additional parameters.
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
@@ -120,7 +121,6 @@ SPOTlight <- function(
     # train NMF model
     mod_ls <- trainNMF(
         x = x,
-        y = y,
         groups = groups,
         mgs = mgs,
         pnmf = pnmf,

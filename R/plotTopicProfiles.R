@@ -24,7 +24,6 @@
 #'
 #' @examples
 #' library(ggplot2)
-#' library(RcppML)
 #' x <- mockSC()
 #' y <- mockSP(x)
 #' z <- getMGS(x)

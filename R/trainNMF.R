@@ -7,8 +7,10 @@
 #' @description This is the training function used by SPOTLight. This function
 #'   takes in single cell expression data, trains the model and learns topic
 #'    profiles for each cell type
-#'  
-
+#' 
+#' @param y Null if you want to train the model with all the genes in the SC
+#'    data or a character vector with the rownames of the mixture dataset to 
+#'    subset the gene set use to the intersection between them.
 #' @inheritParams SPOTlight
 #'
 #' @return a list where the first element is a list with the NMF model
@@ -19,7 +21,6 @@
 #'
 #' @examples
 #' set.seed(321)
-#' library(RcppML)
 #' # mock up some single-cell, mixture & marker data
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
@@ -27,7 +28,7 @@
 #' 
 #' res <- trainNMF(
 #'     x = sce,
-#'     y = spe,
+#'     y = rownames(spe),
 #'     groups = sce$type,
 #'     mgs = mgs,
 #'     weight_id = "weight",
@@ -45,11 +46,12 @@ NULL
 #' @export
 trainNMF <- function(
     x,
-    y,
+    y = NULL,
     groups = NULL,
     mgs,
     pnmf = c("RcppML", "NMF"),
     n_top = NULL,
+    model = c("ns", "std"),
     gene_id = "gene",
     group_id = "cluster",
     weight_id = "weight",
@@ -78,9 +80,7 @@ trainNMF <- function(
         is.numeric(x) | is(x, "dgCMatrix") |
             is(x, "Seurat") | is(x, "SingleCellExperiment") |
             is(x, "DelayedMatrix"), 
-        is.numeric(y) | is(y, "dgCMatrix") |
-            is(y, "Seurat") | is(y, "SingleCellExperiment") |
-            is(y, "DelayedMatrix"),
+        (is.vector(y) & is.character(y)) | is.null(y),
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
         is.null(groups) | length(groups) == ncol(x),
         is.logical(scale), length(scale) == 1,
@@ -99,12 +99,8 @@ trainNMF <- function(
     stopifnot(groups %in% mgs[[group_id]])
     
     # Extract expression matrices for x and y
-    # TODO check this step
     if (!is.matrix(x) & !is(x, "dgCMatrix"))
         x <- .extract_counts(x, assay_sc, slot_sc)
-    
-    if (!is.matrix(y) & !is(y, "dgCMatrix"))
-        y <- .extract_counts(y, assay_sp, slot_sp)
     
     if (pnmf == "RcppML") {
         # Make sure matrix is sparse
@@ -126,11 +122,11 @@ trainNMF <- function(
     }
     
     # Select intersection between interest and present in x (sce) & y (spe)
-    mod_genes <- intersect(mod_genes, intersect(rownames(x), rownames(y)))
+    mod_genes <- intersect(mod_genes, intersect(rownames(x), y))
     
-    # drop features that are undetected
-    # in single-cell and/or mixture data
-    x <- .filter(x[mod_genes, ], y[mod_genes, ])
+    # drop features that are undetected in single-cell and/or mixture data
+    x <- .filter(x[mod_genes, ], y)
+    
     mgs <- mgs[mgs[[gene_id]] %in% rownames(x), ]
     
     # scale to unit variance (optional)
@@ -160,7 +156,6 @@ trainNMF <- function(
         if (verbose) message("Training NMF model...")
         mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
     } else if (pnmf == "RcppML") {
-        .test_installed("RcppML")
         if (verbose) message("Using RcppML...")
         if (verbose) message("Training NMF model...") 
         

@@ -33,7 +33,6 @@ This function takes in the fitted NMF model and returns the
 }
 \examples{
 library(ggplot2)
-library(RcppML)
 x <- mockSC()
 y <- mockSP(x)
 z <- getMGS(x)

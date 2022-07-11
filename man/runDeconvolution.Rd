@@ -11,19 +11,12 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-<<<<<<< HEAD
-  assay = "RNA",
-  slot = "counts",
-  L1_nnls = 0,
-  L2_nnls = 0
-=======
   assay_sp = "RNA",
   slot = "counts",
   L1_nnls = 0,
   L2_nnls = 0,
   threads = 0,
   ...
->>>>>>> 6bc8cdd148de903a21fd8d7966cf7e60f06fa877
 )
 }
 \arguments{
@@ -49,24 +42,11 @@ By default 0.}
 
 \item{L1_nnls}{LASSO penalty in the range (0, 1] for NNLS}
 
-<<<<<<< HEAD
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SpatialExperiment} indicates matrix to use.
-By default "counts".}
-
-\item{L1_nnls}{L1/LASSO penalty to be subtracted from b. See ?RcppML::nnls()
-for more info.}
-
-\item{L2_nnls}{Ridge penalty to be added to diagonal of a. See ?RcppML::nmf()
-for more info.}
-=======
 \item{L2_nnls}{Ridge penalty in the range (0, 1] for NNLS}
 
 \item{threads}{number of threads to use, default 0 (all threads)}
 
 \item{...}{additional parameters.}
->>>>>>> 6bc8cdd148de903a21fd8d7966cf7e60f06fa877
 }
 \value{
 base a list where the first element is a list giving the NMF model and

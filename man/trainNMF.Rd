@@ -85,9 +85,9 @@ By default "counts".}
 \item{...}{additional parameters.}
 }
 \value{
-a list where the first element is a list with the NMF model (\code{w}, 
-  \code{d}, and \code{h}), and the second is a matrix containing the topic 
-  profiles learned per cell type.
+a list where the first element is a list with the NMF model
+  information (see ?RcppML::nmf return value) and the second is a matrix
+   containing the topic profiles learnt per cell type.
 }
 \description{
 This is the training function used by SPOTLight. This function
@@ -96,7 +96,6 @@ This is the training function used by SPOTLight. This function
 }
 \examples{
 set.seed(321)
-library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
@@ -116,5 +115,5 @@ res[["mod"]]
 res[["topic"]]
 }
 \author{
-Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
+Marc Elosua Bayes & Helena L Crowell
 }

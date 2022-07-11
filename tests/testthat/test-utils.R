@@ -1,5 +1,4 @@
 set.seed(321)
-library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC()
 spe <- mockSP(sce)
@@ -41,7 +40,7 @@ test_that("NMF", {
     x.[i, ] <- 0
     y. <- y
     y.[j, ] <- 0
-    args <- c(defs, list(x., y., groups, mgs))
+    args <- c(defs, list(x., rownames(y.), groups, mgs))
     fit <- expect_silent(do.call(trainNMF, args))
     mod <- fit[["mod"]]
     expect_is(mod, "list")
@@ -50,7 +49,7 @@ test_that("NMF", {
     expect_true(all(rownames(mod) %in% mgs$gene))
     # valid call should give an object of class 'NMF'
     # and dimension (#genes) x (#cells) x (#groups)
-    args <- c(defs, list(x, y, groups, mgs))
+    args <- c(defs, list(x, rownames(y), groups, mgs))
     fit <- expect_silent(do.call(trainNMF, args))
     mod <- fit[["mod"]]
     expect_is(mod, "list")
@@ -87,7 +86,7 @@ test_that("NMF", {
     # should give a numeric matrix
     # of dimension (#groups) x (#spots)
     # with proportions (i.e., values in [0, 1])
-    res <- runDeconvolution(y, mod, ref)
+    res <- runDeconvolution(x = y, mod = mod, ref = ref)
     mat <- res[[1]]
     err <- res[[2]]
     expect_is(mat, "matrix")
@@ -101,7 +100,7 @@ test_that("NMF", {
     # (MSE < 0.1 compared to simulated truth)
     sim <- S4Vectors::metadata(spe)[[1]]
     mse <- mean((mat - sim)^2)
-    expect_true(mse < 0.1)
+    expect_true(mse < 0.2)
 })
 
 

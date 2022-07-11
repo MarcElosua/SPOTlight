@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' @importFrom sparseMatrixStats rowSds
 #' @importFrom Matrix t
 .scale_uv <- function(x) {
@@ -132,19 +131,17 @@
         .[i, , drop = FALSE]
     }
     x <- .fil(x)
-    y <- .fil(y)
-
-    # keep only shared features
-    i <- intersect(
-        rownames(x),
-        rownames(y))
     
-    if (length(i) < 10) {
+    # keep only shared features
+    if (!is.null(y))
+        x <- x[intersect(rownames(x), y), ]
+    
+    if (nrow(x) < 10) {
         stop(
             "Insufficient number of features shared",
             " between single-cell and mixture dataset.")
     }
-    return(x[i, ])
+    return(x)
 }
 
 
@@ -168,7 +165,11 @@
 }
 
 
-.pred_prop <- function(x, mod, scale = TRUE, verbose = TRUE) {
+#' @importFrom sparseMatrixStats rowSums2
+.pred_prop <- function(
+        x, mod, scale = TRUE, verbose = TRUE,
+        L1_nnls = 0, L2_nnls = 0, threads = 0
+    ) {
     # Keep basis sparse
     if (is(mod, "NMFfit")) {
         .test_installed("NMF")
@@ -177,24 +178,36 @@
         W <- mod$w
     }
     
+    # remove all genes that are all 0s
+    g0 <- rowSums2(x) > 0
+    # Return a warning about genes being removed
+    if (!all(g0) & verbose)
+        message("Removing genes in mixture matrix that are all 0s")
+    x <- x[g0, ]
     
-    x <- x[rownames(W), ]
+    # Subset to shared genes between SP and SC
+    if (verbose)
+        message("Keep intersection of genes between W and mixture matrix")
+    gi <- intersect(rownames(W), rownames(x))
+    x <- x[gi, ]
+    
+    # Check there are enough shared features
+    if (nrow(x) < 10) {
+        stop(
+            "Insufficient number of features, <10, shared",
+            " between trained model and mixture dataset.")
+    }
     if (scale) {
         x <- .scale_uv(x)
     }
     
-    # TODO implement nnls RcppML
-    # y1 <- vapply(seq_len(ncol(x)), function(i)
-    #     nnls::nnls(W, x[, i, drop = FALSE])$x,
-    #     numeric(ncol(W)))
     # TODO sometimes this can predict all to 0 if not scaled
     # If I do this we get the same since colSums(W) = 1 for all coummns
-    # w_scale <- t(t(W) / colSums(W))
-    # Use a very mild regularization at this step
+    # Use a very very mild regularization at this step
     y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
-    # TODO check line below
+    # Assign names
     rownames(y) <- rownames(mod$h)
     colnames(y) <- colnames(x)
     return(y)
@@ -403,17 +416,17 @@
                 "mse" = NULL,
                 "w_init" = smtx)
         )
-    } else if (is(mod, "nmf")) {
+    } else if (is.list(mod)) {
         mod <- list(
-            "w" = mod@w,
-            "d" = mod@d,
-            "h" = mod@h,
+            "w" = mod$w,
+            "d" = mod$d,
+            "h" = mod$h,
             "misc" = list(
-                "tol" = mod@misc$tol,
-                "iter" = mod@misc$iter,
-                "runtime" = mod@misc$runtime,
+                "tol" = NULL,
+                "iter" = NULL,
+                "runtime" = NULL,
                 "mse" = NULL,
-                "w_init" = mod@misc$w_init)
+                "w_init" = NULL)
         )
     } else {
         stop("mod is neither an 'NMFfit' or 'nmf' object ")

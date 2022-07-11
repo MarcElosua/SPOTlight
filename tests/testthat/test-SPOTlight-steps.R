@@ -1,5 +1,4 @@
 set.seed(321)
-library(RcppML)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
 spe <- mockSP(sce)
@@ -38,7 +37,7 @@ set.seed(687)
 # Train NMF
 mod_ls <- trainNMF(
     x = as.matrix(counts(sce)),
-    y = as.matrix(counts(spe)),
+    y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",

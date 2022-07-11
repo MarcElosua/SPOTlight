@@ -91,10 +91,15 @@ runDeconvolution <- function(
     
     if (verbose) message("Deconvoluting mixture data...")
     ref_scale <- t(t(ref) / colSums(ref))
-    pred <- predict_nmf(as(mat, "dgCMatrix"), ref_scale, L1_nnls, L2_nnls, threads)
+    pred <- predict_nmf(
+        A_ = as(mat, "dgCMatrix"),
+        w = ref_scale,
+        L1 = L1_nnls,
+        L2 = L2_nnls,
+        threads = threads)
     rownames(pred) <- rownames(ref_scale)
-    
-    # Proportions within each cell type
+    colnames(pred) <- colnames(mat)
+    # Proportions within each spot
     res <- prop.table(pred, 2)
     
     # TODO Compute residuals
