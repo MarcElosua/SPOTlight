@@ -6,11 +6,12 @@
 \usage{
 trainNMF(
   x,
-  y,
+  y = NULL,
   groups = NULL,
   mgs,
   pnmf = c("RcppML", "NMF"),
   n_top = NULL,
+  model = c("ns", "std"),
   gene_id = "gene",
   group_id = "cluster",
   weight_id = "weight",
@@ -30,8 +31,9 @@ trainNMF(
 )
 }
 \arguments{
-\item{x, y}{single-cell and mixture dataset, respectively. Can be a
-numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
+\item{y}{Null if you want to train the model with all the genes in the SC
+data or a character vector with the rownames of the mixture dataset to 
+subset the gene set use to the intersection between them.}
 
 \item{groups}{character vector of group labels for cells in \code{x}.
 When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
@@ -47,6 +49,9 @@ the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
+
+\item{model}{character string indicating which model to use when running NMF.
+Either "ns" (default) or "std".}
 
 \item{gene_id, group_id, weight_id}{character specifying the column
 in \code{mgs} containing gene identifiers, group labels and weights,
@@ -103,7 +108,7 @@ mgs <- getMGS(sce)
 
 res <- trainNMF(
     x = sce,
-    y = spe,
+    y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",

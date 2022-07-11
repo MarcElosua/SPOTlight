@@ -121,6 +121,7 @@ SPOTlight <- function(
     # train NMF model
     mod_ls <- trainNMF(
         x = x,
+        y = rownames(y),
         groups = groups,
         mgs = mgs,
         pnmf = pnmf,

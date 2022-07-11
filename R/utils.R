@@ -124,6 +124,8 @@
 #'     dimnames(W) <- list(rownames(x), tp)
 #'     return(W)
 #' }
+
+#' @importFrom Matrix Matrix rowSums
 .filter <- function(x, y) {
     # remove undetected features
     .fil <- function(.) {
