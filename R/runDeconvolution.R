@@ -90,6 +90,7 @@ runDeconvolution <- function(
     mat <- .pred_prop(x, mod, scale, L1_nnls, L2_nnls, threads)
 
     if (verbose) message("Deconvoluting mixture data...")
+    # ref_scale <- t(t(ref) / colSums(ref))
     ref_scale <- t(ref) / colSums(ref)
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
@@ -97,8 +98,11 @@ runDeconvolution <- function(
         L1 = L1_nnls,
         L2 = L2_nnls,
         threads = threads)
-    rownames(pred) <- rownames(ref_scale)
-    colnames(pred) <- colnames(mat)
+    # rownames(pred) <- rownames(ref_scale)
+    # colnames(pred) <- colnames(mat)
+    colnames(pred) <- rownames(ref_scale)
+    rownames(pred) <- colnames(mat)
+
     # Proportions within each spot
     res <- prop.table(pred, 2)
 
