@@ -191,7 +191,9 @@
     if (verbose)
         message("Keep intersection of genes between W and mixture matrix")
     gi <- intersect(rownames(W), rownames(x))
+    # Keep only intersecting genes and in the same order
     x <- x[gi, ]
+    W <- W[gi, ]
     
     # Check there are enough shared features
     if (nrow(x) < 10) {
