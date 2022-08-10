@@ -7,12 +7,12 @@
 #' @description This function takes in the mixture data, the trained model & the
 #'   topic profiles and returns the proportion of each cell type within each
 #'    mixture
-#'  
+#'
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or 
+#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or
 #'   \code{SeuratObjecy}.
 
-#' @param mod object as obtained from trainNMF. 
+#' @param mod object as obtained from trainNMF.
 #' @param ref object of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF.
 #' @param assay if the object is of Class \code{Seurat}, character string
@@ -35,7 +35,7 @@
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
 #' mgs <- getMGS(sce)
-#' 
+#'
 #' res <- trainNMF(
 #'     x = sce,
 #'     y = rownames(spe),
@@ -88,28 +88,33 @@ runDeconvolution <- function(
         is.numeric(min_prop), length(min_prop) == 1,
         min_prop >= 0, min_prop <= 1
     )
-    
+
     # Extract expression matrix
     if (!is.matrix(x))
         x <- .extract_counts(x, assay_sp, slot)
-    
+
     # Get topic profiles for mixtures
     mat <- .pred_prop(
         x = x, mod = mod, scale = scale, verbose = verbose,
         L1_nnls = L1_nnls, L2_nnls = L2_nnls, threads = threads)
     
     if (verbose) message("Deconvoluting mixture data...")
-    ref_scale <- t(t(ref) / colSums(ref))
+    # ref_scale <- t(t(ref) / colSums(ref))
+    ref_scale <- t(ref) / colSums(ref)
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
         w = ref_scale,
         L1 = L1_nnls,
         L2 = L2_nnls,
         threads = threads)
-    rownames(pred) <- rownames(ref_scale)
-    colnames(pred) <- colnames(mat)
+    # rownames(pred) <- rownames(ref_scale)
+    # colnames(pred) <- colnames(mat)
+    colnames(pred) <- rownames(ref_scale)
+    rownames(pred) <- colnames(mat)
+
     # Proportions within each spot
     res <- prop.table(pred, 2)
+<<<<<<< HEAD
     
     # TODO Check computation is correct for residuals
     # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
@@ -117,8 +122,14 @@ runDeconvolution <- function(
     # 3- sum the errors for each spot (column)
     err_mat <- (mat - t(ref_scale) %*% pred)^2
     err <- colSums(err_mat)
+=======
+
+    # TODO Compute residuals
+    ss <- colSums(mat^2)
+    err <- rep(0, ncol(res))
+>>>>>>> 2e1478cde20b00c3d8fc55bdc8ab817571845147
     names(err) <- colnames(res)
-    
+
     return(list("mat" = t(res), "res_ss" = err))
 }
 
