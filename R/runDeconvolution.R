@@ -114,20 +114,13 @@ runDeconvolution <- function(
 
     # Proportions within each spot
     res <- prop.table(pred, 2)
-<<<<<<< HEAD
-    
+
     # TODO Check computation is correct for residuals
     # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
     # 2- Check the differences between the original and re-mapped matrix
     # 3- sum the errors for each spot (column)
     err_mat <- (mat - t(ref_scale) %*% pred)^2
     err <- colSums(err_mat)
-=======
-
-    # TODO Compute residuals
-    ss <- colSums(mat^2)
-    err <- rep(0, ncol(res))
->>>>>>> 2e1478cde20b00c3d8fc55bdc8ab817571845147
     names(err) <- colnames(res)
 
     return(list("mat" = t(res), "res_ss" = err))
