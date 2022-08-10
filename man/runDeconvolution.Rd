@@ -11,7 +11,7 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-  assay_sp = "RNA",
+  assay = "Spatial",
   slot = "counts",
   L1_nnls = 0,
   L2_nnls = 0,
@@ -40,6 +40,15 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
+\item{assay}{if the object is of Class \code{Seurat}, character string
+specifying the assay from which to extract the expression matrix.
+By default "RNA" and "Spatial".}
+
+\item{slot}{if the object is of Class \code{Seurat}, character string
+specifying the slot from which to extract the expression matrix. If the
+object is of class \code{SingleCellExperiment} indicates matrix to use.
+By default "counts".}
+
 \item{L1_nnls}{LASSO penalty in the range (0, 1] for NNLS}
 
 \item{L2_nnls}{Ridge penalty in the range (0, 1] for NNLS}
@@ -66,7 +75,7 @@ mgs <- getMGS(sce)
 
 res <- trainNMF(
     x = sce,
-    y = spe,
+    y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",

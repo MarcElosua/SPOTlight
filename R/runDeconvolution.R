@@ -15,6 +15,13 @@
 #' @param mod object as obtained from trainNMF. 
 #' @param ref object of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF.
+#' @param assay if the object is of Class \code{Seurat}, character string
+#'   specifying the assay from which to extract the expression matrix.
+#'   By default "Spatial".
+#' @param slot if the object is of Class \code{Seurat}, character string
+#'   specifying the slot from which to extract the expression matrix. If the
+#'   object is of class \code{SpatialExperiment} indicates matrix to use.
+#'   By default "counts".
 #' @inheritParams SPOTlight
 #'
 #' @return base a list where the first element is a list giving the NMF model and
@@ -31,7 +38,7 @@
 #' 
 #' res <- trainNMF(
 #'     x = sce,
-#'     y = spe,
+#'     y = rownames(spe),
 #'     groups = sce$type,
 #'     mgs = mgs,
 #'     weight_id = "weight",
@@ -53,7 +60,7 @@ runDeconvolution <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    assay_sp = "RNA",
+    assay = "Spatial",
     slot = "counts",
     L1_nnls = 0,
     L2_nnls = 0,
@@ -71,7 +78,7 @@ runDeconvolution <- function(
         # check ref
         is.matrix(ref),
         # Check assay name
-        is.character(assay_sp), length(assay_sp) == 1,
+        is.character(assay), length(assay) == 1,
         # Check slot name
         is.character(slot), length(slot) == 1,
         # Check scale and verbose
@@ -87,7 +94,9 @@ runDeconvolution <- function(
         x <- .extract_counts(x, assay_sp, slot)
     
     # Get topic profiles for mixtures
-    mat <- .pred_prop(x, mod, scale, L1_nnls, L2_nnls, threads)
+    mat <- .pred_prop(
+        x = x, mod = mod, scale = scale, verbose = verbose,
+        L1_nnls = L1_nnls, L2_nnls = L2_nnls, threads = threads)
     
     if (verbose) message("Deconvoluting mixture data...")
     ref_scale <- t(t(ref) / colSums(ref))
@@ -102,9 +111,12 @@ runDeconvolution <- function(
     # Proportions within each spot
     res <- prop.table(pred, 2)
     
-    # TODO Compute residuals
-    ss <- colSums(mat^2)
-    err <- rep(0, ncol(res))
+    # TODO Check computation is correct for residuals
+    # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
+    # 2- Check the differences between the original and re-mapped matrix
+    # 3- sum the errors for each spot (column)
+    err_mat <- (mat - t(ref_scale) %*% pred)^2
+    err <- colSums(err_mat)
     names(err) <- colnames(res)
     
     return(list("mat" = t(res), "res_ss" = err))

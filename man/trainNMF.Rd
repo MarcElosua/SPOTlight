@@ -25,8 +25,6 @@ trainNMF(
   threads = 0,
   assay_sc = "RNA",
   slot_sc = "counts",
-  assay_sp = "Spatial",
-  slot_sp = "counts",
   ...
 )
 }
@@ -77,15 +75,6 @@ distance between models across consecutive iterations (1e-5 is publication quali
 \item{maxit}{maximum number of NMF iterations for fitting}
 
 \item{threads}{number of threads to use, default 0 (all threads)}
-
-\item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA" and "Spatial".}
-
-\item{slot_sc, slot_sp}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
 
 \item{...}{additional parameters.}
 }

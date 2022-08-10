@@ -135,8 +135,6 @@ SPOTlight <- function(
         verbose = verbose,
         assay_sc = assay_sc,
         slot_sc = slot_sc,
-        assay_sp = assay_sp,
-        slot_sp = slot_sp,
         L1_nmf = L1_nmf,
         L2_nmf = L2_nmf,
         tol = tol,
