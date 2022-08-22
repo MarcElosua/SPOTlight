@@ -163,10 +163,11 @@
 
 
 #' @importFrom sparseMatrixStats rowSums2
-.pred_prop <- function(
+.pred_hp <- function(
         x, mod, scale = TRUE, verbose = TRUE,
         L1_nnls = 0, L2_nnls = 0, threads = 0
     ) {
+    W <- mod$w
     # remove all genes that are all 0s
     g0 <- rowSums2(x) > 0
     # Return a warning about genes being removed
@@ -177,7 +178,7 @@
     # Subset to shared genes between SP and SC
     if (verbose)
         message("Keep intersection of genes between W and mixture matrix")
-    gi <- intersect(rownames(mod$w), rownames(x))
+    gi <- intersect(rownames(W), rownames(x))
     x <- x[gi, ]
     W <- W[gi, ]
     
@@ -194,7 +195,7 @@
     # TODO sometimes this can predict all to 0 if not scaled
     # If I do this we get the same since colSums(W) = 1 for all coummns
     # Use a very very mild regularization at this step
-    y <- predict_nmf(as(x, "dgCMatrix"), t(mod$w), L1_nnls, L2_nnls, threads)
+    y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # Assign names

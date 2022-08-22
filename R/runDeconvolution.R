@@ -94,7 +94,7 @@ runDeconvolution <- function(
         x <- .extract_counts(x, assay_sp, slot)
 
     # Get topic profiles for mixtures
-    mat <- .pred_prop(
+    mat <- .pred_hp(
         x = x, mod = mod, scale = scale, verbose = verbose,
         L1_nnls = L1_nnls, L2_nnls = L2_nnls, threads = threads)
     

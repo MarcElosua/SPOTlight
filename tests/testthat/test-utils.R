@@ -71,8 +71,8 @@ test_that("NMF", {
     expect_identical(rownames(ref), group_ids)
     expect_identical(colnames(ref), paste0("topic_", 1:nrow(ref)))
     
-    # + .pred_prop ----
-    fqs <- .pred_prop(x, mod)
+    # + .pred_hp ----
+    fqs <- .pred_hp(x, mod)
     expect_is(fqs, "matrix")
     expect_true(is.numeric(x))
     expect_true(all(fqs >= 0))
