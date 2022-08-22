@@ -64,8 +64,6 @@ trainNMF <- function(
     threads = 0,
     assay_sc = "RNA",
     slot_sc = "counts",
-    assay_sp = "Spatial",
-    slot_sp = "counts",
     ...) {
     # check validity of input arguments
     model <- match.arg(model)

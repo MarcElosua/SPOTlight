@@ -179,6 +179,7 @@
         message("Keep intersection of genes between W and mixture matrix")
     gi <- intersect(rownames(mod$w), rownames(x))
     x <- x[gi, ]
+    W <- W[gi, ]
     
     # Check there are enough shared features
     if (nrow(x) < 10) {
