@@ -20,8 +20,8 @@ mgs <- getMGS(sce)
 ###############################
 set.seed(687)
 res1 <- SPOTlight(
-    x = as.matrix(counts(sce)),
-    y = as.matrix(counts(spe)),
+    x = counts(sce),
+    y = counts(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",
@@ -36,7 +36,7 @@ res1 <- SPOTlight(
 set.seed(687)
 # Train NMF
 mod_ls <- trainNMF(
-    x = as.matrix(counts(sce)),
+    x = counts(sce),
     y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
@@ -52,21 +52,21 @@ res2 <- runDeconvolution(
 )
 
 # NMF ----
-# test_that("SPOTlight vs SPOTlight-steps", {
-#
-#     # basis and coef should be the same between SPOTlight and SPOTlight-steps
-#     expect_true(all(NMF::basis(res1[["NMF"]]) == NMF::basis(mod_ls[["mod"]])))
-#     expect_true(all(NMF::coef(res1[["NMF"]]) == NMF::coef(res2[["NMF"]])))
-#
-#     # Deconvolution results are the same
-#     # expect_true(all(res1[["mat"]] == res2[["mat"]]))
-#     expect_true(mean(abs(res1[["mat"]] - res2[["mat"]])) < 0.05)
-#
-#     # actually check the estimates are legit
-#     # (MSE < 0.1 compared to simulated truth)
-#     sim <- S4Vectors::metadata(spe)[[1]]
-#     mse <- mean((res2[["mat"]] - sim)^2)
-#     expect_true(mse < 0.1)
-#
-# })
+test_that("SPOTlight vs SPOTlight-steps", {
+
+    # basis and coef should be the same between SPOTlight and SPOTlight-steps
+    expect_true(all(res1[["NMF"]]$w == mod_ls[["mod"]]$w))
+    expect_true(all(res1[["NMF"]]$h == res2[["NMF"]]$h))
+
+    # Deconvolution results are the same
+    # expect_true(all(res1[["mat"]] == res2[["mat"]]))
+    expect_true(mean(abs(res1[["mat"]] - res2[["mat"]])) < 0.05)
+
+    # actually check the estimates are legit
+    # (MSE < 0.1 compared to simulated truth)
+    sim <- S4Vectors::metadata(spe)[[1]]
+    mse <- mean((res2[["mat"]] - sim)^2)
+    expect_true(mse < 0.1)
+
+})
 

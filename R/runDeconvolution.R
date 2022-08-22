@@ -91,7 +91,7 @@ runDeconvolution <- function(
 
     # Extract expression matrix
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay_sp, slot)
+        x <- .extract_counts(x, assay, slot)
 
     # Get topic profiles for mixtures
     mat <- .pred_hp(
