@@ -100,8 +100,8 @@ runDeconvolution <- function(
         threads = threads)
     # rownames(pred) <- rownames(ref_scale)
     # colnames(pred) <- colnames(mat)
-    colnames(pred) <- rownames(ref_scale)
-    rownames(pred) <- colnames(mat)
+    rownames(pred) <- rownames(ref_scale)
+    colnames(pred) <- colnames(mat)
 
     # Proportions within each spot
     res <- prop.table(pred, 2)

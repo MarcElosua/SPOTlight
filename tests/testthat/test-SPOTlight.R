@@ -5,12 +5,15 @@ spe <- mockSP(sce)
 mgs <- getMGS(sce)
 # Create SpatialExperiment
 spe1 <- SpatialExperiment::SpatialExperiment(
-    assay = list(counts = counts(spe)),
+    assay = list(counts = SingleCellExperiment::counts(spe)),
     colData = SummarizedExperiment::colData(spe))
 
 # Create dummy Seurat object
-sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
-sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
+sec <- suppressWarnings(
+  SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(sce)))
+
+sep <- SeuratObject::CreateSeuratObject(
+  counts = SingleCellExperiment::counts(spe))
 
 # Function to run the checks
 .checks <- function(res, sce) {
