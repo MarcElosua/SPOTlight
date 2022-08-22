@@ -241,7 +241,7 @@ idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 per identity & subset
 # We are using 5 here to speed up the process but set to 75-100 for your real
 # life analysis
-n_cells <- 5
+n_cells <- 50
 cs_keep <- lapply(idx, function(i) {
     n <- length(i)
     if (n < n_cells)
@@ -303,7 +303,6 @@ Alternatively you can run `SPOTlight` in two steps so that you can have the trai
 ```{r SPOTlight2, eval=FALSE}
 mod_ls <- trainNMF(
     x = sce,
-    pnmf = "RcppML",
     groups = sce$free_annotation,
     mgs = mgs_df,
     hvg = hvg,

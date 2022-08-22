@@ -13,8 +13,6 @@
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
-#' @param pnmf character vector specifying which from which package to grab
-#'   \code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.
 #' @param hvg character vector containing hvg to include in the model.
 #'   By default NULL.
 #' @param gene_id,group_id,weight_id character specifying the column
@@ -95,7 +93,6 @@ SPOTlight <- function(
     y,
     groups = NULL,
     mgs,
-    pnmf = c("RcppML", "NMF"),
     n_top = NULL,
     gene_id = "gene",
     group_id = "cluster",
@@ -124,7 +121,6 @@ SPOTlight <- function(
         y = rownames(y),
         groups = groups,
         mgs = mgs,
-        pnmf = pnmf,
         n_top = n_top,
         gene_id = gene_id, 
         group_id = group_id, 

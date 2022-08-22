@@ -19,8 +19,7 @@ defs <- list(
     gene_id = "gene",
     group_id = "type",
     weight_id = "weight",
-    verbose = FALSE,
-    pnmf = "RcppML"
+    verbose = FALSE
 )
 
 # NMF ----

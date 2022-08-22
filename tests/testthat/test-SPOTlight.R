@@ -49,7 +49,6 @@ test_that("SPOTlight x SCE rcpp", {
         x = sce,
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -65,7 +64,6 @@ test_that("SPOTlight x SCE spatial rcpp", {
         x = as.matrix(counts(sce)),
         y = spe,
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -81,7 +79,6 @@ test_that("SPOTlight x SCE spatial rcpp", {
         x = as.matrix(counts(sce)),
         y = spe1,
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -97,7 +94,6 @@ test_that("SPOTlight x SEC rcpp", {
         x = sec,
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -113,7 +109,6 @@ test_that("SPOTlight x SEP rcpp", {
         x = as.matrix(counts(sce)),
         y = spe,
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -129,7 +124,6 @@ test_that("SPOTlight x dgCMatrix SC rcpp", {
         x = Matrix::Matrix(counts(sce), sparse = TRUE),
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -144,7 +138,6 @@ test_that("SPOTlight x dgCMatrix SP rcpp", {
         x = as.matrix(counts(sce)),
         y = Matrix::Matrix(counts(spe), sparse = TRUE),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -160,7 +153,6 @@ test_that("SPOTlight x DelayedMatrix SC rcpp", {
         x = DelayedArray::DelayedArray(counts(sce)),
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -175,7 +167,6 @@ test_that("SPOTlight x DelayedMatrix SP rcpp", {
         x = as.matrix(counts(sce)),
         y = DelayedArray::DelayedArray(counts(sce)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -191,7 +182,6 @@ test_that("SPOTlight x matrices rcpp", {
         x = as.matrix(counts(sce)),
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -207,7 +197,6 @@ test_that("SPOTlight x hvg rcpp", {
         x = as.matrix(counts(sce)),
         y = as.matrix(counts(spe)),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -225,177 +214,177 @@ test_that("SPOTlight x hvg rcpp", {
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # .SPOTlight with SCE ----
-test_that("SPOTlight x SCE NMF", {
-    res <- SPOTlight(
-        x = sce,
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with SPE ----
-test_that("SPOTlight x SCE spatial NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = spe,
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with SPE ----
-test_that("SPOTlight x SCE spatial NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = spe1,
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with Seurat SC ----
-test_that("SPOTlight x SEC NMF", {
-    res <- SPOTlight(
-        x = sec,
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with Seurat SP ----
-test_that("SPOTlight x SEP NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = spe,
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with sparse matrix sc ----
-test_that("SPOTlight x dgCMatrix SC NMF", {
-    res <- SPOTlight(
-        x = Matrix::Matrix(counts(sce), sparse = TRUE),
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    .checks(res, sce)
-})
-
-# .SPOTlight with sparse matrix sp ----
-test_that("SPOTlight x dgCMatrix SP NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = Matrix::Matrix(counts(spe), sparse = TRUE),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with sparse matrix sc ----
-test_that("SPOTlight x DelayedMatrix SC NMF", {
-    res <- SPOTlight(
-        x = DelayedArray::DelayedArray(counts(sce)),
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    .checks(res, sce)
-})
-
-# .SPOTlight with sparse matrix sp ----
-test_that("SPOTlight x DelayedMatrix SP NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = DelayedArray::DelayedArray(counts(sce)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with matrices in both ----
-test_that("SPOTlight x matrices NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with matrices in both and HVG----
-test_that("SPOTlight x hvg NMF", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene",
-        hvg = row.names(sce)[seq_len(50)]
-    )
-    
-    .checks(res, sce)
-})
-
+# test_that("SPOTlight x SCE NMF", {
+#     res <- SPOTlight(
+#         x = sce,
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with SPE ----
+# test_that("SPOTlight x SCE spatial NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = spe,
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with SPE ----
+# test_that("SPOTlight x SCE spatial NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = spe1,
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with Seurat SC ----
+# test_that("SPOTlight x SEC NMF", {
+#     res <- SPOTlight(
+#         x = sec,
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with Seurat SP ----
+# test_that("SPOTlight x SEP NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = spe,
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with sparse matrix sc ----
+# test_that("SPOTlight x dgCMatrix SC NMF", {
+#     res <- SPOTlight(
+#         x = Matrix::Matrix(counts(sce), sparse = TRUE),
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with sparse matrix sp ----
+# test_that("SPOTlight x dgCMatrix SP NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = Matrix::Matrix(counts(spe), sparse = TRUE),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with sparse matrix sc ----
+# test_that("SPOTlight x DelayedMatrix SC NMF", {
+#     res <- SPOTlight(
+#         x = DelayedArray::DelayedArray(counts(sce)),
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with sparse matrix sp ----
+# test_that("SPOTlight x DelayedMatrix SP NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = DelayedArray::DelayedArray(counts(sce)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with matrices in both ----
+# test_that("SPOTlight x matrices NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # .SPOTlight with matrices in both and HVG----
+# test_that("SPOTlight x hvg NMF", {
+#     res <- SPOTlight(
+#         x = as.matrix(counts(sce)),
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene",
+#         hvg = row.names(sce)[seq_len(50)]
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 

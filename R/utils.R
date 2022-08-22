@@ -150,12 +150,7 @@
 #' @importFrom sparseMatrixStats colMedians
 .topic_profiles <- function(mod, groups) {
     # Treat mod differently if it comes from NMF or RcppML
-    if (is(mod, "NMFfit")) {
-        df <- data.frame(t(NMF::coef(mod)))
-    } else if (is.list(mod)) {
-        df <- data.frame(t(mod$h))
-    }
-    
+    df <- data.frame(t(mod$h))
     dfs <- split(df, groups)
     res <- vapply(
         dfs, function(df)
@@ -172,14 +167,6 @@
         x, mod, scale = TRUE, verbose = TRUE,
         L1_nnls = 0, L2_nnls = 0, threads = 0
     ) {
-    # Keep basis sparse
-    if (is(mod, "NMFfit")) {
-        .test_installed("NMF")
-        W <- NMF::basis(mod)
-    } else if (is.list(mod)) {
-        W <- mod$w
-    }
-    
     # remove all genes that are all 0s
     g0 <- rowSums2(x) > 0
     # Return a warning about genes being removed
@@ -190,7 +177,7 @@
     # Subset to shared genes between SP and SC
     if (verbose)
         message("Keep intersection of genes between W and mixture matrix")
-    gi <- intersect(rownames(W), rownames(x))
+    gi <- intersect(rownames(mod$w), rownames(x))
     x <- x[gi, ]
     
     # Check there are enough shared features
@@ -206,7 +193,7 @@
     # TODO sometimes this can predict all to 0 if not scaled
     # If I do this we get the same since colSums(W) = 1 for all coummns
     # Use a very very mild regularization at this step
-    y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
+    y <- predict_nmf(as(x, "dgCMatrix"), t(mod$w), L1_nnls, L2_nnls, threads)
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # Assign names
@@ -405,34 +392,34 @@
 # Helper function to extract elements of interest from objects NMFfit
 # (NMF package) and nmf (RcppML) and returns a list with relevant information
 # consistent between both of them
-.extract_nmf <- function(mod, smtx) {
-    if (is(mod, "NMFfit")) {
-        mod <- list(
-            "w" = NMF::basis(mod),
-            "d" = NULL,
-            "h" = NMF::coef(mod),
-            "misc" = list(
-                "tol" = NULL,
-                "iter" = mod@extra$iteration,
-                "runtime" = mod@runtime,
-                "mse" = NULL,
-                "w_init" = smtx)
-        )
-    } else if (is.list(mod)) {
-        mod <- list(
-            "w" = mod$w,
-            "d" = mod$d,
-            "h" = mod$h,
-            "misc" = list(
-                "tol" = NULL,
-                "iter" = NULL,
-                "runtime" = NULL,
-                "mse" = NULL,
-                "w_init" = NULL)
-        )
-    } else {
-        stop("mod is neither an 'NMFfit' or 'nmf' object ")
-    }
-    
-    return(mod)
-}
+# .extract_nmf <- function(mod, smtx) {
+#     if (is(mod, "NMFfit")) {
+#         mod <- list(
+#             "w" = NMF::basis(mod),
+#             "d" = NULL,
+#             "h" = NMF::coef(mod),
+#             "misc" = list(
+#                 "tol" = NULL,
+#                 "iter" = mod@extra$iteration,
+#                 "runtime" = mod@runtime,
+#                 "mse" = NULL,
+#                 "w_init" = smtx)
+#         )
+#     } else if (is.list(mod)) {
+#         mod <- list(
+#             "w" = mod$w,
+#             "d" = mod$d,
+#             "h" = mod$h,
+#             "misc" = list(
+#                 "tol" = NULL,
+#                 "iter" = NULL,
+#                 "runtime" = NULL,
+#                 "mse" = NULL,
+#                 "w_init" = NULL)
+#         )
+#     } else {
+#         stop("mod is neither an 'NMFfit' or 'nmf' object ")
+#     }
+#     
+#     return(mod)
+# }

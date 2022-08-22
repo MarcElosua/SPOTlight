@@ -174,7 +174,7 @@ jobs:
           ## First install basic packages
           install.packages(c("knitr", "rmarkdown", "devtools", "sessioninfo"))
           ## Next install Imports from CRAN
-          install.packages(c("ggplot2", "NMF", "Matrix", "matrixStats",
+          install.packages(c("ggplot2" "Matrix", "matrixStats",
           "nnls", "SeuratObject"))
           ## Next install adjacent dependencies
           install.packages(c( "ggcorrplot", "grid", "igraph", "jpeg", "methods",

@@ -31,7 +31,6 @@ test_that("rcpp trainNMF x SCE", {
         x = sce,
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -47,7 +46,6 @@ test_that("rcpp trainNMF x SEC", {
         x = sec,
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -63,7 +61,6 @@ test_that("rcpp trainNMF x dgCMatrix SC", {
         x = Matrix::Matrix(counts(sce), sparse = TRUE),
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -78,7 +75,6 @@ test_that("rcpp trainNMF x DelayedMatrix SC", {
         x = DelayedArray::DelayedArray(counts(sce)),
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -93,7 +89,6 @@ test_that("rcpp trainNMF x matrices", {
         x = as.matrix(counts(sce)),
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -109,7 +104,6 @@ test_that("rcpp trainNMF x hvg", {
         x = as.matrix(counts(sce)),
         y = rownames(spe),
         groups = sce$type,
-        pnmf = "RcppML",
         mgs = mgs,
         weight_id = "weight",
         group_id = "type",
@@ -127,97 +121,97 @@ test_that("rcpp trainNMF x hvg", {
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # trainNMF with SCE ----
-test_that("NMF trainNMF x SCE", {
-    res <- trainNMF(
-        x = sce,
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# trainNMF with SPE ----
-test_that("NMF trainNMF x SEC", {
-    res <- trainNMF(
-        x = sec,
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# trainNMF with sparse matrix sc ----
-test_that("NMF trainNMF x dgCMatrix SC", {
-    res <- trainNMF(
-        x = Matrix::Matrix(counts(sce), sparse = TRUE),
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    .checks(res, sce)
-})
-
-# trainNMF with sparse matrix sc ----
-test_that("NMF trainNMF x DelayedMatrix SC", {
-    res <- trainNMF(
-        x = DelayedArray::DelayedArray(counts(sce)),
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    .checks(res, sce)
-})
-
-# trainNMF with matrices in both ----
-test_that("NMF trainNMF x matrices", {
-    res <- trainNMF(
-        x = as.matrix(counts(sce)),
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# trainNMF with matrices in both and HVG----
-test_that("NMF trainNMF x hvg", {
-    res <- trainNMF(
-        x = as.matrix(counts(sce)),
-        y = rownames(spe),
-        groups = sce$type,
-        pnmf = "NMF",
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene",
-        hvg = row.names(sce)[seq_len(50)]
-    )
-    
-    .checks(res, sce)
-})
-
+# test_that("NMF trainNMF x SCE", {
+#     res <- trainNMF(
+#         x = sce,
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # trainNMF with SPE ----
+# test_that("NMF trainNMF x SEC", {
+#     res <- trainNMF(
+#         x = sec,
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # trainNMF with sparse matrix sc ----
+# test_that("NMF trainNMF x dgCMatrix SC", {
+#     res <- trainNMF(
+#         x = Matrix::Matrix(counts(sce), sparse = TRUE),
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     .checks(res, sce)
+# })
+# 
+# # trainNMF with sparse matrix sc ----
+# test_that("NMF trainNMF x DelayedMatrix SC", {
+#     res <- trainNMF(
+#         x = DelayedArray::DelayedArray(counts(sce)),
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     .checks(res, sce)
+# })
+# 
+# # trainNMF with matrices in both ----
+# test_that("NMF trainNMF x matrices", {
+#     res <- trainNMF(
+#         x = as.matrix(counts(sce)),
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 
+# # trainNMF with matrices in both and HVG----
+# test_that("NMF trainNMF x hvg", {
+#     res <- trainNMF(
+#         x = as.matrix(counts(sce)),
+#         y = rownames(spe),
+#         groups = sce$type,
+#         pnmf = "NMF",
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene",
+#         hvg = row.names(sce)[seq_len(50)]
+#     )
+#     
+#     .checks(res, sce)
+# })
+# 

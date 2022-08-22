@@ -49,7 +49,6 @@ trainNMF <- function(
     y = NULL,
     groups = NULL,
     mgs,
-    pnmf = c("RcppML", "NMF"),
     n_top = NULL,
     model = c("ns", "std"),
     gene_id = "gene",
@@ -69,7 +68,6 @@ trainNMF <- function(
     slot_sp = "counts",
     ...) {
     # check validity of input arguments
-    pnmf <- match.arg(pnmf)
     model <- match.arg(model)
     
     if (is.null(n_top))
@@ -102,16 +100,11 @@ trainNMF <- function(
     if (!is.matrix(x) & !is(x, "dgCMatrix"))
         x <- .extract_counts(x, assay_sc, slot_sc)
     
-    if (pnmf == "RcppML") {
-        # Make sure matrix is sparse
-        # convert matrix to dgCMatrix, 
-        # if it is already then nothing is done
-        x <- as(x, "dgCMatrix")
-    } else if (pnmf == "NMF")  {
-        # Make sure matrix is dense
-        x <- as.matrix(x)
-    }
-    
+    # Make sure matrix is sparse
+    # convert matrix to dgCMatrix, 
+    # if it is already then nothing is done
+    x <- as(x, "dgCMatrix")
+
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
@@ -146,28 +139,18 @@ trainNMF <- function(
     hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
     # w_init <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
     
+    if (verbose) message("Using RcppML...")
+    if (verbose) message("Training NMF model...") 
     
-    if (pnmf == "NMF") {
-        .test_installed("NMF")
-        if (verbose) message("Using NMF...")
-        # Seed NMF model
-        seed <- NMF::nmfModel(W = hw$W, H = hw$H, model = paste0("NMF", model))
-        # train NMF model
-        if (verbose) message("Training NMF model...")
-        mod <- NMF::nmf(x, rank, paste0(model, "NMF"), seed, ...)
-    } else if (pnmf == "RcppML") {
-        if (verbose) message("Using RcppML...")
-        if (verbose) message("Training NMF model...") 
-        
-        # call to C++ routine
-        mod <- run_nmf(x, t(x), tol, maxit, verbose, L1_nmf, L2_nmf, threads, hw$W)
-        
-        # Change nmfX to topic_X
-        colnames(mod$w) <- paste0("topic_", seq_len(ncol(mod$w)))
-        rownames(mod$h) <- paste0("topic_", seq_len(nrow(mod$h)))
-        rownames(mod$w) <- rownames(x)
-        colnames(mod$h) <- colnames(x)
-    }
+    # call to C++ routine
+    mod <- run_nmf(x, t(x), tol, maxit, verbose, L1_nmf, L2_nmf, threads, t(hw$W))
+    
+    # Change nmfX to topic_X
+    colnames(mod$w) <- paste0("topic_", seq_len(ncol(mod$w)))
+    rownames(mod$h) <- paste0("topic_", seq_len(nrow(mod$h)))
+    rownames(mod$w) <- rownames(x)
+    colnames(mod$h) <- colnames(x)
+
     
     # capture stop time
     t1 <- Sys.time()
@@ -179,7 +162,7 @@ trainNMF <- function(
     }
     
     # Extract NMFfit to list for consistency with RcppML
-    mod <- .extract_nmf(mod, hw$W)
+    # mod <- .extract_nmf(mod, hw$W)
     
     # get topic profiles per cell type
     topic <- .topic_profiles(mod, groups)

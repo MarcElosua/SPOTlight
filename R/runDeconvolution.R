@@ -90,8 +90,8 @@ runDeconvolution <- function(
     mat <- .pred_prop(x, mod, scale, L1_nnls, L2_nnls, threads)
 
     if (verbose) message("Deconvoluting mixture data...")
-    # ref_scale <- t(t(ref) / colSums(ref))
-    ref_scale <- t(ref) / colSums(ref)
+    ref_scale <- t(t(ref) / colSums(ref))
+    # ref_scale <- t(ref) / colSums(ref)
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
         w = ref_scale,
