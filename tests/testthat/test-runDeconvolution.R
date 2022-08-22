@@ -73,7 +73,8 @@ test_that("runDeconvolution x SEP", {
     decon <- runDeconvolution(
         x = sep,
         mod = res[["mod"]],
-        ref = res[["topic"]]
+        ref = res[["topic"]],
+        assay = "RNA"
     )
     
     .checks(decon, sce, spe)

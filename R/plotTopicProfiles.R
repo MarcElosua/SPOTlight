@@ -54,7 +54,7 @@ plotTopicProfiles <- function(
     # check validity of input arguments
     stopifnot(
         is(x, "list"),
-        all(sort(names(x)) == sort(c("w", "d", "h", "misc"))),
+        all(sort(names(x)) == sort(c("w", "d", "h"))),
         is.character(y),
         length(y) == ncol(x$h),
         setequal(
