@@ -101,6 +101,10 @@ runDeconvolution <- function(
     if (verbose) message("Deconvoluting mixture data...")
     ref_scale <- t(t(ref) / colSums(ref))
     # ref_scale <- t(ref) / colSums(ref)
+    
+    # TODO I want the below line to do but it doesn't!
+    # pred <- t(mat) %*% t(ref_scale)
+    # res <- prop.table(pred, 1)
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
         w = ref_scale,
