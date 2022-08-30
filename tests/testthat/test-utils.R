@@ -118,7 +118,7 @@ test_that(".extract_counts()", {
     expect_identical(dimnames(spe), dimnames(x))
 })
 
-# .extract_image
+# .scale_uv
 test_that("scale_uv()", {
     x <- counts(sce)
     y <- .scale_uv(x)

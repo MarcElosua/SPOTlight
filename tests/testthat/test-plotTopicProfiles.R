@@ -26,7 +26,7 @@ test_that("plotTopicProfiles common", {
 test_that("plotTopicProfiles facet", {
     p <- plotTopicProfiles(res[[3]], x$type, facet = TRUE, min_prop = 0.1)
     expect_is(p, "ggplot")
-    expect_equal(nrow(p$data), 159)
+    expect_equal(nrow(p$data), 160)
     expect_equal(ncol(p$data), 4)
     g <- ggplot_build(p)
     expect_true(all(c("#3D2BFF", "#4931FE", "#D3D3D3") %in% unique(g$data[[1]]$colour)))
