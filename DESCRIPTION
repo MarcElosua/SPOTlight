@@ -23,6 +23,7 @@ Depends: R (>= 4.1)
 Imports:
   ggplot2,
   Matrix,
+  RcppML,
   SingleCellExperiment,
   sparseMatrixStats,
   stats
