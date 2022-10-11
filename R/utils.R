@@ -199,7 +199,7 @@
     # y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
     y <- RcppML::predict.nmf(
       w = t(W),
-      data = as(mat, "dgCMatrix"),
+      data = as(x, "dgCMatrix"),
       L1 = L1_nnls,
       L2 = L2_nnls,
       nonneg = TRUE,
