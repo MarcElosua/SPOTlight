@@ -33,8 +33,10 @@
 #'   specifying the slot from which to extract the expression matrix. If the
 #'   object is of class \code{SingleCellExperiment} indicates matrix to use.
 #'   By default "counts".
-#' @param L1_nmf LASSO penalty in the range (0, 1] for NMF, increases sparsity of each factor
-#' @param L2_nmf Ridge penalty in the range (0, 1] for NMF, increases angle between factors
+#' @param L1_nmf LASSO penalty in the range (0, 1] for NMF,
+#'   larger values increase sparsity of each factor
+#' @param L2_nmf RUDGE penalty >0 for NMF,
+#'  larger values increase angle between factors and thus sparsity.
 #' @param tol tolerance of the NMF model at convergence, the Pearson correlation 
 #'   distance between models across consecutive iterations (1e-5 is publication quality)
 #' @param maxit maximum number of NMF iterations for fitting
@@ -43,8 +45,12 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
-#' @param L1_nnls LASSO penalty in the range (0, 1] for NNLS
-#' @param L2_nnls Ridge penalty in the range (0, 1] for NNLS
+#' @param L1_nnls_topics,L1_nnls_prop LASSO penalty in the range (0, 1] for NNLS
+#'   when computing cell type topic profiles and cell type proportions
+#'   respectively. Larger values remove "noisy" contributions more aggressively.
+#' @param L2_nnls_topics,L2_nnls_prop RIDGE penalty >0 for NNLS when computing
+#'   cell type topic profiles and cell type proportions respectively.
+#'   Larger values remove "noisy" contributions more aggressively.
 #' @param ... additional parameters.
 #'
 #' @return a numeric matrix with rows corresponding to samples
@@ -111,9 +117,11 @@ SPOTlight <- function(
     maxit = 100,
     threads = 0,
     tol = 1e-5,
-    L1_nnls = 0,
-    L2_nnls = 0,
-    ...) {
+    L1_nnls_topics = 0,
+    L2_nnls_topics = 0,
+    L1_nnls_prop = 0,
+    L2_nnls_prop = 0,
+  ...) {
     
     # train NMF model
     mod_ls <- trainNMF(
@@ -148,8 +156,10 @@ SPOTlight <- function(
         verbose = verbose,
         assay = assay_sp,
         slot = slot_sp,
-        L1_nnls = L1_nnls,
-        L2_nnls = L2_nnls)
+        L1_nnls_topics = L2_nnls_topics,
+        L2_nnls_topics = L2_nnls_topics,
+        L1_nnls_prop = L1_nnls_prop,
+        L2_nnls_prop = L2_nnls_prop)
     
     # return list of NMF model & deconvolution matrix
     list(
