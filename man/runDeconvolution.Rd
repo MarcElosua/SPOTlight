@@ -13,15 +13,17 @@ runDeconvolution(
   verbose = TRUE,
   assay = "Spatial",
   slot = "counts",
-  L1_nnls = 0,
-  L2_nnls = 0,
+  L1_nnls_topics = 0,
+  L2_nnls_topics = 0,
+  L1_nnls_prop = 0,
+  L2_nnls_prop = 0,
   threads = 0,
   ...
 )
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment}, \code{SpatialExperiment} or 
+\code{SingleCellExperiment}, \code{SpatialExperiment} or
 \code{SeuratObjecy}.}
 
 \item{mod}{object as obtained from trainNMF.}
@@ -42,16 +44,20 @@ By default 0.}
 
 \item{assay}{if the object is of Class \code{Seurat}, character string
 specifying the assay from which to extract the expression matrix.
-By default "RNA" and "Spatial".}
+By default "Spatial".}
 
 \item{slot}{if the object is of Class \code{Seurat}, character string
 specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
+object is of class \code{SpatialExperiment} indicates matrix to use.
 By default "counts".}
 
-\item{L1_nnls}{LASSO penalty in the range (0, 1] for NNLS}
+\item{L1_nnls_topics, L1_nnls_prop}{LASSO penalty in the range (0, 1] for NNLS
+when computing cell type topic profiles and cell type proportions
+respectively. Larger values remove "noisy" contributions more aggressively.}
 
-\item{L2_nnls}{Ridge penalty in the range (0, 1] for NNLS}
+\item{L2_nnls_topics, L2_nnls_prop}{RIDGE penalty >0 for NNLS when computing
+cell type topic profiles and cell type proportions respectively.
+Larger values remove "noisy" contributions more aggressively.}
 
 \item{threads}{number of threads to use, default 0 (all threads)}
 

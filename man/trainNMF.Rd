@@ -9,7 +9,6 @@ trainNMF(
   y = NULL,
   groups = NULL,
   mgs,
-  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   model = c("ns", "std"),
   gene_id = "gene",
@@ -42,9 +41,6 @@ Make sure groups is not a Factor.}
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
 
-\item{pnmf}{character vector specifying which from which package to grab
-\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
-
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
 
@@ -65,9 +61,11 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF, increases sparsity of each factor}
+\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
+larger values increase sparsity of each factor}
 
-\item{L2_nmf}{Ridge penalty in the range (0, 1] for NMF, increases angle between factors}
+\item{L2_nmf}{RUDGE penalty >0 for NMF,
+larger values increase angle between factors and thus sparsity.}
 
 \item{tol}{tolerance of the NMF model at convergence, the Pearson correlation 
 distance between models across consecutive iterations (1e-5 is publication quality)}

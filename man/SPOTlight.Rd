@@ -9,7 +9,6 @@ SPOTlight(
   y,
   groups = NULL,
   mgs,
-  pnmf = c("RcppML", "NMF"),
   n_top = NULL,
   gene_id = "gene",
   group_id = "cluster",
@@ -28,8 +27,10 @@ SPOTlight(
   maxit = 100,
   threads = 0,
   tol = 1e-05,
-  L1_nnls = 0,
-  L2_nnls = 0,
+  L1_nnls_topics = 0,
+  L2_nnls_topics = 0,
+  L1_nnls_prop = 0,
+  L2_nnls_prop = 0,
   ...
 )
 }
@@ -45,9 +46,6 @@ Make sure groups is not a Factor.}
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
 the weight (e.g., logFC, -log(p-value) a feature has in a given group.}
-
-\item{pnmf}{character vector specifying which from which package to grab
-\code{nmf()}. It can be either \code{RcppML} (default) or \code{NMF}.}
 
 \item{n_top}{integer scalar specifying the number of markers to select per
 group. By default NULL uses all the marker genes to initialize the model.}
@@ -82,9 +80,11 @@ specifying the slot from which to extract the expression matrix. If the
 object is of class \code{SingleCellExperiment} indicates matrix to use.
 By default "counts".}
 
-\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF, increases sparsity of each factor}
+\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
+larger values increase sparsity of each factor}
 
-\item{L2_nmf}{Ridge penalty in the range (0, 1] for NMF, increases angle between factors}
+\item{L2_nmf}{RUDGE penalty >0 for NMF,
+larger values increase angle between factors and thus sparsity.}
 
 \item{maxit}{maximum number of NMF iterations for fitting}
 
@@ -93,9 +93,13 @@ By default "counts".}
 \item{tol}{tolerance of the NMF model at convergence, the Pearson correlation 
 distance between models across consecutive iterations (1e-5 is publication quality)}
 
-\item{L1_nnls}{LASSO penalty in the range (0, 1] for NNLS}
+\item{L1_nnls_topics, L1_nnls_prop}{LASSO penalty in the range (0, 1] for NNLS
+when computing cell type topic profiles and cell type proportions
+respectively. Larger values remove "noisy" contributions more aggressively.}
 
-\item{L2_nnls}{Ridge penalty in the range (0, 1] for NNLS}
+\item{L2_nnls_topics, L2_nnls_prop}{RIDGE penalty >0 for NNLS when computing
+cell type topic profiles and cell type proportions respectively.
+Larger values remove "noisy" contributions more aggressively.}
 
 \item{...}{additional parameters.}
 }

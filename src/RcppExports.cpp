@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // predict_nmf
 Eigen::MatrixXd predict_nmf(Rcpp::S4& A_, Eigen::MatrixXd& w, const double L1, const double L2, const int threads);
-RcppExport SEXP _SPOTlight_predict_nmf(SEXP A_SEXP, SEXP wSEXP, SEXP L1SEXP, SEXP L2SEXP, SEXP threadsSEXP) {
+RcppExport SEXP _SPOTlightv2_predict_nmf(SEXP A_SEXP, SEXP wSEXP, SEXP L1SEXP, SEXP L2SEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< Rcpp::S4& >::type A_(A_SEXP);
@@ -27,7 +27,7 @@ END_RCPP
 }
 // run_nmf
 Rcpp::List run_nmf(const Rcpp::S4& A_, const Rcpp::S4& At_, const double tol, const uint16_t maxit, const bool verbose, const double L1, const double L2, const uint16_t threads, Eigen::MatrixXd w);
-RcppExport SEXP _SPOTlight_run_nmf(SEXP A_SEXP, SEXP At_SEXP, SEXP tolSEXP, SEXP maxitSEXP, SEXP verboseSEXP, SEXP L1SEXP, SEXP L2SEXP, SEXP threadsSEXP, SEXP wSEXP) {
+RcppExport SEXP _SPOTlightv2_run_nmf(SEXP A_SEXP, SEXP At_SEXP, SEXP tolSEXP, SEXP maxitSEXP, SEXP verboseSEXP, SEXP L1SEXP, SEXP L2SEXP, SEXP threadsSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::S4& >::type A_(A_SEXP);
@@ -45,12 +45,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SPOTlight_predict_nmf", (DL_FUNC) &_SPOTlight_predict_nmf, 5},
-    {"_SPOTlight_run_nmf", (DL_FUNC) &_SPOTlight_run_nmf, 9},
+    {"_SPOTlightv2_predict_nmf", (DL_FUNC) &_SPOTlightv2_predict_nmf, 5},
+    {"_SPOTlightv2_run_nmf", (DL_FUNC) &_SPOTlightv2_run_nmf, 9},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_SPOTlight(DllInfo *dll) {
+RcppExport void R_init_SPOTlightv2(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
