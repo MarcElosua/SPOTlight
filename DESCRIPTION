@@ -1,4 +1,4 @@
-Package: SPOTlight
+Package: SPOTlightv2
 Version: 1.0.2
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
