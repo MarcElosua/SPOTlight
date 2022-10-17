@@ -197,13 +197,12 @@
     # Use a very very mild regularization at this step
     # TODO revert back to native RCPP code works
     # y <- predict_nmf(as(x, "dgCMatrix"), t(W), L1_nnls, L2_nnls, threads)
-    y <- RcppML::predict.nmf(
-      w = t(W),
-      data = as(x, "dgCMatrix"),
+    y <- RcppML::project(
+      A = as(x, "dgCMatrix"),
+      w = W,
       L1 = L1_nnls,
-      L2 = L2_nnls,
-      nonneg = TRUE,
-      threads = threads)
+      nonneg = TRUE)
+    
     # TODO set up a test to deal when a column in y is all 0s, meaning all the topics are 0 for that cell type
     
     # Assign names

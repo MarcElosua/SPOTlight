@@ -114,13 +114,11 @@ runDeconvolution <- function(
     #     L1 = L1_nnls,
     #     L2 = L2_nnls,
     #     threads = threads)
-    pred <- RcppML::predict.nmf(
-      w = ref_scale,
-      data = as(mat, "dgCMatrix"),
-      L1 = L1_nnls_prop,
-      L2 = L2_nnls_prop,
-      nonneg = TRUE,
-      threads = threads)
+    pred <- RcppML::project(
+      A = as(mat, "dgCMatrix"),
+      w = t(ref_scale),
+      L1 = 0,
+      nonneg = TRUE)
     # rownames(pred) <- rownames(ref_scale)
     # colnames(pred) <- colnames(mat)
     rownames(pred) <- rownames(ref_scale)
