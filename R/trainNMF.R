@@ -72,6 +72,12 @@ trainNMF <- function(
         n_top <- max(table(mgs[[group_id]]))
     ids <- c(gene_id, group_id, weight_id)
     
+    # convert mgs to dataframe if it is not already
+    if (!is.data.frame(mgs)) {
+      # check.names=FALSE to ensure the ids specified by the user are unchanged
+      mgs <- data.frame(mgs, check.names = FALSE)
+    }
+    
     stopifnot(
         is.numeric(x) | is(x, "dgCMatrix") |
             is(x, "Seurat") | is(x, "SingleCellExperiment") |
