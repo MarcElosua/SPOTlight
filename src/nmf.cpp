@@ -165,7 +165,7 @@ void c_predict(spmat A, const Eigen::MatrixXd& w, Eigen::MatrixXd& h, const doub
 Eigen::MatrixXd predict_nmf(Rcpp::S4& A_, Eigen::MatrixXd& w, const double L1, const double L2, const int threads) {
     spmat A(A_);
     Eigen::MatrixXd h(w.rows(), A.cols());
-    if (w.rows() == A.rows())
+    if (w.rows() == A.rows() && w.cols() != A.rows())
         w = w.transpose();
 
     c_predict(A, w, h, L1, L2, threads);
