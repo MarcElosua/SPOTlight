@@ -41,11 +41,11 @@
     })
 
     # subset unique features
-    mgs <- lapply(ks, function(k) {
-        g1 <- mgs[[k]][[gene_id]]
-        g2 <- unlist(lapply(mgs[ks != k], `[[`, gene_id))
-        mgs[[k]][!g1 %in% g2, , drop = FALSE]
-    })
+    # mgs <- lapply(ks, function(k) {
+    #     g1 <- mgs[[k]][[gene_id]]
+    #     g2 <- unlist(lapply(mgs[ks != k], `[[`, gene_id))
+    #     mgs[[k]][!g1 %in% g2, , drop = FALSE]
+    # })
 
     # W is of dimension (#groups)x(#features) with W(i,j)
     # equal to weight if j is marker for i, and ~0 otherwise
