@@ -101,24 +101,24 @@ runDeconvolution <- function(
         L1_nnls = L1_nnls_topics, L2_nnls = L2_nnls_topics, threads = threads)
     
     if (verbose) message("Deconvoluting mixture data...")
-    ref_scale <- t(t(ref) / colSums(ref))
+    # ref_scale <- t(t(ref) / colSums(ref))
     # ref_scale <- t(ref) / colSums(ref)
     
     # TODO I want the below line to do but it doesn't!
     # pred <- t(mat) %*% t(ref_scale)
     # res <- prop.table(pred, 1)
     # TODO come back to change this with the native RCPP code
-    # pred <- predict_nmf(
-    #     A_ = as(mat, "dgCMatrix"),
-    #     w = ref_scale,
-    #     L1 = L1_nnls,
-    #     L2 = L2_nnls,
-    #     threads = threads)
-    pred <- RcppML::project(
-      A = as(mat, "dgCMatrix"),
-      w = t(ref_scale),
-      L1 = 0,
-      nonneg = TRUE)
+    pred <- predict_nmf(
+        A_ = as(mat, "dgCMatrix"),
+        w = ref,
+        L1 = L1_nnls,
+        L2 = L2_nnls,
+        threads = threads)
+    # pred <- RcppML::project(
+    #   A = as(mat, "dgCMatrix"),
+    #   w = t(ref_scale),
+    #   L1 = 0,
+    #   nonneg = TRUE)
     # rownames(pred) <- rownames(ref_scale)
     # colnames(pred) <- colnames(mat)
     rownames(pred) <- rownames(ref_scale)
