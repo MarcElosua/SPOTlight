@@ -121,7 +121,7 @@ runDeconvolution <- function(
     #   nonneg = TRUE)
     # rownames(pred) <- rownames(ref_scale)
     # colnames(pred) <- colnames(mat)
-    rownames(pred) <- rownames(ref_scale)
+    rownames(pred) <- rownames(ref)
     colnames(pred) <- colnames(mat)
 
     # Proportions within each spot
@@ -131,7 +131,7 @@ runDeconvolution <- function(
     # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
     # 2- Check the differences between the original and re-mapped matrix
     # 3- sum the errors for each spot (column)
-    err_mat <- (mat - t(ref_scale) %*% pred)^2
+    err_mat <- (mat - t(ref) %*% pred)^2
     err <- colSums(err_mat)
     names(err) <- colnames(res)
 
