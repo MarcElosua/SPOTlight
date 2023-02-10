@@ -111,8 +111,8 @@ runDeconvolution <- function(
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
         w = ref,
-        L1 = L1_nnls,
-        L2 = L2_nnls,
+        L1 = L1_nnls_prop,
+        L2 = L2_nnls_prop,
         threads = threads)
     # pred <- RcppML::project(
     #   A = as(mat, "dgCMatrix"),
