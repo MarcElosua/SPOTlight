@@ -24,8 +24,8 @@
 #' @inheritParams SPOTlight
 #'
 #' @return a list where the first element is a list with the NMF model
-#'   information (see ?RcppML::nmf return value) and the second is a matrix
-#'    containing the topic profiles learnt per cell type.
+#'   information and the second is a matrix containing the topic profiles
+#'   learnt per cell type.
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
@@ -52,7 +52,8 @@ NULL
 
 #' @rdname trainNMF
 
-#' @importFrom Matrix Matrix
+# Key here to load t & Matrix so sparse matrices can be transposed
+#' @importFrom Matrix Matrix t
 #' @export
 trainNMF <- function(
     x,

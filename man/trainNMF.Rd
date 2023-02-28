@@ -86,8 +86,8 @@ By default "counts".}
 }
 \value{
 a list where the first element is a list with the NMF model
-  information (see ?RcppML::nmf return value) and the second is a matrix
-   containing the topic profiles learnt per cell type.
+  information and the second is a matrix containing the topic profiles
+  learnt per cell type.
 }
 \description{
 This is the training function used by SPOTLight. This function
