@@ -15,7 +15,6 @@ SPOTlight(
   weight_id = "weight",
   hvg = NULL,
   scale = TRUE,
-  model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
   assay_sc = "RNA",
@@ -61,9 +60,6 @@ By default NULL.}
 variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
-
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
 
 \item{min_prop}{scalar in [0,1] setting the minimum contribution
 expected from a cell type in \code{x} to observations in \code{y}.

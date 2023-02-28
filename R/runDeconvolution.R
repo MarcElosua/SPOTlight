@@ -52,7 +52,7 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @importFrom Matrix colSums rowSums
+#' @importFrom Matrix colSums
 #' @export
 runDeconvolution <- function(
     x,

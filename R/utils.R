@@ -1,5 +1,4 @@
 #' @importFrom sparseMatrixStats rowSds
-#' @importFrom Matrix t
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
     # TODO find a more efficient way of scaling the matrix

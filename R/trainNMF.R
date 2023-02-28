@@ -8,9 +8,19 @@
 #'   takes in single cell expression data, trains the model and learns topic
 #'    profiles for each cell type
 #' 
+#' @param x single-cell dataset. Can be a numeric matrix, Can be a
+#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
 #' @param y Null if you want to train the model with all the genes in the SC
 #'    data or a character vector with the rownames of the mixture dataset to 
-#'    subset the gene set use to the intersection between them.
+#'    subset the gene set used to the intersection between them.
+#' @param assay_sc if the object is of Class \code{Seurat}, character string
+#'   specifying the assay from which to extract the expression matrix.
+#'   By default "RNA".
+#' @param slot_sc if the object is of Class \code{Seurat}, character string
+#'   specifying the slot from which to extract the expression matrix. If the
+#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
+#'   By default "counts".
+
 #' @inheritParams SPOTlight
 #'
 #' @return a list where the first element is a list with the NMF model
@@ -42,7 +52,7 @@ NULL
 
 #' @rdname trainNMF
 
-#' @importFrom Matrix rowSums Matrix
+#' @importFrom Matrix Matrix
 #' @export
 trainNMF <- function(
     x,
@@ -50,7 +60,6 @@ trainNMF <- function(
     groups = NULL,
     mgs,
     n_top = NULL,
-    model = c("ns", "std"),
     gene_id = "gene",
     group_id = "cluster",
     weight_id = "weight",
@@ -65,8 +74,6 @@ trainNMF <- function(
     assay_sc = "RNA",
     slot_sc = "counts",
     ...) {
-    # check validity of input arguments
-    model <- match.arg(model)
     
     if (is.null(n_top))
         n_top <- max(table(mgs[[group_id]]))
@@ -108,7 +115,11 @@ trainNMF <- function(
     # convert matrix to dgCMatrix, 
     # if it is already then nothing is done
     x <- as(x, "dgCMatrix")
-
+    
+    # Set y no rownames X if NULL
+    if (is.null(y))
+        y <- rownames(x)
+    
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG

@@ -24,8 +24,6 @@
 #'   slot from where to extract the count data.
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
-#' @param model character string indicating which model to use when running NMF.
-#' Either "ns" (default) or "std".
 #' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
 #'   specifying the assay from which to extract the expression matrix.
 #'   By default "RNA" and "Spatial".
@@ -105,7 +103,6 @@ SPOTlight <- function(
     weight_id = "weight",
     hvg = NULL,
     scale = TRUE,
-    model = c("ns", "std"),
     min_prop = 0.01,
     verbose = TRUE,
     assay_sc = "RNA",
