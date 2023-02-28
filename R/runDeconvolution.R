@@ -52,6 +52,7 @@
 NULL
 
 #' @rdname runDeconvolution
+#' @importFrom Matrix colSums rowSums
 #' @export
 runDeconvolution <- function(
     x,
@@ -101,16 +102,22 @@ runDeconvolution <- function(
         L1_nnls = L1_nnls_topics, L2_nnls = L2_nnls_topics, threads = threads)
     
     if (verbose) message("Deconvoluting mixture data...")
-    # ref_scale <- t(t(ref) / colSums(ref))
-    # ref_scale <- t(ref) / colSums(ref)
+    # Need to scale because the matrix is also scaled to 1 with the RCPP
+    # approach to speed it up
+    ref_scale <- t(t(ref) / colSums(ref))
+    # Check if there is a column with all NAs after scaling -
+    # happens when whole column is 0s
+    ref_na <- is.na(ref_scale)
+    if (sum(ref_na) > 1)
+        # Set topics with NAs as all 0s
+        ref_scale[, which(colSums(ref_na) == nrow(ref_na))] <- 0
     
-    # TODO I want the below line to do but it doesn't!
+    # The below predict_nmf function does the equivalent to
     # pred <- t(mat) %*% t(ref_scale)
-    # res <- prop.table(pred, 1)
     # TODO come back to change this with the native RCPP code
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
-        w = ref,
+        w = ref_scale,
         L1 = L1_nnls_prop,
         L2 = L2_nnls_prop,
         threads = threads)
@@ -119,9 +126,7 @@ runDeconvolution <- function(
     #   w = t(ref_scale),
     #   L1 = 0,
     #   nonneg = TRUE)
-    # rownames(pred) <- rownames(ref_scale)
-    # colnames(pred) <- colnames(mat)
-    rownames(pred) <- rownames(ref)
+    rownames(pred) <- rownames(ref_scale)
     colnames(pred) <- colnames(mat)
 
     # Proportions within each spot
@@ -131,7 +136,7 @@ runDeconvolution <- function(
     # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
     # 2- Check the differences between the original and re-mapped matrix
     # 3- sum the errors for each spot (column)
-    err_mat <- (mat - t(ref) %*% pred)^2
+    err_mat <- (mat - ref_scale %*% pred)^2
     err <- colSums(err_mat)
     names(err) <- colnames(res)
 
