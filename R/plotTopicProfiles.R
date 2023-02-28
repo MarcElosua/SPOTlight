@@ -7,8 +7,9 @@
 #'   \code{facet = TRUE}. Ideal training will return all the cell from the same
 #'   cell type to share a unique topic profile.
 #'
-#' @param x \code{\link{NMFfit}} object
-#' @param y vector of group labels. Should be of length \code{ncol(coef(x))}.
+#' @param x \code{list} object obtained from \code{SPOTlight}.
+#' @param y vector of group labels. Should be of length
+#'   \code{ncol(res_lvl1$NMF$h)}.
 #' @param facet logical indicating whether to stratify by group.
 #'   If \code{FALSE} (default), weights will be the median across cells
 #'   for each group (point = topic weight for a given cell type).
