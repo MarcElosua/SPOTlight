@@ -131,8 +131,6 @@ SPOTlight <- function(
         group_id = group_id, 
         weight_id = weight_id, 
         hvg = hvg, 
-        model = model, 
-        scale = scale,
         verbose = verbose,
         assay_sc = assay_sc,
         slot_sc = slot_sc,

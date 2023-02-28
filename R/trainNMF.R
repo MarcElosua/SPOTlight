@@ -155,7 +155,6 @@ trainNMF <- function(
     hw <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
     # w_init <- .init_nmf(x, groups, mgs, n_top, gene_id, group_id, weight_id)
     
-    if (verbose) message("Using RcppML...")
     if (verbose) message("Training NMF model...") 
     
     # call to C++ routine
