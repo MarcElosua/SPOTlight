@@ -260,9 +260,7 @@
         x <- SpatialExperiment::imgRaster(x, sample_id = slice)
         x <- as.matrix(x)
     } else {
-        stop("Couldn't extract counts. Please check class(x) is a
-        SingleCellExpriment, SpatialExperiment, Seurat, matrix, DelayedMatrix
-        or dgCMatrix.")
+        stop("Couldn't extract image, See ?plotImage for valid image inputs.")
     }
     return(x)
 }
