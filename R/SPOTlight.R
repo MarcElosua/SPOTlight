@@ -13,7 +13,7 @@
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
 #' @param hvg character vector containing hvg to include in the model.
-#'   By default NULL
+#'   By default NULL.
 #' @param gene_id,group_id,weight_id character specifying the column
 #'   in \code{mgs} containing gene identifiers, group labels and weights,
 #'   respectively.
