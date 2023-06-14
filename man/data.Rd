@@ -17,7 +17,7 @@ getMGS(x, n_top = 10)
 \item{ng, nc, nt, ns}{integer scalar specifying the number
 of genes, cells, types (groups) and spots to simulate.}
 
-\item{x}{Single cell experiment object ç}
+\item{x}{Single cell experiment object}
 
 \item{n_top}{integer specifying the number of
 marker genes to extract for each cluster.}
