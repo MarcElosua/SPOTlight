@@ -262,7 +262,7 @@ intended to return sparser results during the factorization in W and H, thus
 promoting cell-type-specific topic profile and reducing overfitting during 
 training. Before running factorization, we initialize each topic, column, 
 of W with the unique marker genes for each cell type with weights. In turn, each
-topic of H in `SPOTlight` is initialized with the corresponding belongance of each
+topic of H in `SPOTlight` is initialized with the corresponding membership of each
 cell for each topic, 1 or 0. This way, we seed the model with prior information,
 thus guiding it towards a biologically relevant result. This initialization also
 aims at reducing variability and improving the consistency between runs. \
