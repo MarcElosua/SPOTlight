@@ -7,13 +7,13 @@
 #' @description This function takes in the mixture data, the trained model & the
 #'   topic profiles and returns the proportion of each cell type within each
 #'    mixture
-#'  
+#'
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or 
-#'   \code{SeuratObjecy}.
-#' @param mod object of class NMFfit as obtained from trainNMF. 
-#' @param ref bject of class matrix containing the topic profiles for each cell
-#'  type as obtained from trainNMF. 
+#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or
+#'   \code{SeuratObject}.
+#' @param mod object of class NMFfit as obtained from trainNMF.
+#' @param ref Object of class matrix containing the topic profiles for each cell
+#'  type as obtained from trainNMF.
 #' @param scale logical specifying whether to scale single-cell counts to unit
 #'   variance. This gives the user the option to normalize the data beforehand
 #'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
@@ -32,7 +32,7 @@
 #'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
-#'   the second is a matrix contatining the topic profiles learnt.
+#'   the second is a matrix containing the topic profiles learnt.
 #'
 #' @author Marc Elosua Bayes & Helena L Crowell
 #'
@@ -42,7 +42,7 @@
 #' sce <- mockSC(ng = 200, nc = 10, nt = 3)
 #' spe <- mockSP(sce)
 #' mgs <- getMGS(sce)
-#' 
+#'
 #' res <- trainNMF(
 #'     x = sce,
 #'     y = spe,
@@ -70,7 +70,7 @@ runDeconvolution <- function(
     verbose = TRUE,
     assay = "RNA",
     slot = "counts") {
-    
+
     # Class checks
     stopifnot(
         # Check x inputs
@@ -91,18 +91,18 @@ runDeconvolution <- function(
         # Check min_prop numeric
         is.numeric(min_prop), length(min_prop) == 1,
         min_prop >= 0, min_prop <= 1
-        
+
     )
-    
+
     # Extract expression matrix
     if (!is.matrix(x))
         x <- .extract_counts(x, assay, slot)
-    
+
     # Get topic profiles for mixtures
     mat <- .pred_prop(x, mod, scale)
-    
+
     if (verbose) message("Deconvoluting mixture data")
-    
+
     res <- vapply(seq_len(ncol(mat)), function(i) {
         pred <- nnls::nnls(ref, mat[, i])
         prop <- prop.table(pred$x)
@@ -115,17 +115,17 @@ runDeconvolution <- function(
         err <- pred$deviance / ss
         c(prop, err)
     }, numeric(ncol(ref) + 1))
-    
+
     # set dimension names
     # rownames come from the reference
     rownames(res) <- c(rownames(ref), "res_ss")
     colnames(res) <- colnames(mat)
-    
+
     # Separate residuals from proportions
     # Extract residuals
     err <- res["res_ss", ]
     # Extract only deconvolution matrices
     res <- res[-nrow(res), ]
-    
+
     return(list("mat" = t(res), "res_ss" = err))
 }
