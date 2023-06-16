@@ -17,12 +17,12 @@ runDeconvolution(
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment}, \code{SpatialExperiment} or 
-\code{SeuratObjecy}.}
+\code{SingleCellExperiment}, \code{SpatialExperiment} or
+\code{SeuratObject}.}
 
 \item{mod}{object of class NMFfit as obtained from trainNMF.}
 
-\item{ref}{bject of class matrix containing the topic profiles for each cell
+\item{ref}{Object of class matrix containing the topic profiles for each cell
 type as obtained from trainNMF.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -47,7 +47,7 @@ By default "counts".}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix contatining the topic profiles learnt.
+  the second is a matrix containing the topic profiles learnt.
 }
 \description{
 This function takes in the mixture data, the trained model & the

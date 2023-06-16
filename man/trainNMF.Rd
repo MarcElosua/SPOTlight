@@ -70,7 +70,7 @@ By default "counts".}
 }
 \value{
 base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix contatining the topic profiles learnt.
+  the second is a matrix containing the topic profiles learnt.
 }
 \description{
 This is the training function used by SPOTLight. This function
