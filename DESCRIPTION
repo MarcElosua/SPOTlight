@@ -30,8 +30,9 @@ Imports:
 Suggests:
   BiocStyle,
   colorBlindness,
-  ExperimentHub,
   DelayedArray,
+  DropletUtils,
+  ExperimentHub,
   ggcorrplot,
   grDevices,
   grid,
