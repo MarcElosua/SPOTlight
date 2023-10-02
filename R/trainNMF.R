@@ -104,6 +104,13 @@ trainNMF <- function(
         groups <- .set_groups_if_null(x)
     
     groups <- as.character(groups)
+
+    # Check mgs is a dataframe or conver it to a df
+    if (!is.data.frame(mgs)) {
+        if (is(mgs, "tibble") || is(mgs, "list")) {
+            mgs <- as.data.frame(mgs)
+        } else stop("'mgs' should be a 'data.frame'")
+    }
     
     # Stop if at least one of the groups doesn't have marker genes
     stopifnot(groups %in% mgs[[group_id]])
@@ -124,10 +131,10 @@ trainNMF <- function(
     # select genes in mgs or hvg
     if (!is.null(hvg)) {
         # Select union of genes between markers and HVG
-        mod_genes <- union(unique(mgs[, gene_id]), hvg)
+        mod_genes <- union(unique(mgs[[gene_id]]), hvg)
     } else {
         # Select genes from the marker genes only
-        mod_genes <- unique(mgs[, gene_id])
+        mod_genes <- unique(mgs[[gene_id]])
     }
     
     # Select intersection between interest and present in x (sce) & y (spe)
