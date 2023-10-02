@@ -1,8 +1,8 @@
 Package: SPOTlight
-Version: 1.0.3
+Version: 1.4.99
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
-Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
+Description: `SPOTlight` provides a method to deconvolute spatial transcriptomics
     spots using a seeded NMF approach along with visualization tools to assess
     the results. Spatially resolved gene expression profiles are key to
     understand tissue organization and function. However, novel spatial 
