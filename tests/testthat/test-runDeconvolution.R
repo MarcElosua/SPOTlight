@@ -11,8 +11,8 @@ spe1 <- SpatialExperiment::SpatialExperiment(
 # Create dummy Seurat object
 sec <- suppressWarnings(SeuratObject::CreateSeuratObject(
     counts = SingleCellExperiment::counts(sce)))
-sep <- SeuratObject::CreateSeuratObject(
-    counts = SingleCellExperiment::counts(spe))
+sep <- suppressWarnings(SeuratObject::CreateSeuratObject(
+    counts = SingleCellExperiment::counts(spe)))
 
 # Function to run the checks
 .checks <- function(decon, sce) {
@@ -68,7 +68,9 @@ test_that("runDeconvolution x SEP", {
     decon <- runDeconvolution(
         x = sep,
         mod = res[["mod"]],
-        ref = res[["topic"]]
+        ref = res[["topic"]],
+        assay = "RNA",
+        slot = "counts"
     )
     
     .checks(decon, sce)

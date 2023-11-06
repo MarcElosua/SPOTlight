@@ -109,7 +109,7 @@ colLabels(spe) <- spe$sample_id
 
 # .extract_counts
 test_that(".extract_counts()", {
-    x <- .extract_counts(spe, slot = "counts")
+    x <- suppressWarnings(.extract_counts(spe, slot = "counts"))
     expect_identical(dim(counts(spe)), dim(x))
     expect_identical(dimnames(spe), dimnames(x))
 })
