@@ -56,7 +56,9 @@ mockSC <- function(ng = 200, nc = 50, nt = 3) {
         )
         return(x)
     })
-    do.call(cbind, z)
+    zbind <- do.call(cbind, z)
+    colnames(zbind) <- make.unique(colnames(zbind))
+    zbind
 }
 
 #' @rdname data

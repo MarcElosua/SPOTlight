@@ -6,7 +6,7 @@ mgs <- getMGS(sce)
 
 # Create dummy Seurat object
 sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
-sep <- SeuratObject::CreateSeuratObject(counts = counts(spe))
+sep <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(spe)))
 
 # Function to run the checks
 .checks <- function(res, sce) {

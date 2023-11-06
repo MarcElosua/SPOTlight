@@ -155,7 +155,7 @@
         )
         
         # Extract spatial coordinates
-        x <- as.matrix(SeuratObject::GetAssayData(x, slot, assay))
+        x <- as.matrix(SeuratObject::GetAssayData(object = x, layer = slot, assay = assay))
     } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
         
