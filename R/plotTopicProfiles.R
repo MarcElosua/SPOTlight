@@ -100,8 +100,8 @@ plotTopicProfiles <- function(
     df$topic <- factor(df$topic, seq_along(unique(y)))
 
     # render plot
-    ggplot(df, aes_string(x, "topic",
-        col = "weight", size = "weight")) +
+    ggplot(df, aes(
+        .data[[x]], .data$topic, col = .data$weight, size = .data$weight)) +
         f + geom_point() +
         guides(col = guide_legend(override.aes = list(size = 2))) +
         scale_size_continuous(range = c(0, 3)) +
