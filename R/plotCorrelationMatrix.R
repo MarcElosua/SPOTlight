@@ -77,6 +77,10 @@ plotCorrelationMatrix <- function(
 
         # Remove columns that are all 0
         x <- x[, colSums(x) > 0]
+        # return error if there are NAs in x
+        if (NA %in% x)
+            stop("There are NAs in x, please consider passing na.omit(x)",
+                 " to the x argument")
         corr <- cor(x)
 
         # Compute correlation P-value
