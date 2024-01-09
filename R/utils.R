@@ -1,7 +1,8 @@
-#' @importFrom matrixStats rowSds
+#' @importFrom sparseMatrixStats rowSds
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
-    t(scale(t(x), center = FALSE, scale = sds))
+    # Scale by gene (each row by its sd) for unit variance
+    x / sds
 }
 
 .init_nmf <- function(x,
@@ -154,8 +155,14 @@
             assay %in% SeuratObject::Assays(x)
         )
         
-        # Extract spatial coordinates
-        x <- as.matrix(SeuratObject::GetAssayData(object = x, layer = slot, assay = assay))
+        # Extract expression matrix
+        x <- SeuratObject::GetAssayData(
+            object = x,
+            assay = assay,
+            layer = slot)
+        
+        ## Extract gene expression matrix
+        x <- as.matrix(x)
     } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
         
@@ -168,10 +175,10 @@
             # Return error if there are no colnames in the object
             !is.null(colnames(x))
         )
-        ## Extract spatial coordinates
+        ## Extract gene expression matrix
         x <- as.matrix(SummarizedExperiment::assay(x, slot))
     } else {
-        stop("Couldn't extract image coordinates.
+        stop("Couldn't extract gene expression matrix.
             Please check class(x) is SpatialExperiment, Seurat,
             dataframe or matrix")
     }
@@ -181,6 +188,7 @@
 
 # Take an array representing an image and plot it with ggplot2
 #' @import ggplot2
+#' @importFrom grid rasterGrob unit
 .plot_image <- function(x) {
     # Check necessary packages are installed and if not STOP
     .test_installed(c("grid", "ggplot2"))
@@ -205,6 +213,10 @@
 }
 
 # Extract image and convert it to array from allowed classes
+#' @importFrom png readPNG
+#' @importFrom jpeg readJPEG
+#' @importFrom SeuratObject Images GetImage
+#' @importFrom SpatialExperiment getImg imgData imgRaster
 .extract_image <- function(x, slice = NULL) {
     # Iterate over all the accepted classes and convert the image to array
     if (is.character(x)) {
@@ -230,15 +242,15 @@
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(SeuratObject::Images(x)),
-            slice %in% SeuratObject::Images(x))
+            !is.null(Images(x)),
+            slice %in% Images(x))
         
         # If image is null use the first slice
         if (is.null(slice)) 
-            slice <- SeuratObject::Images(x)[1]
+            slice <- Images(x)[1]
         
         # Extract Image in raster format
-        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
+        x <- GetImage(x, image = slice, mode = "raster")
         # Conver to matrix
         x <- as.matrix(x)
         
@@ -248,16 +260,16 @@
         
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(SpatialExperiment::getImg(x)),
-            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"]
+            !is.null(getImg(x)),
+            slice %in% imgData(x)[1, "sample_id"]
         )
         
         # If image is null use the first slice
         if (is.null(slice)) 
-            slice <- SpatialExperiment::imgData(x)[1, "sample_id"]
+            slice <- imgData(x)[1, "sample_id"]
         
         # Convert to raster
-        x <- SpatialExperiment::imgRaster(x, sample_id = slice)
+        x <- imgRaster(x, sample_id = slice)
         x <- as.matrix(x)
     } else {
         stop("Couldn't extract image, See ?plotImage for valid image inputs.")
@@ -267,11 +279,13 @@
 
 # When assigning cells to groups in trainNMF and SPOTlight if groups is set to
 # NULL use the cell identities/labels. If it is not a Seurat or SCE return error
+#' @importFrom SeuratObject Idents
+#' @importFrom SingleCellExperiment colLabels
 .set_groups_if_null <- function(x) {
     ## Seurat ##
     if (is(x, "Seurat")) {
         # Extract idents
-        idents <- SeuratObject::Idents(x)
+        idents <- Idents(x)
         if (is.null(idents)) {
             stop("SeuratObject::Idents(x) is NULL")
         } else {
@@ -282,7 +296,7 @@
     ## SCE ##
     } else if (is(x, "SingleCellExperiment")) {
         # Extract idents
-        idents <- SingleCellExperiment::colLabels(x)
+        idents <- colLabels(x)
         if (is.null(idents)) {
             stop("SingleCellExperiment::colLabels(x) is NULL")
         } else {
