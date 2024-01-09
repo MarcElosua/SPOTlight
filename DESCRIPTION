@@ -22,7 +22,7 @@ Depends: R (>= 4.1)
 Imports:
   ggplot2,
   NMF,
-  Matrix (== 1.6-1.1),
+  Matrix,
   matrixStats,
   nnls,
   SingleCellExperiment,
