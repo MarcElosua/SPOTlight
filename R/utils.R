@@ -213,10 +213,6 @@
 }
 
 # Extract image and convert it to array from allowed classes
-#' @importFrom png readPNG
-#' @importFrom jpeg readJPEG
-#' @importFrom SeuratObject Images GetImage
-#' @importFrom SpatialExperiment getImg imgData imgRaster
 .extract_image <- function(x, slice = NULL) {
     # Iterate over all the accepted classes and convert the image to array
     if (is.character(x)) {
@@ -242,15 +238,15 @@
         .test_installed(c("SeuratObject"))
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(Images(x)),
-            slice %in% Images(x))
+            !is.null(SeuratObject::Images(x)),
+            slice %in% SeuratObject::Images(x))
         
         # If image is null use the first slice
         if (is.null(slice)) 
-            slice <- Images(x)[1]
+            slice <- SeuratObject::Images(x)[1]
         
         # Extract Image in raster format
-        x <- GetImage(x, image = slice, mode = "raster")
+        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
         # Conver to matrix
         x <- as.matrix(x)
         
@@ -260,16 +256,16 @@
         
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
-            !is.null(getImg(x)),
-            slice %in% imgData(x)[1, "sample_id"]
+            !is.null(SpatialExperiment::getImg(x)),
+            slice %in% SpatialExperiment::imgData(x)[1, "sample_id"]
         )
         
         # If image is null use the first slice
         if (is.null(slice)) 
-            slice <- imgData(x)[1, "sample_id"]
+            slice <- SpatialExperiment::imgData(x)[1, "sample_id"]
         
         # Convert to raster
-        x <- imgRaster(x, sample_id = slice)
+        x <- SpatialExperiment::imgRaster(x, sample_id = slice)
         x <- as.matrix(x)
     } else {
         stop("Couldn't extract image, See ?plotImage for valid image inputs.")
@@ -279,7 +275,6 @@
 
 # When assigning cells to groups in trainNMF and SPOTlight if groups is set to
 # NULL use the cell identities/labels. If it is not a Seurat or SCE return error
-#' @importFrom SeuratObject Idents
 #' @importFrom SingleCellExperiment colLabels
 .set_groups_if_null <- function(x) {
     ## Seurat ##

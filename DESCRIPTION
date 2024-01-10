@@ -1,5 +1,5 @@
 Package: SPOTlight
-Version: 1.6.5
+Version: 1.6.6
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
 Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
