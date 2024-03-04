@@ -18,20 +18,18 @@ SPOTlight(
   model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
-  assay_sc = "RNA",
   slot_sc = "counts",
-  assay_sp = "Spatial",
   slot_sp = "counts",
   ...
 )
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
-numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
+numeric matrix or a \code{SingleCellExperiment}.}
 
 \item{groups}{vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-defaults to \code{colLabels} and \code{Idents(x)}, respectively.}
+When \code{x} is a \code{SingleCellExperiment} ,
+defaults to \code{colLabels}, respectively.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -61,14 +59,8 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA" and "Spatial".}
-
-\item{slot_sc, slot_sp}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
+\item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
+indicates matrix to use.By default "counts".}
 
 \item{...}{additional parameters.}
 }

@@ -11,14 +11,12 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-  assay = "RNA",
   slot = "counts"
 )
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment}, \code{SpatialExperiment} or
-\code{SeuratObject}.}
+\code{SingleCellExperiment} or \code{SpatialExperiment}.}
 
 \item{mod}{object of class NMFfit as obtained from trainNMF.}
 
@@ -36,13 +34,7 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA". Ignore for the rest of x input classes.}
-
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SpatialExperiment} indicates matrix to use.
+\item{slot}{If the object is of class \code{SpatialExperiment} indicates matrix to use.
 By default "counts".}
 }
 \value{

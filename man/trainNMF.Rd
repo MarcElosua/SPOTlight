@@ -17,21 +17,18 @@ trainNMF(
   model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
-  assay_sc = "RNA",
   slot_sc = "counts",
-  assay_sp = "Spatial",
   slot_sp = "counts",
   ...
 )
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
-numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
+numeric matrix or \code{SingleCellExperiment}.}
 
 \item{groups}{character vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
-Make sure groups is not a Factor.}
+When \code{x} is a \code{SingleCellExperiment},
+defaults to \code{colLabels(x)}. Make sure groups is not a Factor.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -57,14 +54,8 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay_sc, assay_sp}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA" and "Spatial".}
-
-\item{slot_sc, slot_sp}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
+\item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
+indicates matrix to use. By default "counts".}
 
 \item{...}{additional parameters.}
 }

@@ -140,28 +140,10 @@
 # Helper function to substitute the S4 method.
 # This function takes in an object of class accepted in SPOTlight, it
 # extracts the count/expression matrix specified and returns a matrix
-.extract_counts <- function(x, assay, slot) {
+.extract_counts <- function(x, slot) {
     # Iterate over all the accepted classes and return expression matrix
     if (is(x, "dgCMatrix") | is(x, "DelayedMatrix")) {
         # Convert to matrix
-        x <- as.matrix(x)
-    } else if (is(x, "Seurat")) {
-        .test_installed(c("SeuratObject"))
-        # Stop if there are no images or the name selected doesn't exist
-        stopifnot(
-            # Stop if there are no images
-            !is.null(SeuratObject::Assays(x)),
-            # Stop if the assay doesn't exist
-            assay %in% SeuratObject::Assays(x)
-        )
-        
-        # Extract expression matrix
-        x <- SeuratObject::GetAssayData(
-            object = x,
-            assay = assay,
-            layer = slot)
-        
-        ## Extract gene expression matrix
         x <- as.matrix(x)
     } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
@@ -179,7 +161,7 @@
         x <- as.matrix(SummarizedExperiment::assay(x, slot))
     } else {
         stop("Couldn't extract gene expression matrix.
-            Please check class(x) is SpatialExperiment, Seurat,
+            Please check class(x) is SpatialExperiment,
             dataframe or matrix")
     }
     return(x)
@@ -234,23 +216,7 @@
             png = png::readPNG(x),
             jpeg::readJPEG(x))
         
-    } else if (is(x, "Seurat")) {
-        .test_installed(c("SeuratObject"))
-        # Stop if there are no images or the name selected doesn't exist
-        stopifnot(
-            !is.null(SeuratObject::Images(x)),
-            slice %in% SeuratObject::Images(x))
-        
-        # If image is null use the first slice
-        if (is.null(slice)) 
-            slice <- SeuratObject::Images(x)[1]
-        
-        # Extract Image in raster format
-        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
-        # Conver to matrix
-        x <- as.matrix(x)
-        
-    } else if (is(x, "SpatialExperiment")) {
+        } else if (is(x, "SpatialExperiment")) {
         
         .test_installed(c("SpatialExperiment"))
         
@@ -277,19 +243,7 @@
 # NULL use the cell identities/labels. If it is not a Seurat or SCE return error
 #' @importFrom SingleCellExperiment colLabels
 .set_groups_if_null <- function(x) {
-    ## Seurat ##
-    if (is(x, "Seurat")) {
-        # Extract idents
-        idents <- Idents(x)
-        if (is.null(idents)) {
-            stop("SeuratObject::Idents(x) is NULL")
-        } else {
-            warning("Grouping cells into celltypes by Idents(x)")
-            groups <- as.character(idents)
-        }
-        
-    ## SCE ##
-    } else if (is(x, "SingleCellExperiment")) {
+    if (is(x, "SingleCellExperiment")) {
         # Extract idents
         idents <- colLabels(x)
         if (is.null(idents)) {

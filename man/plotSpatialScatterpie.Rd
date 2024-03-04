@@ -19,7 +19,7 @@ plotSpatialScatterpie(
 }
 \arguments{
 \item{x}{Object containing the spots coordinates, it can be an object of class
-SpatialExperiment, Seurat, dataframe or matrix. For the latter two
+SpatialExperiment, dataframe or matrix. For the latter two
 rownames should have the spot barcodes to match x. If a matrix it has to
 of dimensions nrow(y) x 2 where the columns are the x and y coordinates
 in that order.}

@@ -9,11 +9,10 @@
 #'    profiles for each cell type
 #'
 #' @param x,y single-cell and mixture dataset, respectively. Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   numeric matrix or \code{SingleCellExperiment}.
 #' @param groups character vector of group labels for cells in \code{x}.
-#'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
-#'   Make sure groups is not a Factor.
+#'   When \code{x} is a \code{SingleCellExperiment},
+#'   defaults to \code{colLabels(x)}. Make sure groups is not a Factor.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
@@ -30,16 +29,10 @@
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
 #' Either "ns" (default) or "std".
-#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA" and "Spatial".
-#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
-#'   By default "counts".
+#' @param slot_sc,slot_sp If the object is of class \code{SingleCellExperiment}
+#'  indicates matrix to use. By default "counts".
 #' @param verbose logical. Should information on progress be reported?
 #' @param ... additional parameters.
-#'
 #'
 #' @return base a list where the first element is an \code{NMFfit} object and
 #'   the second is a matrix containing the topic profiles learnt.
@@ -84,9 +77,7 @@ trainNMF <- function(
     model = c("ns", "std"),
     scale = TRUE,
     verbose = TRUE,
-    assay_sc = "RNA",
     slot_sc = "counts",
-    assay_sp = "Spatial",
     slot_sp = "counts",
     ...) {
     # check validity of input arguments
@@ -113,10 +104,10 @@ trainNMF <- function(
 
     # Extract expression matrices for x and y
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay_sc, slot_sc)
+        x <- .extract_counts(x, slot_sc)
 
     if (!is.matrix(y))
-        y <- .extract_counts(y, assay_sp, slot_sp)
+        y <- .extract_counts(y, slot_sp)
 
     # select genes in mgs or hvg
     if (!is.null(hvg)) {

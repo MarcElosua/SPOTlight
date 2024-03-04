@@ -5,10 +5,10 @@
 #'   expression data to deconvolute spatial transcriptomics spots.
 #'
 #' @param x,y single-cell and mixture dataset, respectively. Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   numeric matrix or a \code{SingleCellExperiment}.
 #' @param groups vector of group labels for cells in \code{x}.
-#'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
-#'   defaults to \code{colLabels} and \code{Idents(x)}, respectively.
+#'   When \code{x} is a \code{SingleCellExperiment} ,
+#'   defaults to \code{colLabels}, respectively.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
 #'   Must contain columns holding gene identifiers, group labels and
 #'   the weight (e.g., logFC, -log(p-value) a feature has in a given group.
@@ -24,13 +24,8 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
-#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA" and "Spatial".
-#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
-#'   By default "counts".
+#' @param slot_sc,slot_sp If the object is of class \code{SingleCellExperiment}
+#'  indicates matrix to use.By default "counts".
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
 #' @param model character string indicating which model to use when running NMF.
@@ -95,9 +90,7 @@ SPOTlight <- function(
     min_prop = 0.01,
     # other
     verbose = TRUE,
-    assay_sc = "RNA",
     slot_sc = "counts",
-    assay_sp = "Spatial",
     slot_sp = "counts",
     ...) {
     
@@ -115,9 +108,7 @@ SPOTlight <- function(
         model = model, 
         scale = scale,
         verbose = verbose,
-        assay_sc = assay_sc,
         slot_sc = slot_sc,
-        assay_sp = assay_sp,
         slot_sp = slot_sp,
         ...)
 
@@ -129,7 +120,6 @@ SPOTlight <- function(
         scale = scale, 
         min_prop = min_prop, 
         verbose = verbose,
-        assay = assay_sp,
         slot = slot_sp)
 
     # return list of NMF model & deconvolution matrix

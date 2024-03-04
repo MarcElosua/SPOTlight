@@ -7,7 +7,7 @@
 #'   each spot is a piechart showing proportions of the cell type composition.
 #'
 #' @param x Object containing the spots coordinates, it can be an object of class
-#'   SpatialExperiment, Seurat, dataframe or matrix. For the latter two
+#'   SpatialExperiment, dataframe or matrix. For the latter two
 #'   rownames should have the spot barcodes to match x. If a matrix it has to
 #'   of dimensions nrow(y) x 2 where the columns are the x and y coordinates
 #'   in that order.
@@ -73,7 +73,7 @@ plotSpatialScatterpie <- function(
     stopifnot(
         # Check x inputs
         is.matrix(x) | is.data.frame(x) |
-            is(x, "Seurat") | is(x, "SpatialExperiment"),
+            is(x, "SpatialExperiment"),
         # Check y inputs
         is.matrix(y) | is.data.frame(y),
         # cell_types needs to be a character with max length = ncol(y)
@@ -100,7 +100,7 @@ plotSpatialScatterpie <- function(
         # Extract image from Seurat or SE objects when img is TRUE
         # If image is not TRUE and not FALSE an acceptable class for plotImage
         # has been passed
-        if (is(x, "Seurat") | is(x, "SpatialExperiment") & isTRUE(img)) {
+        if (is(x, "SpatialExperiment") & isTRUE(img)) {
             img <- .extract_image(x, slice)
 
             # Rotate or mirror image if dots don't overlay properly
@@ -190,21 +190,6 @@ plotSpatialScatterpie <- function(
     if (is.data.frame(x)) {
         # Convert to matrix
         x <- as.matrix(x)
-    } else if (is(x, "Seurat")) {
-        .test_installed(c("SeuratObject"))
-        # Stop if there are no images or the name selected doesn't exist
-        stopifnot(
-            # Stop if there are no images
-            !is.null(SeuratObject::Images(x)),
-            # Stop if the image doesn't exist
-            is.null(slice) | slice %in% SeuratObject::Images(x))
-
-        # If image is null use the first slice
-        if (is.null(slice))
-            slice <- SeuratObject::Images(x)[1]
-
-        # Extract spatial coordinates
-        x <- as.matrix(SeuratObject::GetTissueCoordinates(x, image = slice))
     } else if (is(x, "SpatialExperiment")) {
 
         .test_installed(c("SpatialExperiment"))
@@ -241,7 +226,7 @@ plotSpatialScatterpie <- function(
         rownames(x) <- barcodes
     } else {
         stop("Couldn't extract image coordinates.
-            Please check class(x) is SpatialExperiment, Seurat,
+            Please check class(x) is SpatialExperiment,
             dataframe or matrix")
     }
     return(x)

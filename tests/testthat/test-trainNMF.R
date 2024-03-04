@@ -5,8 +5,8 @@ spe <- mockSP(sce)
 mgs <- getMGS(sce)
 
 # Create dummy Seurat object
-sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
-sep <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(spe)))
+# sec <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(sce)))
+# sep <- suppressWarnings(SeuratObject::CreateSeuratObject(counts = counts(spe)))
 
 # Function to run the checks
 .checks <- function(res, sce) {
@@ -58,35 +58,35 @@ test_that("trainNMF x SPE", {
 })
 
 # trainNMF with SPE ----
-test_that("trainNMF x SEC", {
-    res <- trainNMF(
-        x = sec,
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
+# test_that("trainNMF x SEC", {
+#     res <- trainNMF(
+#         x = sec,
+#         y = as.matrix(counts(spe)),
+#         groups = sce$type,
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene"
+#     )
+#     
+#     .checks(res, sce)
+# })
 
 # trainNMF with SEP ----
-test_that("trainNMF x SEP", {
-    res <- trainNMF(
-        x = as.matrix(counts(sce)),
-        y = sep,
-        groups = sce$type,
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene",
-        assay_sp = "RNA"
-    )
-    
-    .checks(res, sce)
-})
+# test_that("trainNMF x SEP", {
+#     res <- trainNMF(
+#         x = as.matrix(counts(sce)),
+#         y = sep,
+#         groups = sce$type,
+#         mgs = mgs,
+#         weight_id = "weight",
+#         group_id = "type",
+#         gene_id = "gene",
+#         assay_sp = "RNA"
+#     )
+#     
+#     .checks(res, sce)
+# })
 
 
 # trainNMF with sparse matrix sc ----

@@ -9,10 +9,9 @@
 #' @param x A variety of objects can be passed: character string corresponding
 #'   to an image file path, valid file types are JPG, JPEG and PNG. It can also
 #'   take as input objects of class raster and RGB arrays. It can also take
-#'   a SpatialExperiment or Seurat object from which the
-#'   image will be extracted.
+#'   a SpatialExperiment from which the image will be extracted.
 #' @param slice Character string indicating which image slice to use when
-#'   SpatialExperiment or Seurat objects are passed. By default uses the first
+#'   SpatialExperiment objects are passed. By default uses the first
 #'   slice available.
 #' @return \code{ggplot} object
 #'
@@ -27,10 +26,6 @@
 #' # array
 #' png_img <- png::readPNG(path)
 #' plotImage(png_img)
-#' # Seurat Object
-#' # library(SeuratData)
-#' # so <- LoadData("stxBrain", type = "anterior1")
-#' # plotImage(so)
 #' # SpatialExperiment
 NULL
 #' @export
@@ -38,8 +33,8 @@ plotImage <- function(x, slice = NULL) {
     # check validity of input arguments
     stopifnot(
         # Check for valid x classes
-        is.matrix(x) | is.character(x) | is.array(x) | is(x, "rastergrob") | 
-            is(x, "Seurat") | is(x, "SpatialExperiment"),
+        is.matrix(x) | is.character(x) | is.array(x) | is(x, "rastergrob") |
+            is(x, "SpatialExperiment"),
         # Check for valid slice classes
         is.null(slice) | is.character(slice))
     

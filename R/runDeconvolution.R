@@ -9,8 +9,7 @@
 #'    mixture
 #'
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or
-#'   \code{SeuratObject}.
+#'   \code{SingleCellExperiment} or \code{SpatialExperiment}.
 #' @param mod object of class NMFfit as obtained from trainNMF.
 #' @param ref Object of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF.
@@ -21,12 +20,7 @@
 #' @param min_prop scalar in [0,1] setting the minimum contribution
 #'   expected from a cell type in \code{x} to observations in \code{y}.
 #'   By default 0.
-#' @param assay if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA". Ignore for the rest of x input classes.
-#' @param slot if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SpatialExperiment} indicates matrix to use.
+#' @param slot If the object is of class \code{SpatialExperiment} indicates matrix to use.
 #'   By default "counts".
 #' @param verbose logical. Should information on progress be reported?
 #'
@@ -68,21 +62,18 @@ runDeconvolution <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    assay = "RNA",
     slot = "counts") {
 
     # Class checks
     stopifnot(
         # Check x inputs
         is.matrix(x) | is(x, "DelayedMatrix") | is(x, "dgCMatrix") |
-            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "SingleCellExperiment") |
             is(x, "SpatialExperiment"),
         # Check mod inputs
         is(mod, "NMFfit"),
         # check ref
         is.matrix(ref),
-        # Check assay name
-        is.character(assay), length(assay) == 1,
         # Check slot name
         is.character(slot), length(slot) == 1,
         # Check scale and verbose
@@ -96,7 +87,7 @@ runDeconvolution <- function(
 
     # Extract expression matrix
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay, slot)
+        x <- .extract_counts(x, slot)
 
     # Get topic profiles for mixtures
     mat <- .pred_prop(x, mod, scale)
