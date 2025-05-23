@@ -9,19 +9,12 @@
 #'    mixture
 #'
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment}, \code{SpatialExperiment} or
-#'   \code{SeuratObjecy}.
-
+#'   \code{SingleCellExperiment} or \code{SpatialExperiment}
 #' @param mod object as obtained from trainNMF.
 #' @param ref object of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF.
-#' @param assay if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "Spatial".
-#' @param slot if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SpatialExperiment} indicates matrix to use.
-#'   By default "counts".
+#' @param slot If the object is of class \code{SpatialExperiment} indicates 
+#'   matrix to use. By default "counts".
 #' @inheritParams SPOTlight
 #'
 #' @return base a list where the first element is a list giving the NMF model and
@@ -61,7 +54,6 @@ runDeconvolution <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    assay = "Spatial",
     slot = "counts",
     L1_nnls_topics = 0,
     L2_nnls_topics = 0,
@@ -74,14 +66,12 @@ runDeconvolution <- function(
     stopifnot(
         # Check x inputs
         is.matrix(x) | is(x, "DelayedMatrix") | is(x, "dgCMatrix") |
-            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "SingleCellExperiment") |
             is(x, "SpatialExperiment"),
         # Check mod inputs
         is.list(mod),
         # check ref
         is.matrix(ref),
-        # Check assay name
-        is.character(assay), length(assay) == 1,
         # Check slot name
         is.character(slot), length(slot) == 1,
         # Check scale and verbose
@@ -94,7 +84,7 @@ runDeconvolution <- function(
 
     # Extract expression matrix
     if (!is.matrix(x))
-        x <- .extract_counts(x, assay, slot)
+        x <- .extract_counts(x, slot)
 
     # Get topic profiles for mixtures
     mat <- .pred_hp(
@@ -114,31 +104,27 @@ runDeconvolution <- function(
     
     # The below predict_nmf function does the equivalent to
     # pred <- t(mat) %*% t(ref_scale)
-    # TODO come back to change this with the native RCPP code
     pred <- predict_nmf(
         A_ = as(mat, "dgCMatrix"),
         w = ref_scale,
         L1 = L1_nnls_prop,
         L2 = L2_nnls_prop,
         threads = threads)
-    # pred <- RcppML::project(
-    #   A = as(mat, "dgCMatrix"),
-    #   w = t(ref_scale),
-    #   L1 = 0,
-    #   nonneg = TRUE)
     rownames(pred) <- rownames(ref_scale)
     colnames(pred) <- colnames(mat)
 
     # Proportions within each spot
     res <- prop.table(pred, 2)
 
-    # TODO Check computation is correct for residuals
     # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
     # 2- Check the differences between the original and re-mapped matrix
     # 3- sum the errors for each spot (column)
+    # t(ref_scale) is a topic x celltype matrix
+    # pred is a celltype x spot matrix
+    # mat is a topic x spot matrix
     err_mat <- (mat - ref_scale %*% pred)^2
-    err <- colSums(err_mat)
-    names(err) <- colnames(res)
+    err <- colSums(err_mat) / colSums(mat)^2
+    # names(err) <- colnames(res)
 
     return(list("mat" = t(res), "res_ss" = err))
 }

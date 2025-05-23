@@ -8,13 +8,6 @@ spe1 <- SpatialExperiment::SpatialExperiment(
     assay = list(counts = SingleCellExperiment::counts(spe)),
     colData = SummarizedExperiment::colData(spe))
 
-# Create dummy Seurat object
-sec <- suppressWarnings(
-  SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(sce)))
-
-sep <- SeuratObject::CreateSeuratObject(
-  counts = SingleCellExperiment::counts(spe))
-
 # Function to run the checks
 .checks <- function(res, sce) {
     mtr <- res[[1]]
@@ -81,36 +74,6 @@ test_that("SPOTlight x SCE spatial rcpp", {
     res <- SPOTlight(
         x = as.matrix(counts(sce)),
         y = spe1,
-        groups = sce$type,
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with Seurat SC ----
-test_that("SPOTlight x SEC rcpp", {
-    res <- SPOTlight(
-        x = sec,
-        y = as.matrix(counts(spe)),
-        groups = sce$type,
-        mgs = mgs,
-        weight_id = "weight",
-        group_id = "type",
-        gene_id = "gene"
-    )
-    
-    .checks(res, sce)
-})
-
-# .SPOTlight with Seurat SP ----
-test_that("SPOTlight x SEP rcpp", {
-    res <- SPOTlight(
-        x = as.matrix(counts(sce)),
-        y = spe,
         groups = sce$type,
         mgs = mgs,
         weight_id = "weight",

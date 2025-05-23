@@ -86,7 +86,7 @@ where rows = genes and columns = cells.
 expression matrix.
 
 Data inputs can also be objects of class `r Biocpkg("SpatialExperiment")` (SE),
-`r Biocpkg("SingleCellExperiment")` (SCE) or `r CRANpkg("Seurat")` objects from
+`r Biocpkg("SingleCellExperiment")` (SCE) objects from
 which the minimal data will be extracted.
 
 # Getting started

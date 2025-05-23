@@ -228,23 +228,11 @@
 # Helper function to substitute the S4 method.
 # This function takes in an object of class accepted in SPOTlight, it
 # extracts the count/expression matrix specified and returns a matrix
-.extract_counts <- function(x, assay, slot) {
+.extract_counts <- function(x, slot) {
     # Iterate over all the accepted classes and return expression matrix
     
     # Extract count matrix from object
-    if (is(x, "Seurat")) {
-        .test_installed(c("SeuratObject"))
-        # Stop if there are no images or the name selected doesn't exist
-        stopifnot(
-            # Stop if there are no images
-            !is.null(SeuratObject::Assays(x)),
-            # Stop if the assay doesn't exist
-            assay %in% SeuratObject::Assays(x)
-        )
-        
-        # Extract Seurat coordinates
-        x <- SeuratObject::GetAssayData(x, slot, assay)
-    } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
+    if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
         .test_installed(c("SummarizedExperiment"))
         
         # Stop if there are no images or the name selected doesn't exist
@@ -272,7 +260,7 @@
         x
     } else {
         stop("Couldn't extract counts. Please check class(x) is a
-        SingleCellExpriment, SpatialExperiment, Seurat, matrix, DelayedMatrix
+        SingleCellExpriment, SpatialExperiment, matrix, DelayedMatrix
         or dgCMatrix.")
     }
     return(x)
@@ -326,22 +314,6 @@
             png = png::readPNG(x),
             jpeg::readJPEG(x))
         
-    } else if (is(x, "Seurat")) {
-        .test_installed(c("SeuratObject"))
-        # Stop if there are no images or the name selected doesn't exist
-        stopifnot(
-            !is.null(SeuratObject::Images(x)),
-            slice %in% SeuratObject::Images(x))
-        
-        # If image is null use the first slice
-        if (is.null(slice)) 
-            slice <- SeuratObject::Images(x)[1]
-        
-        # Extract Image in raster format
-        x <- SeuratObject::GetImage(x, image = slice, mode = "raster")
-        # Conver to matrix
-        x <- as.matrix(x)
-        
     } else if (is(x, "SpatialExperiment")) {
         
         .test_installed(c("SpatialExperiment"))
@@ -368,19 +340,9 @@
 # When assigning cells to groups in trainNMF and SPOTlight if groups is set to
 # NULL use the cell identities/labels. If it is not a Seurat or SCE return error
 .set_groups_if_null <- function(x) {
-    ## Seurat ##
-    if (is(x, "Seurat")) {
-        # Extract idents
-        idents <- SeuratObject::Idents(x)
-        if (is.null(idents)) {
-            stop("SeuratObject::Idents(x) is NULL")
-        } else {
-            warning("Grouping cells into celltypes by Idents(x)")
-            groups <- as.character(idents)
-        }
-        
+
     ## SCE ##
-    } else if (is(x, "SingleCellExperiment")) {
+    if (is(x, "SingleCellExperiment")) {
         # Extract idents
         idents <- SingleCellExperiment::colLabels(x)
         if (is.null(idents)) {

@@ -9,17 +9,12 @@
 #'    profiles for each cell type
 #' 
 #' @param x single-cell dataset. Can be a numeric matrix, Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   numeric matrix or \code{SingleCellExperiment}.
 #' @param y Null if you want to train the model with all the genes in the SC
 #'    data or a character vector with the rownames of the mixture dataset to 
 #'    subset the gene set used to the intersection between them.
-#' @param assay_sc if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA".
-#' @param slot_sc if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
-#'   By default "counts".
+#' @param slot_sc If the object is of class \code{SingleCellExperiment} 
+#'   indicates matrix to use. By default "counts".
 
 #' @inheritParams SPOTlight
 #'
@@ -72,7 +67,6 @@ trainNMF <- function(
     tol = 1e-05,
     maxit = 100,
     threads = 0,
-    assay_sc = "RNA",
     slot_sc = "counts",
     ...) {
     
@@ -88,7 +82,7 @@ trainNMF <- function(
     
     stopifnot(
         is.numeric(x) | is(x, "dgCMatrix") |
-            is(x, "Seurat") | is(x, "SingleCellExperiment") |
+            is(x, "SingleCellExperiment") |
             is(x, "DelayedMatrix"), 
         (is.vector(y) & is.character(y)) | is.null(y),
         is.character(ids), length(ids) == 3, ids %in% names(mgs),
@@ -117,7 +111,7 @@ trainNMF <- function(
     
     # Extract expression matrices for x and y
     if (!is.matrix(x) & !is(x, "dgCMatrix"))
-        x <- .extract_counts(x, assay_sc, slot_sc)
+        x <- .extract_counts(x, slot_sc)
     
     # Make sure matrix is sparse
     # convert matrix to dgCMatrix, 

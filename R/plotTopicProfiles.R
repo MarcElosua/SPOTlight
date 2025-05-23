@@ -67,32 +67,22 @@ plotTopicProfiles <- function(
     
     # get proportion of topic contribution by cell
     mat <- prop.table(t(x$h), 1)
-    
+    df <- data.frame(
+        id = seq_len(nrow(mat)),
+        weight = c(mat),
+        group = rep(y, ncol(mat)),
+        topic = rep(seq_len(ncol(mat)), each = nrow(mat)))
     if (facet) {
-        # stretch for plotting
-        df <- data.frame(
-            id = seq_len(nrow(mat)),
-            weight = c(mat),
-            group = rep(y, ncol(mat)),
-            topic = rep(seq_len(ncol(mat)), each = nrow(mat)))
-
         # drop cells with 'weight < min_prop'
         df <- df[df$weight >= min_prop, ]
-
+        
         # set aesthetics
         x <- "id"
         f <- facet_wrap(~group, ncol = ncol, scales = "free_x")
     } else {
         # get topic medians
-        df <- aggregate(mat, list(y), median)[, -1]
-        rownames(df) <- unique(y)
+        df <- aggregate(weight ~ group + topic, data = df, FUN = median)
         
-        # stretch for plotting
-        df <- data.frame(
-            weight = unlist(df),
-            group = rep(rownames(df), each = nrow(df)),
-            topic = rep(seq_len(nrow(df)), ncol(df)))
-
         # set aesthetics
         x <- "group"
         f <- NULL

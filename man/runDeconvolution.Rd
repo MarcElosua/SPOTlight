@@ -11,7 +11,6 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-  assay = "Spatial",
   slot = "counts",
   L1_nnls_topics = 0,
   L2_nnls_topics = 0,
@@ -23,8 +22,7 @@ runDeconvolution(
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment}, \code{SpatialExperiment} or
-\code{SeuratObjecy}.}
+\code{SingleCellExperiment} or \code{SpatialExperiment}}
 
 \item{mod}{object as obtained from trainNMF.}
 
@@ -42,14 +40,8 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{assay}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "Spatial".}
-
-\item{slot}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SpatialExperiment} indicates matrix to use.
-By default "counts".}
+\item{slot}{If the object is of class \code{SpatialExperiment} indicates 
+matrix to use. By default "counts".}
 
 \item{L1_nnls_topics, L1_nnls_prop}{LASSO penalty in the range (0, 1] for NNLS
 when computing cell type topic profiles and cell type proportions

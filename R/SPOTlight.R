@@ -5,9 +5,9 @@
 #'   expression data to deconvolute spatial transcriptomics spots.
 #'
 #' @param x,y single-cell and mixture dataset, respectively. Can be a
-#'   numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.
+#'   numeric matrix or \code{SingleCellExperiment}..
 #' @param groups character vector of group labels for cells in \code{x}.
-#'   When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
+#'   When \code{x} is a \code{SingleCellExperiment}.,
 #'   defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
 #'   Make sure groups is not a Factor.
 #' @param mgs \code{data.frame} or \code{DataFrame} of marker genes.
@@ -24,13 +24,8 @@
 #'   slot from where to extract the count data.
 #' @param n_top integer scalar specifying the number of markers to select per
 #'  group. By default NULL uses all the marker genes to initialize the model.
-#' @param assay_sc,assay_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the assay from which to extract the expression matrix.
-#'   By default "RNA" and "Spatial".
-#' @param slot_sc,slot_sp if the object is of Class \code{Seurat}, character string
-#'   specifying the slot from which to extract the expression matrix. If the
-#'   object is of class \code{SingleCellExperiment} indicates matrix to use.
-#'   By default "counts".
+#' @param slot_sc,slot_sp If the object is of class \code{SingleCellExperiment}
+#'   indicates matrix to use. By default "counts".
 #' @param L1_nmf LASSO penalty in the range (0, 1] for NMF,
 #'   larger values increase sparsity of each factor
 #' @param L2_nmf RUDGE penalty >0 for NMF,
@@ -105,9 +100,7 @@ SPOTlight <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    assay_sc = "RNA",
     slot_sc = "counts",
-    assay_sp = "Spatial",
     slot_sp = "counts",
     L1_nmf = 0,
     L2_nmf = 0,
@@ -132,7 +125,6 @@ SPOTlight <- function(
         weight_id = weight_id, 
         hvg = hvg, 
         verbose = verbose,
-        assay_sc = assay_sc,
         slot_sc = slot_sc,
         L1_nmf = L1_nmf,
         L2_nmf = L2_nmf,
@@ -149,7 +141,6 @@ SPOTlight <- function(
         scale = scale, 
         min_prop = min_prop, 
         verbose = verbose,
-        assay = assay_sp,
         slot = slot_sp,
         L1_nnls_topics = L1_nnls_topics,
         L2_nnls_topics = L2_nnls_topics,

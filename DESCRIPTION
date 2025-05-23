@@ -1,5 +1,5 @@
 Package: SPOTlight
-Version: 1.4.99
+Version: 2.0.0
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
 Description: `SPOTlight` provides a method to deconvolute spatial transcriptomics
@@ -43,8 +43,6 @@ Suggests:
   scater,
   scatterpie,
   scran,
-  Seurat,
-  SeuratObject,
   SpatialExperiment,
   SummarizedExperiment,
   S4Vectors,
@@ -60,7 +58,7 @@ biocViews:
   StatisticalMethod
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://github.com/MarcElosua/SPOTlight
 BugReports: https://github.com/MarcElosua/SPOTlight/issues

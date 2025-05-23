@@ -21,21 +21,20 @@ trainNMF(
   tol = 1e-05,
   maxit = 100,
   threads = 0,
-  assay_sc = "RNA",
   slot_sc = "counts",
   ...
 )
 }
 \arguments{
 \item{x}{single-cell dataset. Can be a numeric matrix, Can be a
-numeric matrix, \code{SingleCellExperiment} or \code{SeuratObjecy}.}
+numeric matrix or \code{SingleCellExperiment}.}
 
 \item{y}{Null if you want to train the model with all the genes in the SC
 data or a character vector with the rownames of the mixture dataset to 
 subset the gene set used to the intersection between them.}
 
 \item{groups}{character vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment} or \code{SeuratObject},
+When \code{x} is a \code{SingleCellExperiment}.,
 defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
 Make sure groups is not a Factor.}
 
@@ -73,14 +72,8 @@ distance between models across consecutive iterations (1e-5 is publication quali
 
 \item{threads}{number of threads to use, default 0 (all threads)}
 
-\item{assay_sc}{if the object is of Class \code{Seurat}, character string
-specifying the assay from which to extract the expression matrix.
-By default "RNA".}
-
-\item{slot_sc}{if the object is of Class \code{Seurat}, character string
-specifying the slot from which to extract the expression matrix. If the
-object is of class \code{SingleCellExperiment} indicates matrix to use.
-By default "counts".}
+\item{slot_sc}{If the object is of class \code{SingleCellExperiment} 
+indicates matrix to use. By default "counts".}
 
 \item{...}{additional parameters.}
 }
