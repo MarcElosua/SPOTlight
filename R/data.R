@@ -56,11 +56,13 @@ mockSC <- function(ng = 200, nc = 50, nt = 3) {
         )
         return(x)
     })
-    do.call(cbind, z)
+    zbind <- do.call(cbind, z)
+    colnames(zbind) <- make.unique(colnames(zbind))
+    zbind
 }
 
 #' @rdname data
-#' @param x Single cell experiment object ç
+#' @param x Single cell experiment object
 #' @importFrom Matrix rowSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @export
@@ -98,7 +100,7 @@ mockSP <- function(x, ns = 100) {
 }
 
 #' @rdname data
-#' @param n_top integer specifying the number of  
+#' @param n_top integer specifying the number of
 #'   marker genes to extract for each cluster.
 #' @importFrom Matrix colSums rowSums
 #' @importFrom SingleCellExperiment counts

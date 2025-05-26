@@ -11,6 +11,7 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
+<<<<<<< HEAD
   slot = "counts",
   L1_nnls_topics = 0,
   L2_nnls_topics = 0,
@@ -18,15 +19,26 @@ runDeconvolution(
   L2_nnls_prop = 0,
   threads = 0,
   ...
+=======
+  slot = "counts"
+>>>>>>> devel
 )
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
+<<<<<<< HEAD
 \code{SingleCellExperiment} or \code{SpatialExperiment}}
+=======
+\code{SingleCellExperiment} or \code{SpatialExperiment}.}
+>>>>>>> devel
 
 \item{mod}{object as obtained from trainNMF.}
 
+<<<<<<< HEAD
 \item{ref}{object of class matrix containing the topic profiles for each cell
+=======
+\item{ref}{Object of class matrix containing the topic profiles for each cell
+>>>>>>> devel
 type as obtained from trainNMF.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -40,6 +52,7 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
+<<<<<<< HEAD
 \item{slot}{If the object is of class \code{SpatialExperiment} indicates 
 matrix to use. By default "counts".}
 
@@ -57,6 +70,13 @@ Larger values remove "noisy" contributions more aggressively.}
 }
 \value{
 base a list where the first element is a list giving the NMF model and
+=======
+\item{slot}{If the object is of class \code{SpatialExperiment} indicates matrix to use.
+By default "counts".}
+}
+\value{
+base a list where the first element is an \code{NMFfit} object and
+>>>>>>> devel
   the second is a matrix containing the topic profiles learnt.
 }
 \description{

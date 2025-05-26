@@ -126,12 +126,12 @@ plotInteractions <- function(x,
     if (metric == "prop") {
 
         # Add tile layers
-        p <- p + geom_tile(aes_string("i", "j", fill = "pi")) +
-            geom_tile(aes_string("j", "i", fill = "pj"))
+        p <- p + geom_tile(aes(.data$i, .data$j, fill = .data$pi)) +
+            geom_tile(aes(.data$j, .data$i, fill = .data$pj))
             
     } else if (metric == "jaccard") {
         # Add tile layers - Jaccard
-        p <- p + geom_tile(aes_string("i", "j", fill = "jaccard"))
+        p <- p + geom_tile(aes(.data$i, .data$j, fill = .data$jaccard))
     }
 
     # Prettify the plot :)

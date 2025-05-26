@@ -36,19 +36,19 @@
 #'
 #' @examples
 #' set.seed(321)
-#' 
+#'
 #' # Coordinates
 #' x <- replicate(2, rnorm(100))
 #' rownames(x) <- paste0("spot", seq_len(nrow(x)))
 #' colnames(x) <- c("imagecol", "imagerow")
-#' 
+#'
 #' # Proportions
 #' y <- replicate(m <- 5, runif(nrow(x), 0, 1))
 #' y <- prop.table(y, 1)
-#' 
+#'
 #' rownames(y) <- paste0("spot", seq_len(nrow(y)))
 #' colnames(y) <- paste0("type", seq_len(ncol(y)))
-#' 
+#'
 #' (plt <- plotSpatialScatterpie(x = x, y = y))
 NULL
 
@@ -68,7 +68,7 @@ plotSpatialScatterpie <- function(
     ...) {
     # Check necessary packages are installed and if not STOP
     .test_installed("scatterpie")
-    
+
     # Class checks
     stopifnot(
         # Check x inputs
@@ -88,7 +88,7 @@ plotSpatialScatterpie <- function(
         is.numeric(degrees) | is.null(degrees),
         axis %in% c("h", "v") | is.null(axis)
     )
-    
+
     # If image is passed add it as the base layer, if not, no image
     # Need to use isFALSE bc img can have many different inputs
     # Set ymax to overlap image and piecharts
@@ -102,11 +102,11 @@ plotSpatialScatterpie <- function(
         # has been passed
         if (is(x, "SpatialExperiment") & isTRUE(img)) {
             img <- .extract_image(x, slice)
-            
+
             # Rotate or mirror image if dots don't overlay properly
             if (is(x, "SpatialExperiment")) {
                 .test_installed("SpatialExperiment")
-                
+
                 ## Rotate image if needed
                 if (!is.null(degrees)) {
                     .test_installed("grDevices")
@@ -116,7 +116,7 @@ plotSpatialScatterpie <- function(
                     img <- SpatialExperiment::rotateImg(img, degrees = degrees)
                     img <- grDevices::as.raster(img)
                 }
-                
+
                 ## Make mirror image if necessary
                 if (!is.null(axis)) {
                     .test_installed("grDevices")
@@ -128,34 +128,34 @@ plotSpatialScatterpie <- function(
                 }
             }
         }
-        
+
         p <- plotImage(x = img)
         ymax <- max(p$coordinates$limits$y)
     }
-    
+
     # Extract coordinate matrix from x
     if (!is.matrix(x))
         x <- .extract_coord(x = x, slice = slice, img = img)
 
     # Check colnames
     x <- .x_cnames(x)
-    
+
     # Convert y to matrix format
     if (!is.matrix(x)) {
         y <- as.matrix(x)
     }
-    
+
     # Stop if x and y don't have the same number of columns or if the
     # rownames are not common between them
     stopifnot(
         nrow(x) == nrow(y),
         all(rownames(x) %in% rownames(y)))
-    
+
     # merge by row names (by=0 or by="row.names")
     df <- merge(x, y, by = 0, all = TRUE)
     # make y negative
     df$coord_y_i <- abs(df$coord_y - ymax)
-    
+
     # Plot
     p + scatterpie::geom_scatterpie(
         data = df,
@@ -191,9 +191,9 @@ plotSpatialScatterpie <- function(
         # Convert to matrix
         x <- as.matrix(x)
     } else if (is(x, "SpatialExperiment")) {
-        
+
         .test_installed(c("SpatialExperiment"))
-        
+
         # Stop if there are no images or the name selected doesn't exist
         stopifnot(
             # Stop if there are no images
@@ -203,25 +203,25 @@ plotSpatialScatterpie <- function(
             # Return error if there are no colnames in the object
             !is.null(colnames(x))
         )
-        
+
         # If slice is null use the first slice
         img_df <- SpatialExperiment::imgData(x)
         if (is.null(slice))
             slice <- img_df[1, "sample_id"]
-        
+
         # Scale factor to scale the coordinates
         sf <- img_df[img_df$sample_id == slice, "scaleFactor"]
-        
+
         ## Extract spot barcodes
         barcodes <- colnames(x)
-        
+
         ## Extract spatial coordinates
         # coord_df <- SpatialExperiment::spatialCoords(x)
         x <- as.matrix(SpatialExperiment::spatialCoords(x)[, c(1, 2)])
-        
+
         ## Scale coordinates
         x <- x * sf
-        
+
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
         
@@ -231,5 +231,5 @@ plotSpatialScatterpie <- function(
             dataframe or matrix")
     }
     return(x)
-    
+
 }

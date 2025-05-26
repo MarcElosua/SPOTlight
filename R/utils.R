@@ -1,11 +1,16 @@
 #' @importFrom sparseMatrixStats rowSds
 .scale_uv <- function(x) {
     sds <- rowSds(x, na.rm = TRUE)
+<<<<<<< HEAD
     # TODO find a more efficient way of scaling the matrix
     # t1 <- t(scale(t(x), center = FALSE, scale = sds))
     # Scale by gene (each row by its sd) for unit variance
     t1 <- x / sds
     t1
+=======
+    # Scale by gene (each row by its sd) for unit variance
+    x / sds
+>>>>>>> devel
 }
 
 #' @importFrom Matrix Matrix
@@ -230,9 +235,16 @@
 # extracts the count/expression matrix specified and returns a matrix
 .extract_counts <- function(x, slot) {
     # Iterate over all the accepted classes and return expression matrix
+<<<<<<< HEAD
     
     # Extract count matrix from object
     if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
+=======
+    if (is(x, "dgCMatrix") | is(x, "DelayedMatrix")) {
+        # Convert to matrix
+        x <- as.matrix(x)
+    } else if (is(x, "SpatialExperiment") | is(x, "SingleCellExperiment")) {
+>>>>>>> devel
         .test_installed(c("SummarizedExperiment"))
         
         # Stop if there are no images or the name selected doesn't exist
@@ -244,6 +256,7 @@
             # Return error if there are no colnames in the object
             !is.null(colnames(x))
         )
+<<<<<<< HEAD
         ## Extract SCE-SE coordinates
         x <- SummarizedExperiment::assay(x, slot)
     }
@@ -262,6 +275,14 @@
         stop("Couldn't extract counts. Please check class(x) is a
         SingleCellExpriment, SpatialExperiment, matrix, DelayedMatrix
         or dgCMatrix.")
+=======
+        ## Extract gene expression matrix
+        x <- as.matrix(SummarizedExperiment::assay(x, slot))
+    } else {
+        stop("Couldn't extract gene expression matrix.
+            Please check class(x) is SpatialExperiment,
+            dataframe or matrix")
+>>>>>>> devel
     }
     return(x)
     
@@ -269,6 +290,7 @@
 
 # Take an array representing an image and plot it with ggplot2
 #' @import ggplot2
+#' @importFrom grid rasterGrob unit
 .plot_image <- function(x) {
     # Check necessary packages are installed and if not STOP
     .test_installed(c("grid", "ggplot2"))
@@ -314,7 +336,11 @@
             png = png::readPNG(x),
             jpeg::readJPEG(x))
         
+<<<<<<< HEAD
     } else if (is(x, "SpatialExperiment")) {
+=======
+        } else if (is(x, "SpatialExperiment")) {
+>>>>>>> devel
         
         .test_installed(c("SpatialExperiment"))
         
@@ -339,12 +365,19 @@
 
 # When assigning cells to groups in trainNMF and SPOTlight if groups is set to
 # NULL use the cell identities/labels. If it is not a Seurat or SCE return error
+#' @importFrom SingleCellExperiment colLabels
 .set_groups_if_null <- function(x) {
+<<<<<<< HEAD
 
     ## SCE ##
     if (is(x, "SingleCellExperiment")) {
         # Extract idents
         idents <- SingleCellExperiment::colLabels(x)
+=======
+    if (is(x, "SingleCellExperiment")) {
+        # Extract idents
+        idents <- colLabels(x)
+>>>>>>> devel
         if (is.null(idents)) {
             stop("SingleCellExperiment::colLabels(x) is NULL")
         } else {

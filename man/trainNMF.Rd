@@ -16,16 +16,22 @@ trainNMF(
   hvg = NULL,
   scale = TRUE,
   verbose = TRUE,
+<<<<<<< HEAD
   L1_nmf = 0,
   L2_nmf = 0,
   tol = 1e-05,
   maxit = 100,
   threads = 0,
   slot_sc = "counts",
+=======
+  slot_sc = "counts",
+  slot_sp = "counts",
+>>>>>>> devel
   ...
 )
 }
 \arguments{
+<<<<<<< HEAD
 \item{x}{single-cell dataset. Can be a numeric matrix, Can be a
 numeric matrix or \code{SingleCellExperiment}.}
 
@@ -37,6 +43,14 @@ subset the gene set used to the intersection between them.}
 When \code{x} is a \code{SingleCellExperiment}.,
 defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
 Make sure groups is not a Factor.}
+=======
+\item{x, y}{single-cell and mixture dataset, respectively. Can be a
+numeric matrix or \code{SingleCellExperiment}.}
+
+\item{groups}{character vector of group labels for cells in \code{x}.
+When \code{x} is a \code{SingleCellExperiment},
+defaults to \code{colLabels(x)}. Make sure groups is not a Factor.}
+>>>>>>> devel
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -59,6 +73,7 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
+<<<<<<< HEAD
 \item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
 larger values increase sparsity of each factor}
 
@@ -73,14 +88,22 @@ distance between models across consecutive iterations (1e-5 is publication quali
 \item{threads}{number of threads to use, default 0 (all threads)}
 
 \item{slot_sc}{If the object is of class \code{SingleCellExperiment} 
+=======
+\item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
+>>>>>>> devel
 indicates matrix to use. By default "counts".}
 
 \item{...}{additional parameters.}
 }
 \value{
+<<<<<<< HEAD
 a list where the first element is a list with the NMF model
   information and the second is a matrix containing the topic profiles
   learnt per cell type.
+=======
+base a list where the first element is an \code{NMFfit} object and
+  the second is a matrix containing the topic profiles learnt.
+>>>>>>> devel
 }
 \description{
 This is the training function used by SPOTLight. This function
