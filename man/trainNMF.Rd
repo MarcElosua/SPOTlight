@@ -6,7 +6,7 @@
 \usage{
 trainNMF(
   x,
-  y,
+  y = NULL,
   groups = NULL,
   mgs,
   n_top = NULL,
@@ -14,21 +14,29 @@ trainNMF(
   group_id = "cluster",
   weight_id = "weight",
   hvg = NULL,
-  model = c("ns", "std"),
   scale = TRUE,
   verbose = TRUE,
+  L1_nmf = 0,
+  L2_nmf = 0,
+  tol = 1e-05,
+  maxit = 100,
+  threads = 0,
   slot_sc = "counts",
-  slot_sp = "counts",
   ...
 )
 }
 \arguments{
-\item{x, y}{single-cell and mixture dataset, respectively. Can be a
+\item{x}{single-cell dataset. Can be a numeric matrix, Can be a
 numeric matrix or \code{SingleCellExperiment}.}
 
+\item{y}{Null if you want to train the model with all the genes in the SC
+data or a character vector with the rownames of the mixture dataset to 
+subset the gene set used to the intersection between them.}
+
 \item{groups}{character vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment},
-defaults to \code{colLabels(x)}. Make sure groups is not a Factor.}
+When \code{x} is a \code{SingleCellExperiment}.,
+defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
+Make sure groups is not a Factor.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -44,9 +52,6 @@ respectively.}
 \item{hvg}{character vector containing hvg to include in the model.
 By default NULL.}
 
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
-
 \item{scale}{logical specifying whether to scale single-cell counts to unit
 variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
@@ -54,14 +59,28 @@ slot from where to extract the count data.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
+\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
+larger values increase sparsity of each factor}
+
+\item{L2_nmf}{RUDGE penalty >0 for NMF,
+larger values increase angle between factors and thus sparsity.}
+
+\item{tol}{tolerance of the NMF model at convergence, the Pearson correlation 
+distance between models across consecutive iterations (1e-5 is publication quality)}
+
+\item{maxit}{maximum number of NMF iterations for fitting}
+
+\item{threads}{number of threads to use, default 0 (all threads)}
+
+\item{slot_sc}{If the object is of class \code{SingleCellExperiment} 
 indicates matrix to use. By default "counts".}
 
 \item{...}{additional parameters.}
 }
 \value{
-base a list where the first element is an \code{NMFfit} object and
-  the second is a matrix containing the topic profiles learnt.
+a list where the first element is a list with the NMF model
+  information and the second is a matrix containing the topic profiles
+  learnt per cell type.
 }
 \description{
 This is the training function used by SPOTLight. This function
@@ -77,7 +96,7 @@ mgs <- getMGS(sce)
 
 res <- trainNMF(
     x = sce,
-    y = spe,
+    y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",

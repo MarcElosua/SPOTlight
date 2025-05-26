@@ -97,7 +97,7 @@ plotSpatialScatterpie <- function(
             coord_fixed()
         ymax <- 0
     } else {
-        # Extract image from Seurat or SE objects when img is TRUE
+        # Extract image from SE objects when img is TRUE
         # If image is not TRUE and not FALSE an acceptable class for plotImage
         # has been passed
         if (is(x, "SpatialExperiment") & isTRUE(img)) {
@@ -159,9 +159,9 @@ plotSpatialScatterpie <- function(
     # Plot
     p + scatterpie::geom_scatterpie(
         data = df,
-        aes_string(
-            x = "coord_x",
-            y = "coord_y_i"
+        aes(
+            x = .data[["coord_x"]],
+            y = .data[["coord_y_i"]]
         ),
         cols = cell_types,
         color = NA,
@@ -224,6 +224,7 @@ plotSpatialScatterpie <- function(
 
         ## Add barcodes to coord matrix & change colnames
         rownames(x) <- barcodes
+        
     } else {
         stop("Couldn't extract image coordinates.
             Please check class(x) is SpatialExperiment,

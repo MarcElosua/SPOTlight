@@ -7,8 +7,9 @@
 #'   \code{facet = TRUE}. Ideal training will return all the cell from the same
 #'   cell type to share a unique topic profile.
 #'
-#' @param x \code{\link{NMFfit}} object
-#' @param y vector of group labels. Should be of length \code{ncol(coef(x))}.
+#' @param x \code{list} object obtained from \code{SPOTlight}.
+#' @param y vector of group labels. Should be of length
+#'   \code{ncol(res_lvl1$NMF$h)}.
 #' @param facet logical indicating whether to stratify by group.
 #'   If \code{FALSE} (default), weights will be the median across cells
 #'   for each group (point = topic weight for a given cell type).
@@ -39,8 +40,7 @@
 NULL
 
 #' @rdname plotTopicProfiles
-#' @importFrom NMF coef
-#' @importFrom stats aggregate
+#' @importFrom stats aggregate median
 #' @import ggplot2
 #' @export
 plotTopicProfiles <- function(
@@ -49,49 +49,40 @@ plotTopicProfiles <- function(
     facet = FALSE,
     min_prop = 0.01,
     ncol = NULL) {
-    
     # Convert y to character
     y <- as.character(y)
     
     # check validity of input arguments
     stopifnot(
-        is(x, "NMFfit"),
+        is(x, "list"),
+        all(sort(names(x)) == sort(c("w", "d", "h"))),
         is.character(y),
-        length(y) == ncol(coef(x)),
+        length(y) == ncol(x$h),
         setequal(
-            colnames(basis(x)), paste0("topic_", seq_len(length(unique(y))))
+            colnames(x$w), paste0("topic_", seq_len(length(unique(y))))
             ),
         is.logical(facet), length(facet) == 1,
-        is.numeric(min_prop), length(min_prop) == 1)
+        is.numeric(min_prop), length(min_prop) == 1,
+        is.null(ncol) | (is.numeric(ncol) & length(ncol) == 1))
     
-    # get group proportions
-    mat <- prop.table(t(coef(x)), 1)
-
+    # get proportion of topic contribution by cell
+    mat <- prop.table(t(x$h), 1)
+    df <- data.frame(
+        id = seq_len(nrow(mat)),
+        weight = c(mat),
+        group = rep(y, ncol(mat)),
+        topic = rep(seq_len(ncol(mat)), each = nrow(mat)))
     if (facet) {
-        # stretch for plotting
-        df <- data.frame(
-            id = seq_len(nrow(mat)),
-            weight = c(mat),
-            group = rep(y, ncol(mat)),
-            topic = rep(seq_len(ncol(mat)), each = nrow(mat)))
-
         # drop cells with 'weight < min_prop'
         df <- df[df$weight >= min_prop, ]
-
+        
         # set aesthetics
         x <- "id"
         f <- facet_wrap(~group, ncol = ncol, scales = "free_x")
     } else {
         # get topic medians
-        df <- aggregate(mat, list(y), median)[, -1]
-        rownames(df) <- unique(y)
+        df <- aggregate(weight ~ group + topic, data = df, FUN = median)
         
-        # stretch for plotting
-        df <- data.frame(
-            weight = unlist(df),
-            group = rep(rownames(df), each = nrow(df)),
-            topic = rep(seq_len(nrow(df)), ncol(df)))
-
         # set aesthetics
         x <- "group"
         f <- NULL

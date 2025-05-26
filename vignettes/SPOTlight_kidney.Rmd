@@ -12,6 +12,11 @@ author:
   - &IMLS Institute for Molecular Life Sciences, University of Zurich, Switzerland
   - &SIB SIB Swiss Institute of Bioinformatics, University of Zurich, Switzerland
   email: helena.crowell@uzh.ch
+- name: Zach DeBruine
+  affiliation:
+  - &VAI Van Andel Institue
+  email: Zach.DeBruine@vai.edu
+
 abstract: > 
   <p> Spatially resolved gene expression profiles are key to understand tissue organization and function. However, novel spatial transcriptomics (ST) profiling techniques lack single-cell resolution and require a combination with single-cell RNA sequencing (scRNA-seq) information to deconvolute the spatially indexed datasets. Leveraging the strengths of both data types, we developed SPOTlight, a computational tool that enables the integration of ST with scRNA-seq data to infer the location of cell types and states within a complex tissue. SPOTlight is centered around a seeded non-negative matrix factorization (NMF) regression, initialized using cell-type marker genes and non-negative least squares (NNLS) to subsequently deconvolute ST capture locations (spots).
 package: "`r BiocStyle::pkg_ver('SPOTlight')`"
@@ -81,7 +86,8 @@ where rows = genes and columns = cells.
 expression matrix.
 
 Data inputs can also be objects of class `r Biocpkg("SpatialExperiment")` (SE),
-or `r Biocpkg("SingleCellExperiment")` (SCE).
+`r Biocpkg("SingleCellExperiment")` (SCE) objects from
+which the minimal data will be extracted.
 
 # Getting started
 
@@ -235,7 +241,7 @@ idx <- split(seq(ncol(sce)), sce$free_annotation)
 # downsample to at most 20 per identity & subset
 # We are using 5 here to speed up the process but set to 75-100 for your real
 # life analysis
-n_cells <- 5
+n_cells <- 50
 cs_keep <- lapply(idx, function(i) {
     n <- length(i)
     if (n < n_cells)
@@ -294,14 +300,14 @@ res <- SPOTlight(
 
 Alternatively you can run `SPOTlight` in two steps so that you can have the trained model. Having the trained model allows you to reuse with other datasets you also want to deconvolute with the same reference. This allows you to skip the training step, the most time consuming and computationally expensive.
 
-```{r SPOTligh2, eval=FALSE}
+```{r SPOTlight2, eval=FALSE}
 mod_ls <- trainNMF(
     x = sce,
-    y = spe,
-    groups = sce$type,
-    mgs = mgs,
-    weight_id = "weight",
-    group_id = "type",
+    groups = sce$free_annotation,
+    mgs = mgs_df,
+    hvg = hvg,
+    weight_id = "mean.AUC",
+    group_id = "cluster",
     gene_id = "gene")
 
  # Run deconvolution
@@ -361,9 +367,9 @@ In the below table we can see how the top genes for `Topic1` are characteristic
 for B cells (i.e. *Cd79a*, *Cd79b*, *Ms4a1*...).
 
 ```{r basis-dt, message=FALSE, warning=FALSE}
-library(NMF)
-sign <- basis(mod)
-colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
+# library(NMF)
+sign <- mod$w
+# colnames(sign) <- paste0("Topic", seq_len(ncol(sign)))
 head(sign)
 # This can be dynamically visualized with DT as shown below
 # DT::datatable(sign, fillContainer = TRUE, filter = "top")

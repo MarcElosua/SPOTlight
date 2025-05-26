@@ -50,6 +50,7 @@ NULL
 
 #' @rdname plotCorrelationMatrix
 #' @importFrom Matrix colSums
+#' @importFrom stats cor median
 #' @import ggplot2
 #' @export
 

@@ -33,7 +33,7 @@ plotImage <- function(x, slice = NULL) {
     # check validity of input arguments
     stopifnot(
         # Check for valid x classes
-        is.matrix(x) | is.character(x) | is.array(x) | is(x, "rastergrob") |
+        is.matrix(x) | is.character(x) | is.array(x) | is(x, "rastergrob") | 
             is(x, "SpatialExperiment"),
         # Check for valid slice classes
         is.null(slice) | is.character(slice))

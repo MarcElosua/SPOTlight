@@ -15,21 +15,30 @@ SPOTlight(
   weight_id = "weight",
   hvg = NULL,
   scale = TRUE,
-  model = c("ns", "std"),
   min_prop = 0.01,
   verbose = TRUE,
   slot_sc = "counts",
   slot_sp = "counts",
+  L1_nmf = 0,
+  L2_nmf = 0,
+  maxit = 100,
+  threads = 0,
+  tol = 1e-05,
+  L1_nnls_topics = 0,
+  L2_nnls_topics = 0,
+  L1_nnls_prop = 0,
+  L2_nnls_prop = 0,
   ...
 )
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
-numeric matrix or a \code{SingleCellExperiment}.}
+numeric matrix or \code{SingleCellExperiment}..}
 
-\item{groups}{vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment} ,
-defaults to \code{colLabels}, respectively.}
+\item{groups}{character vector of group labels for cells in \code{x}.
+When \code{x} is a \code{SingleCellExperiment}.,
+defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
+Make sure groups is not a Factor.}
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -50,9 +59,6 @@ variance. This gives the user the option to normalize the data beforehand
 as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
 slot from where to extract the count data.}
 
-\item{model}{character string indicating which model to use when running NMF.
-Either "ns" (default) or "std".}
-
 \item{min_prop}{scalar in [0,1] setting the minimum contribution
 expected from a cell type in \code{x} to observations in \code{y}.
 By default 0.}
@@ -60,7 +66,28 @@ By default 0.}
 \item{verbose}{logical. Should information on progress be reported?}
 
 \item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
-indicates matrix to use.By default "counts".}
+indicates matrix to use. By default "counts".}
+
+\item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
+larger values increase sparsity of each factor}
+
+\item{L2_nmf}{RUDGE penalty >0 for NMF,
+larger values increase angle between factors and thus sparsity.}
+
+\item{maxit}{maximum number of NMF iterations for fitting}
+
+\item{threads}{number of threads to use, default 0 (all threads)}
+
+\item{tol}{tolerance of the NMF model at convergence, the Pearson correlation 
+distance between models across consecutive iterations (1e-5 is publication quality)}
+
+\item{L1_nnls_topics, L1_nnls_prop}{LASSO penalty in the range (0, 1] for NNLS
+when computing cell type topic profiles and cell type proportions
+respectively. Larger values remove "noisy" contributions more aggressively.}
+
+\item{L2_nnls_topics, L2_nnls_prop}{RIDGE penalty >0 for NNLS when computing
+cell type topic profiles and cell type proportions respectively.
+Larger values remove "noisy" contributions more aggressively.}
 
 \item{...}{additional parameters.}
 }
@@ -105,5 +132,5 @@ res <- SPOTlight(
     gene_id = "gene")
 }
 \author{
-Marc Elosua-Bayes & Helena L. Crowell
+Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 }

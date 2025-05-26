@@ -7,9 +7,10 @@
 plotTopicProfiles(x, y, facet = FALSE, min_prop = 0.01, ncol = NULL)
 }
 \arguments{
-\item{x}{\code{\link{NMFfit}} object}
+\item{x}{\code{list} object obtained from \code{SPOTlight}.}
 
-\item{y}{vector of group labels. Should be of length \code{ncol(coef(x))}.}
+\item{y}{vector of group labels. Should be of length
+\code{ncol(res_lvl1$NMF$h)}.}
 
 \item{facet}{logical indicating whether to stratify by group.
 If \code{FALSE} (default), weights will be the median across cells

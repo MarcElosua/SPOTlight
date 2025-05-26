@@ -11,16 +11,22 @@ runDeconvolution(
   scale = TRUE,
   min_prop = 0.01,
   verbose = TRUE,
-  slot = "counts"
+  slot = "counts",
+  L1_nnls_topics = 0,
+  L2_nnls_topics = 0,
+  L1_nnls_prop = 0,
+  L2_nnls_prop = 0,
+  threads = 0,
+  ...
 )
 }
 \arguments{
 \item{x}{mixture dataset. Can be a numeric matrix,
-\code{SingleCellExperiment} or \code{SpatialExperiment}.}
+\code{SingleCellExperiment} or \code{SpatialExperiment}}
 
-\item{mod}{object of class NMFfit as obtained from trainNMF.}
+\item{mod}{object as obtained from trainNMF.}
 
-\item{ref}{Object of class matrix containing the topic profiles for each cell
+\item{ref}{object of class matrix containing the topic profiles for each cell
 type as obtained from trainNMF.}
 
 \item{scale}{logical specifying whether to scale single-cell counts to unit
@@ -34,11 +40,23 @@ By default 0.}
 
 \item{verbose}{logical. Should information on progress be reported?}
 
-\item{slot}{If the object is of class \code{SpatialExperiment} indicates matrix to use.
-By default "counts".}
+\item{slot}{If the object is of class \code{SpatialExperiment} indicates 
+matrix to use. By default "counts".}
+
+\item{L1_nnls_topics, L1_nnls_prop}{LASSO penalty in the range (0, 1] for NNLS
+when computing cell type topic profiles and cell type proportions
+respectively. Larger values remove "noisy" contributions more aggressively.}
+
+\item{L2_nnls_topics, L2_nnls_prop}{RIDGE penalty >0 for NNLS when computing
+cell type topic profiles and cell type proportions respectively.
+Larger values remove "noisy" contributions more aggressively.}
+
+\item{threads}{number of threads to use, default 0 (all threads)}
+
+\item{...}{additional parameters.}
 }
 \value{
-base a list where the first element is an \code{NMFfit} object and
+base a list where the first element is a list giving the NMF model and
   the second is a matrix containing the topic profiles learnt.
 }
 \description{
@@ -55,7 +73,7 @@ mgs <- getMGS(sce)
 
 res <- trainNMF(
     x = sce,
-    y = spe,
+    y = rownames(spe),
     groups = sce$type,
     mgs = mgs,
     weight_id = "weight",
@@ -68,5 +86,5 @@ decon <- runDeconvolution(
     ref = res[["topic"]])
 }
 \author{
-Marc Elosua Bayes & Helena L Crowell
+Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 }

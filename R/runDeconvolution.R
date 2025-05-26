@@ -9,26 +9,18 @@
 #'    mixture
 #'
 #' @param x mixture dataset. Can be a numeric matrix,
-#'   \code{SingleCellExperiment} or \code{SpatialExperiment}.
-#' @param mod object of class NMFfit as obtained from trainNMF.
-#' @param ref Object of class matrix containing the topic profiles for each cell
+#'   \code{SingleCellExperiment} or \code{SpatialExperiment}
+#' @param mod object as obtained from trainNMF.
+#' @param ref object of class matrix containing the topic profiles for each cell
 #'  type as obtained from trainNMF.
-#' @param scale logical specifying whether to scale single-cell counts to unit
-#'   variance. This gives the user the option to normalize the data beforehand
-#'   as you see fit (CPM, FPKM, ...) when passing a matrix or specifying the
-#'   slot from where to extract the count data.
-#' @param min_prop scalar in [0,1] setting the minimum contribution
-#'   expected from a cell type in \code{x} to observations in \code{y}.
-#'   By default 0.
-#' @param slot If the object is of class \code{SpatialExperiment} indicates matrix to use.
-#'   By default "counts".
-#' @param verbose logical. Should information on progress be reported?
+#' @param slot If the object is of class \code{SpatialExperiment} indicates 
+#'   matrix to use. By default "counts".
+#' @inheritParams SPOTlight
 #'
-#'
-#' @return base a list where the first element is an \code{NMFfit} object and
+#' @return base a list where the first element is a list giving the NMF model and
 #'   the second is a matrix containing the topic profiles learnt.
 #'
-#' @author Marc Elosua Bayes & Helena L Crowell
+#' @author Marc Elosua Bayes, Zach DeBruine, and Helena L Crowell
 #'
 #' @examples
 #' set.seed(321)
@@ -39,7 +31,7 @@
 #'
 #' res <- trainNMF(
 #'     x = sce,
-#'     y = spe,
+#'     y = rownames(spe),
 #'     groups = sce$type,
 #'     mgs = mgs,
 #'     weight_id = "weight",
@@ -53,7 +45,7 @@
 NULL
 
 #' @rdname runDeconvolution
-#' @importFrom nnls nnls
+#' @importFrom Matrix colSums
 #' @export
 runDeconvolution <- function(
     x,
@@ -62,7 +54,13 @@ runDeconvolution <- function(
     scale = TRUE,
     min_prop = 0.01,
     verbose = TRUE,
-    slot = "counts") {
+    slot = "counts",
+    L1_nnls_topics = 0,
+    L2_nnls_topics = 0,
+    L1_nnls_prop = 0,
+    L2_nnls_prop = 0,
+    threads = 0,
+    ...) {
 
     # Class checks
     stopifnot(
@@ -71,7 +69,7 @@ runDeconvolution <- function(
             is(x, "SingleCellExperiment") |
             is(x, "SpatialExperiment"),
         # Check mod inputs
-        is(mod, "NMFfit"),
+        is.list(mod),
         # check ref
         is.matrix(ref),
         # Check slot name
@@ -82,7 +80,6 @@ runDeconvolution <- function(
         # Check min_prop numeric
         is.numeric(min_prop), length(min_prop) == 1,
         min_prop >= 0, min_prop <= 1
-
     )
 
     # Extract expression matrix
@@ -90,33 +87,45 @@ runDeconvolution <- function(
         x <- .extract_counts(x, slot)
 
     # Get topic profiles for mixtures
-    mat <- .pred_prop(x, mod, scale)
+    mat <- .pred_hp(
+        x = x, mod = mod, scale = scale, verbose = verbose,
+        L1_nnls = L1_nnls_topics, L2_nnls = L2_nnls_topics, threads = threads)
+    
+    if (verbose) message("Deconvoluting mixture data...")
+    # Need to scale because the matrix is also scaled to 1 with the RCPP
+    # approach to speed it up
+    ref_scale <- t(t(ref) / colSums(ref))
+    # Check if there is a column with all NAs after scaling -
+    # happens when whole column is 0s
+    ref_na <- is.na(ref_scale)
+    if (sum(ref_na) > 1)
+        # Set topics with NAs as all 0s
+        ref_scale[, which(colSums(ref_na) == nrow(ref_na))] <- 0
+    
+    # The below predict_nmf function does the equivalent to
+    # pred <- t(mat) %*% t(ref_scale)
+    pred <- predict_nmf(
+        A_ = as(mat, "dgCMatrix"),
+        w = ref_scale,
+        L1 = L1_nnls_prop,
+        L2 = L2_nnls_prop,
+        threads = threads)
+    rownames(pred) <- rownames(ref_scale)
+    colnames(pred) <- colnames(mat)
 
-    if (verbose) message("Deconvoluting mixture data")
+    # Proportions within each spot
+    res <- prop.table(pred, 2)
 
-    res <- vapply(seq_len(ncol(mat)), function(i) {
-        pred <- nnls::nnls(ref, mat[, i])
-        prop <- prop.table(pred$x)
-        # drop groups that fall below 'min_prop' & update
-        prop[prop < min_prop] <- 0
-        prop <- prop.table(prop)
-        # compute residual sum of squares
-        ss <- sum(mat[, i]^2)
-        # compute percentage of unexplained residuals
-        err <- pred$deviance / ss
-        c(prop, err)
-    }, numeric(ncol(ref) + 1))
-
-    # set dimension names
-    # rownames come from the reference
-    rownames(res) <- c(rownames(ref), "res_ss")
-    colnames(res) <- colnames(mat)
-
-    # Separate residuals from proportions
-    # Extract residuals
-    err <- res["res_ss", ]
-    # Extract only deconvolution matrices
-    res <- res[-nrow(res), ]
+    # 1- t(ref_scale) %*% pred map pred to mat using ref_scale
+    # 2- Check the differences between the original and re-mapped matrix
+    # 3- sum the errors for each spot (column)
+    # t(ref_scale) is a topic x celltype matrix
+    # pred is a celltype x spot matrix
+    # mat is a topic x spot matrix
+    err_mat <- (mat - ref_scale %*% pred)^2
+    err <- colSums(err_mat) / colSums(mat)^2
+    # names(err) <- colnames(res)
 
     return(list("mat" = t(res), "res_ss" = err))
 }
+

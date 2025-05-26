@@ -1,8 +1,8 @@
 Package: SPOTlight
-Version: 1.12.0
+Version: 2.1.1
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
-Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
+Description: `SPOTlight` provides a method to deconvolute spatial transcriptomics
     spots using a seeded NMF approach along with visualization tools to assess
     the results. Spatially resolved gene expression profiles are key to
     understand tissue organization and function. However, novel spatial 
@@ -17,14 +17,12 @@ Description: `SPOTlight`provides a method to deconvolute spatial transcriptomics
     (NNLS) to subsequently deconvolute ST capture locations (spots).
 Authors@R: c(
   person("Marc", "Elosua-Bayes", email="elosua.marc@gmail.com", role=c("aut", "cre")),
+  person("Zachary", "DeBruine", email="zacharydebruine@gmail.com", role="aut"),
   person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))
 Depends: R (>= 4.1)
 Imports:
   ggplot2,
-  NMF,
   Matrix,
-  matrixStats,
-  nnls,
   SingleCellExperiment,
   sparseMatrixStats,
   stats
@@ -52,13 +50,16 @@ Suggests:
   TabulaMurisSenisData,
   TENxVisiumData,
   testthat
+LinkingTo: 
+    Rcpp, 
+    RcppEigen
 biocViews: 
   SingleCell, 
   Spatial,
   StatisticalMethod
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://github.com/MarcElosua/SPOTlight
 BugReports: https://github.com/MarcElosua/SPOTlight/issues
