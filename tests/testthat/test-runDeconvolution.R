@@ -8,15 +8,6 @@ spe1 <- SpatialExperiment::SpatialExperiment(
     assay = list(counts = SingleCellExperiment::counts(spe)),
     colData = SummarizedExperiment::colData(spe))
 
-<<<<<<< HEAD
-=======
-# Create dummy Seurat object
-# sec <- suppressWarnings(SeuratObject::CreateSeuratObject(
-#     counts = SingleCellExperiment::counts(sce)))
-# sep <- suppressWarnings(SeuratObject::CreateSeuratObject(
-#     counts = SingleCellExperiment::counts(spe)))
-
->>>>>>> devel
 # Function to run the checks
 .checks <- function(decon, sce, spe) {
     mtr <- decon[[1]]
@@ -68,26 +59,9 @@ test_that("runDeconvolution x SPE", {
         ref = res[["topic"]]
     )
     
-<<<<<<< HEAD
     .checks(decon, sce, spe)
 })
-=======
-    .checks(decon, sce)
-})
 
-# runDeconvolution with Seurat ----
-# test_that("runDeconvolution x SEP", {
-#     decon <- runDeconvolution(
-#         x = sep,
-#         mod = res[["mod"]],
-#         ref = res[["topic"]],
-#         assay = "RNA",
-#         slot = "counts"
-#     )
-#     
-#     .checks(decon, sce)
-# })
->>>>>>> devel
 
 # runDeconvolution with sparse matrix sp ----
 test_that("runDeconvolution x dgCMatrix SP", {

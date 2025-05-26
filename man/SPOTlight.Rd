@@ -33,20 +33,12 @@ SPOTlight(
 }
 \arguments{
 \item{x, y}{single-cell and mixture dataset, respectively. Can be a
-<<<<<<< HEAD
 numeric matrix or \code{SingleCellExperiment}..}
 
 \item{groups}{character vector of group labels for cells in \code{x}.
 When \code{x} is a \code{SingleCellExperiment}.,
 defaults to \code{colLabels(x)} and \code{Idents(x)}, respectively.
 Make sure groups is not a Factor.}
-=======
-numeric matrix or a \code{SingleCellExperiment}.}
-
-\item{groups}{vector of group labels for cells in \code{x}.
-When \code{x} is a \code{SingleCellExperiment} ,
-defaults to \code{colLabels}, respectively.}
->>>>>>> devel
 
 \item{mgs}{\code{data.frame} or \code{DataFrame} of marker genes.
 Must contain columns holding gene identifiers, group labels and
@@ -74,7 +66,6 @@ By default 0.}
 \item{verbose}{logical. Should information on progress be reported?}
 
 \item{slot_sc, slot_sp}{If the object is of class \code{SingleCellExperiment}
-<<<<<<< HEAD
 indicates matrix to use. By default "counts".}
 
 \item{L1_nmf}{LASSO penalty in the range (0, 1] for NMF,
@@ -97,9 +88,6 @@ respectively. Larger values remove "noisy" contributions more aggressively.}
 \item{L2_nnls_topics, L2_nnls_prop}{RIDGE penalty >0 for NNLS when computing
 cell type topic profiles and cell type proportions respectively.
 Larger values remove "noisy" contributions more aggressively.}
-=======
-indicates matrix to use.By default "counts".}
->>>>>>> devel
 
 \item{...}{additional parameters.}
 }

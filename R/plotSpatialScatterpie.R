@@ -159,9 +159,9 @@ plotSpatialScatterpie <- function(
     # Plot
     p + scatterpie::geom_scatterpie(
         data = df,
-        aes_string(
-            x = "coord_x",
-            y = "coord_y_i"
+        aes(
+            x = .data[["coord_x"]],
+            y = .data[["coord_y_i"]]
         ),
         cols = cell_types,
         color = NA,
