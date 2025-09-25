@@ -1,5 +1,5 @@
 Package: SPOTlight
-Version: 1.12.1
+Version: 1.12.2
 Type: Package
 Title: `SPOTlight`: Spatial Transcriptomics Deconvolution
 Description: `SPOTlight` provides a method to deconvolute spatial transcriptomics
@@ -19,7 +19,7 @@ Authors@R: c(
   person("Marc", "Elosua-Bayes", email="elosua.marc@gmail.com", role=c("aut", "cre")),
   person("Zachary", "DeBruine", email="zacharydebruine@gmail.com", role="aut"),
   person("Helena L.", "Crowell", email="helena@crowell.eu", role="aut"))
-Depends: R (>= 4.1)
+Depends: R (>= 4.5.0)
 Imports:
   ggplot2,
   Matrix,

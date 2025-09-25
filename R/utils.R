@@ -124,6 +124,23 @@
 #'     return(W)
 #' }
 
+#' Filter features from expression matrix
+#'
+#' Remove undetected features and optionally keep only shared features
+#' between the expression matrix and a reference set of features.
+#'
+#' @param x Expression matrix to filter
+#' @param y Vector of feature names to keep (optional)
+#'
+#' @return Filtered expression matrix
+#'
+#' @details This function:
+#' \itemize{
+#' \item Removes features with zero expression across all samples
+#' \item Optionally filters to keep only features present in both datasets
+#' \item Ensures a minimum of 10 features remain after filtering
+#' }
+#'
 #' @importFrom Matrix Matrix rowSums
 .filter <- function(x, y) {
     # remove undetected features
