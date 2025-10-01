@@ -17,7 +17,7 @@ test_that("plotSpatialScatterpie with matrix and bad colnames", {
         x = x,
         y = y
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 colnames(x) <- c("imagecol", "imagerow")
@@ -27,7 +27,7 @@ test_that("plotSpatialScatterpie with matrix and bad colnames", {
         x = x,
         y = y
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 # plotSpatialScatterpie() ----
@@ -37,7 +37,7 @@ test_that("plotSpatialScatterpie - image", {
         y = y,
         img = img
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 # plotSpatialScatterpie() ----
@@ -47,7 +47,7 @@ test_that("plotSpatialScatterpie - type subset", {
         y = y,
         cell_types = colnames(y)[seq_len(3)]
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 # plotSpatialScatterpie() ----
@@ -58,7 +58,7 @@ test_that("plotSpatialScatterpie - alpha", {
         scatterpie_alpha = 0.5
     )
 
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
     expect_lt(plt$layers[[1]]$aes_params$alpha, 1)
 })
 
@@ -69,7 +69,7 @@ test_that("plotSpatialScatterpie - pie_scale", {
         y = y,
         pie_scale = 0.1
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 library(SpatialExperiment)
@@ -87,7 +87,7 @@ test_that("plotSpatialScatterpie - image", {
         y = spe_y,
         img = TRUE
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
     # Make sure there is an image
     expect_true(is(plt$layers[[1]]$geom, "GeomCustomAnn"))
 })
@@ -99,7 +99,7 @@ test_that("plotSpatialScatterpie - spots on image", {
         y = spe_y,
         img = TRUE
     )
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
     # Make sure there is an image
     expect_true(is(plt$layers[[1]]$geom, "GeomCustomAnn"))
     

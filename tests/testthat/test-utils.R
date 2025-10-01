@@ -134,13 +134,13 @@ test_that(".plot_image() SPE", {
     img <- .extract_image(x_path)
     plt <- .plot_image(img)
     expect_true(is.array(img))
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 test_that(".plot_image() SPE", {
     img <- .extract_image(spe)
     plt <- .plot_image(img)
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
     expect_true(is.matrix(img))
 })
 

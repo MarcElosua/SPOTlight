@@ -8,7 +8,7 @@ test_that("plotImage path", {
     # image
     x <- x_path
     plt <- plotImage(x = x)
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
 
@@ -17,7 +17,7 @@ test_that("plotImage array", {
     # image
     x <- png::readPNG(x_path)
     plt <- plotImage(x = x)
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 # Can't run this on Bioconductor since it doesn't accept github packages
 # test_that("plotImage Seurat", {
@@ -46,6 +46,6 @@ test_that("plotImage SPE", {
 
     plt <- plotImage(x = x)
 
-    expect_equal(class(plt)[1], "gg")
+    expect_true(is_ggplot(plt))
 })
 
