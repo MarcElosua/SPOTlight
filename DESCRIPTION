@@ -59,7 +59,7 @@ biocViews:
   StatisticalMethod
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 URL: https://github.com/MarcElosua/SPOTlight
 BugReports: https://github.com/MarcElosua/SPOTlight/issues
