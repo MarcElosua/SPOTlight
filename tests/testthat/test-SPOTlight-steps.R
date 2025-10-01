@@ -1,6 +1,6 @@
 library(SPOTlight)
 library(SingleCellExperiment)
-library(RcppML)
+# library(RcppML)
 set.seed(321)
 # mock up some single-cell, mixture & marker data
 sce <- mockSC(ng = 200, nc = 10, nt = 3)
